@@ -99,7 +99,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
-function s.tgfilter(c)
+function s.rmfilter(c)
 	return c:IsCode(9947500) and c:IsAbleToRemoveAsCost()
 end
 function s.tgcost(e,tp,eg,ep,ev,re,r,rp,chk)
