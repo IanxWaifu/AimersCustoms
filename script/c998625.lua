@@ -24,7 +24,9 @@ function s.initial_effect(c)
 	e2:SetTarget(s.tdtg)
 	e2:SetOperation(s.tdop)
 	c:RegisterEffect(e2)
-end				
+end
+s.fit_monster={998610,998615} --should be removed in hardcode overhaul
+s.listed_names={998610,998615}			
 function s.filter1(c,e,tp)
 	return Duel.GetMZoneCount(tp,c)>-1 and ((c:IsLocation(LOCATION_HAND)) or (c:IsFaceup() and c:IsLocation(LOCATION_GRAVE+LOCATION_ONFIELD)))
 	and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_ONFIELD,0,1,nil,e,tp,c:GetCode())

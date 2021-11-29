@@ -147,9 +147,8 @@ function s.secon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.sefilter,1,nil,tp)
 end
 function s.setg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	local g=Duel.GetMatchingGroup(nil,tp,0,LOCATION_ONFIELD,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,0,0)
+	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsAbleToGrave,tp,0,LOCATION_ONFIELD,1,nil)  end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,1,1,0,0)
 end
 function s.seop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)

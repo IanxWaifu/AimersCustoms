@@ -92,7 +92,7 @@ function s.mvcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_SZONE,0,nil,c)
 	local ct=g:GetClassCount(Card.GetCode)
-	return ct>=3 and Duel.GetCurrentPhase()==PHASE_MAIN1
+	return ct>=3 and Duel.GetCurrentPhase()==PHASE_MAIN1 and eg:IsExists(Card.IsSummonPlayer,1,nil,1-tp)
 end
 function s.mvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tg=eg:GetFirst()

@@ -23,7 +23,9 @@ function s.initial_effect(c)
 	e2:SetTarget(s.tdtg)
 	e2:SetOperation(s.tdop)
 	c:RegisterEffect(e2)
-end				
+end
+s.fit_monster={998610,998615} --should be removed in hardcode overhaul
+s.listed_names={998610,998615}				
 function s.filter1(c,e,tp)
 	return c:IsFaceup() and c:IsSetCard(0x12EA) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_DECK,0,1,nil,e,tp,c:GetCode())
 	and Duel.IsExistingMatchingCard(s.filter3,tp,LOCATION_HAND,0,1,nil,e,tp)
