@@ -52,7 +52,6 @@ function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.IsExistingMatchingCard(s.actfilter,tp,LOCATION_DECK,0,1,nil,tp) end
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 	local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
 	local tc=sg:GetFirst()
@@ -67,6 +66,7 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if tc then
 	Duel.HintSelection(sg)
+		te:UseCountLimit(tp,1)
 		local tpe=tc:GetType()
 		local tg=te:GetTarget()
 		local co=te:GetCost()

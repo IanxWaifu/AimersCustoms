@@ -41,10 +41,6 @@ function s.initial_effect(c)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
-function s.synchcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsLocation(LOCATION_GRAVE) and r==REASON_SYNCHRO and c:GetReasonCard():IsSetCard(0x2d)
-end
 function s.synchlv(e,c,rc)
 	if not c then return false end
 	return 0x30000+e:GetHandler():GetLevel() and not c:IsSetCard(0x33)
