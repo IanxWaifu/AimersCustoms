@@ -61,10 +61,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 function s.filter(c)
-	return c:IsFaceup() and c:IsSetCard(0x12D9) and c:IsType(TYPE_FUSION+TYPE_XYZ+TYPE_LINK)
+	return c:IsFaceup() and c:IsSetCard(0x12D9) and c:IsType(TYPE_FUSION)
 end
 function s.atlimit(e,c)
-	return c:IsFaceup() and c:IsSetCard(0x12D9) and c:IsType(TYPE_FUSION+TYPE_XYZ+TYPE_LINK)
+	return c:IsFaceup() and c:IsSetCard(0x12D9) and c:IsType(TYPE_FUSION)
 		and Duel.IsExistingMatchingCard(s.filter,e:GetHandler():GetControler(),LOCATION_MZONE,0,1,c)
 end
 

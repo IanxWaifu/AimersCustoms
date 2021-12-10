@@ -179,7 +179,7 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=-2 then return end
 	if #mg<=1 or (#gs3==1 and #gs2==0) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local gs=Duel.SelectMatchingCard(tp,s.cosfilter,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
+	local gs=Duel.SelectMatchingCard(tp,s.costfilter,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
 	Duel.SendtoGrave(gs,REASON_COST)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_XMATERIAL)
 	if #mg>1 then

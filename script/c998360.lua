@@ -106,23 +106,69 @@ function s.addcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.addfilter,1,nil,tp) and e:GetHandler():GetFlagEffect(id+1)>=1
 end
 function s.addop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
+	local c=e:GetHandler()
 	local g=eg:FilterSelect(tp,s.addfilter,1,1,nil,tp)
 	local tc=g:GetFirst()
 	if tc:IsLocation(LOCATION_GRAVE) and tc:IsAbleToHand() then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,tc)
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetTargetRange(LOCATION_MZONE,0)
-		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
-		e1:SetTarget(s.atktg)
-		e1:SetValue(300)
-		e1:SetReset(RESET_PHASE+PHASE_END)
-		Duel.RegisterEffect(e1,tp)
+		local tg=Duel.GetMatchingGroup(s.atkfilter,tp,LOCATION_MZONE,0,nil)
+    	local tg2=tg:GetFirst()
+		for tg2 in aux.Next(tg) do
+	    local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(300)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+        tg2:RegisterEffect(e1)
+        local e2=e1:Clone()
+        e2:SetCode(EFFECT_UPDATE_DEFENSE)
+        tg2:RegisterEffect(e2)
+		end
+		local e2=Effect.CreateEffect(c)
+   		e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+   		e2:SetCode(EVENT_SUMMON_SUCCESS)
+   		e2:SetProperty(EFFECT_FLAG_DELAY)
+   		e2:SetReset(RESET_PHASE+PHASE_END,2)
+  		e2:SetCondition(s.hcondition)
+   		e2:SetTarget(s.htarget)
+    	e2:SetOperation(s.hoperation)
+    	Duel.RegisterEffect(e2,tp)
+    	local e3=e2:Clone()
+    	e3:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+    	e3:SetCondition(s.hcondition2)
+    	Duel.RegisterEffect(e3,tp)
+    	local e4=e2:Clone()
+    	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+    	Duel.RegisterEffect(e4,tp)
 	end
 end
-function s.atktg(e,c)
-	return c:IsSetCard(0x12E5)
+function s.atkfilter(c)
+	return c:IsFaceup()  and c:IsSetCard(0x12E5)
+end
+function s.hcondition(e,tp,eg,ep,ev,re,r,rp)
+    return eg:IsExists(aux.FilterFaceupFunction(Card.IsSetCard,0x12E5),1,nil)
+end
+function s.hcondition2(e,tp,eg,ep,ev,re,r,rp)
+    return ep~=tp and eg:GetFirst():IsSetCard(0x12E5)
+end
+function s.htarget(e,tp,eg,ep,ev,re,r,rp,chk)
+    local tc=eg:GetFirst()
+    if chk==0 then return tc:IsControler(tp) end
+    tc:CreateEffectRelation(e)
+end
+function s.hoperation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=eg:GetFirst()
+    if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(300)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+        local e2=e1:Clone()
+        e2:SetCode(EFFECT_UPDATE_DEFENSE)
+        tc:RegisterEffect(e2)
+    end
 end

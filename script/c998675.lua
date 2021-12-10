@@ -90,69 +90,103 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 	local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_GRAVE,0,1,1,nil,tp)
-	local tc=sg:GetFirst()
+		local tc=sg:GetFirst()
+	local te=tc:GetActivateEffect()
+	if not te then return end
+	local pre={Duel.GetPlayerEffect(tp,EFFECT_CANNOT_ACTIVATE)}
+	if pre[1] then
+		for i,eff in ipairs(pre) do
+			local prev=eff:GetValue()
+			if type(prev)~='function' or prev(eff,te,tp) then return end
+		end
+	end
 	if tc then
 	Duel.HintSelection(sg)
-	local tpe=tc:GetType()
-	local te=tc:GetActivateEffect()
-	local tg=te:GetTarget()
-	local co=te:GetCost()
-	local op=te:GetOperation()
-	e:SetCategory(te:GetCategory())
-	e:SetProperty(te:GetProperty())
-	Duel.ClearTargetCard()
-	if bit.band(tpe,TYPE_FIELD)~=0 and not tc:IsType(TYPE_FIELD) and not tc:IsFacedown() then
-		local fc=Duel.GetFieldCard(1-tp,LOCATION_SZONE,5)
-		if Duel.IsDuelType(DUEL_OBSOLETE_RULING) then
-			if fc then Duel.Destroy(fc,REASON_RULE) end
-			fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-			if fc and Duel.Destroy(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+		te:UseCountLimit(tp,1)
+		local tpe=tc:GetType()
+		local tg=te:GetTarget()
+		local co=te:GetCost()
+		local op=te:GetOperation()
+		e:SetCategory(te:GetCategory())
+		e:SetProperty(te:GetProperty())
+		Duel.ClearTargetCard()
+		local loc=LOCATION_SZONE
+		if (tpe&TYPE_FIELD)~=0 then
+			loc=LOCATION_FZONE
+			local fc=Duel.GetFieldCard(1-tp,LOCATION_SZONE,5)
+			if Duel.IsDuelType(DUEL_1_FIELD) then
+				if fc then Duel.Destroy(fc,REASON_RULE) end
+				fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
+				if fc and Duel.Destroy(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+			else
+				fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
+				if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+			end
+		end
+		Duel.MoveToField(tc,tp,tp,loc,POS_FACEUP,true)
+		if (tpe&TYPE_FIELD)==TYPE_FIELD then
+			Duel.MoveSequence(tc,5)
+		end
+		Duel.Hint(HINT_CARD,0,tc:GetCode())
+		tc:CreateEffectRelation(te)
+		if (tpe&TYPE_EQUIP+TYPE_CONTINUOUS+TYPE_FIELD)==0 then
+			tc:CancelToGrave(false)
+		end
+		if te:GetCode()==EVENT_CHAINING then
+			local chain=Duel.GetCurrentChain()-1
+			local te2=Duel.GetChainInfo(chain,CHAININFO_TRIGGERING_EFFECT)
+			local tc=te2:GetHandler()
+			local g=Group.FromCards(tc)
+			local p=tc:GetControler()
+			if co then co(te,tp,g,p,chain,te2,REASON_EFFECT,p,1) end
+			if tg then tg(te,tp,g,p,chain,te2,REASON_EFFECT,p,1) end
+		elseif te:GetCode()==EVENT_FREE_CHAIN then
+			if co then co(te,tp,eg,ep,ev,re,r,rp,1) end
+			if tg then tg(te,tp,eg,ep,ev,re,r,rp,1) end
 		else
-			fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-			if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+			local res,teg,tep,tev,tre,tr,trp=Duel.CheckEvent(te:GetCode(),true)
+			if co then co(te,tp,teg,tep,tev,tre,tr,trp,1) end
+			if tg then tg(te,tp,teg,tep,tev,tre,tr,trp,1) end
 		end
-	end
-	Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-	if tc and tc:IsFacedown() then Duel.ChangePosition(tc,POS_FACEUP) end
-	Duel.Hint(HINT_CARD,0,tc:GetCode())
-	tc:CreateEffectRelation(te)
-	if bit.band(tpe,TYPE_EQUIP+TYPE_CONTINUOUS+TYPE_FIELD)==0 and not tc:IsHasEffect(EFFECT_REMAIN_FIELD) then
-		tc:CancelToGrave(false) 	
-	end
-	if co then co(te,tp,eg,ep,ev,re,r,rp,1) end
-	if tg then tg(te,tp,eg,ep,ev,re,r,rp,1) end
-	Duel.BreakEffect()
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if g then
-		local etc=g:GetFirst()
-		while etc do
-			etc:CreateEffectRelation(te)
-			etc=g:GetNext()
+		Duel.BreakEffect()
+		local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+		if g then
+			local etc=g:GetFirst()
+			while etc do
+				etc:CreateEffectRelation(te)
+				etc=g:GetNext()
+			end
 		end
-	end
-	if op then op(te,tp,eg,ep,ev,re,r,rp) end
-	tc:ReleaseEffectRelation(te)
-	if etc then	
-		etc=g:GetFirst()
-		while etc do
-			etc:ReleaseEffectRelation(te)
-			etc=g:GetNext()
+		tc:SetStatus(STATUS_ACTIVATED,true)
+		if not tc:IsDisabled() then
+			if te:GetCode()==EVENT_CHAINING then
+				local chain=Duel.GetCurrentChain()-1
+				local te2=Duel.GetChainInfo(chain,CHAININFO_TRIGGERING_EFFECT)
+				local tc=te2:GetHandler()
+				local g=Group.FromCards(tc)
+				local p=tc:GetControler()
+				if op then op(te,tp,g,p,chain,te2,REASON_EFFECT,p) end
+			elseif te:GetCode()==EVENT_FREE_CHAIN then
+				if op then op(te,tp,eg,ep,ev,re,r,rp) end
+			else
+				local res,teg,tep,tev,tre,tr,trp=Duel.CheckEvent(te:GetCode(),true)
+				if op then op(te,tp,teg,tep,tev,tre,tr,trp) end
+			end
+		else
+			--insert negated animation here
+		end
+		Duel.RaiseEvent(Group.CreateGroup(tc),EVENT_CHAIN_SOLVED,te,0,tp,tp,Duel.GetCurrentChain())
+		if g and tc:IsType(TYPE_EQUIP) and not tc:GetEquipTarget() then
+			Duel.Equip(tp,tc,g:GetFirst())
+		end
+		tc:ReleaseEffectRelation(te)
+		if etc then
+			etc=g:GetFirst()
+			while etc do
+				etc:ReleaseEffectRelation(te)
+				etc=g:GetNext()
 			end
 		end
 	end
-	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,0)
-	-- Banish it if it leaves the field
-    local e1=Effect.CreateEffect(e:GetHandler())
-    e1:SetDescription(3300)
-    e1:SetType(EFFECT_TYPE_SINGLE)
-    e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
-    e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
-    e1:SetValue(LOCATION_REMOVED)
-    tc:RegisterEffect(e1)
-	Duel.BreakEffect()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local dg=Duel.SelectMatchingCard(tp,s.sendfilter,tp,LOCATION_ONFIELD,0,1,1,tc)
-	Duel.SendtoGrave(dg,REASON_EFFECT)
 end
 end

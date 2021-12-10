@@ -15,6 +15,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetRange(LOCATION_SZONE)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e2:SetCountLimit(1,id+1)
 	e2:SetCondition(s.mvcon)
 	e2:SetTarget(s.mvtg)
 	e2:SetOperation(s.mvop)
@@ -92,7 +93,7 @@ function s.mvcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_SZONE,0,nil,c)
 	local ct=g:GetClassCount(Card.GetCode)
-	return ct>=3 and Duel.GetCurrentPhase()==PHASE_MAIN1 and eg:IsExists(Card.IsSummonPlayer,1,nil,1-tp)
+	return ct>=3 and Duel.GetCurrentPhase()==PHASE_MAIN1 and eg:IsExists(Card.IsSummonPlayer,1,nil,1-tp) and e:GetHandler():GetFlagEffect(id+1)==0
 end
 function s.mvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tg=eg:GetFirst()
@@ -102,7 +103,7 @@ end
 function s.mvop(e,tp,eg,ep,ev,re,r,rp)
 	local tg=eg:GetFirst()
 	local c=e:GetHandler()
-	if tg and tg:IsRelateToEffect(e) and tg:IsFaceup() then
+	if tg and tg:IsRelateToEffect(e) and tg:IsFaceup() and e:GetHandler():GetFlagEffect(id+1)==0 then
 		--Cannot be used as material for a Fusion/Synchro/Xyz/Link Summon
 		local e1=Effect.CreateEffect(c)
 		e1:SetDescription(aux.Stringid(id,1))
@@ -113,6 +114,7 @@ function s.mvop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
 		tg:RegisterEffect(e1)
 	end
+	e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 end
 
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)

@@ -57,8 +57,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-    return re:IsHasType(0x7e0) and re:IsActiveType(TYPE_MONSTER)
-        and c:IsPreviousLocation(LOCATION_OVERLAY) and c:IsReason(REASON_COST)
+    return c:IsPreviousLocation(LOCATION_OVERLAY) and c:IsReason(REASON_COST)
 end
 
 function s.tdfilter(c,e,tp)

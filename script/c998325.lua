@@ -58,6 +58,7 @@ function s.rvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,0,tp,LOCATION_DECK)
 end
 function s.rvop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	local g=Duel.GetFieldGroup(tp,LOCATION_DECK,0)
 	if #g<=0 then return end
 	Duel.ConfirmDecktop(tp,1)
@@ -67,16 +68,36 @@ function s.rvop(e,tp,eg,ep,ev,re,r,rp)
 		if tc:IsType(TYPE_MONSTER) and tc:IsSetCard(0x12E5) and tc:IsCanBeSpecialSummoned(e,0,tp,false,false) and ft>=0 and not tc:IsCode(id) then
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	elseif tc:IsType(TYPE_SPELL+TYPE_TRAP) and tc:IsSetCard(0x12E5) then
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetTargetRange(LOCATION_MZONE,0)
-		e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
-		e1:SetTarget(s.atktg)
-		e1:SetValue(300)
-		e1:SetReset(RESET_PHASE+PHASE_END)
-		Duel.RegisterEffect(e1,tp)
-		Duel.DisableShuffleCheck()
+		local tg=Duel.GetMatchingGroup(s.atkfilter,tp,LOCATION_MZONE,0,nil)
+    	local tg2=tg:GetFirst()
+		for tg2 in aux.Next(tg) do
+	    local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(300)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+        tg2:RegisterEffect(e1)
+        local e2=e1:Clone()
+        e2:SetCode(EFFECT_UPDATE_DEFENSE)
+        tg2:RegisterEffect(e2)
+		end
+		local e2=Effect.CreateEffect(c)
+   		e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+   		e2:SetCode(EVENT_SUMMON_SUCCESS)
+   		e2:SetProperty(EFFECT_FLAG_DELAY)
+   		e2:SetReset(RESET_PHASE+PHASE_END,2)
+  		e2:SetCondition(s.hcondition)
+   		e2:SetTarget(s.htarget)
+    	e2:SetOperation(s.hoperation)
+    	Duel.RegisterEffect(e2,tp)
+    	local e3=e2:Clone()
+    	e3:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+    	e3:SetCondition(s.hcondition2)
+    	Duel.RegisterEffect(e3,tp)
+    	local e4=e2:Clone()
+    	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+    	Duel.RegisterEffect(e4,tp)
+    	Duel.DisableShuffleCheck()
 		Duel.MoveSequence(tc,0)
 		tc:ReverseInDeck()
 	elseif not tc:IsSetCard(0x12E5) then
@@ -85,6 +106,32 @@ function s.rvop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function s.atktg(e,c)
-	return c:IsSetCard(0x12E5)
+function s.atkfilter(c)
+	return c:IsFaceup()  and c:IsSetCard(0x12E5)
+end
+function s.hcondition(e,tp,eg,ep,ev,re,r,rp)
+    return eg:IsExists(aux.FilterFaceupFunction(Card.IsSetCard,0x12E5),1,nil)
+end
+function s.hcondition2(e,tp,eg,ep,ev,re,r,rp)
+    return ep~=tp and eg:GetFirst():IsSetCard(0x12E5)
+end
+function s.htarget(e,tp,eg,ep,ev,re,r,rp,chk)
+    local tc=eg:GetFirst()
+    if chk==0 then return tc:IsControler(tp) end
+    tc:CreateEffectRelation(e)
+end
+function s.hoperation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=eg:GetFirst()
+    if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(300)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+        local e2=e1:Clone()
+        e2:SetCode(EFFECT_UPDATE_DEFENSE)
+        tc:RegisterEffect(e2)
+    end
 end

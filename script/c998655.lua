@@ -73,31 +73,6 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-
-
-
-function s.mzfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x12EA)
-end
-function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetAttacker():IsControler(1-tp)
-end
-function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.mzfilter,tp,LOCATION_MZONE,0,1,Duel.GetAttackTarget())  and e:GetHandler():GetFlagEffect(id)==0 end
-end
-function s.atkop(e,tp,eg,ep,ev,re,r,rp)
-	if e:GetHandler():GetFlagEffect(id)==0 and Duel.SelectEffectYesNo(tp,e:GetHandler()) then
-	Duel.Hint(HINT_CARD,0,id)
-	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-	local g=Duel.SelectMatchingCard(tp,s.mzfilter,tp,LOCATION_MZONE,0,1,1,Duel.GetAttackTarget())
-	if #g>0 then
-		Duel.ChangeAttackTarget(g:GetFirst(),true)
-		end
-	end
-end
-
-
 function s.cfilter(c,tp)
 	return c:IsSummonPlayer(1-tp)
 end
@@ -108,7 +83,7 @@ function s.mvcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_SZONE,0,nil,c)
 	local ct=g:GetClassCount(Card.GetCode)
-	return ct>=3 and Duel.GetCurrentPhase()==PHASE_MAIN1 and rp~=tp and re:IsHasType(EFFECT_TYPE_ACTIVATE)
+	return ct>=3 and Duel.GetCurrentPhase()==PHASE_MAIN1 and rp~=tp and re:IsHasType(EFFECT_TYPE_ACTIVATE) and e:GetHandler():GetFlagEffect(id+1)==0
 end
 function s.mvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -116,7 +91,7 @@ end
 function s.mvop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=eg:GetFirst()
-	if re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsRelateToEffect(re) then
+	if re:IsHasType(EFFECT_TYPE_ACTIVATE) and re:GetHandler():IsRelateToEffect(re) and e:GetHandler():GetFlagEffect(id+1)==0 then
 		--Cannot activate its effects
 		local e1=Effect.CreateEffect(c)
 		e1:SetDescription(3302)
@@ -126,6 +101,7 @@ function s.mvop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESET_PHASE+PHASE_BATTLE)
 		tc:RegisterEffect(e1)
 	end
+	e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 end
 
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
