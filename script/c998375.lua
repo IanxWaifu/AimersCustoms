@@ -65,5 +65,6 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.handcon(e)
-	return (Duel.GetCurrentPhase()<=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE)
+	local ph=Duel.GetCurrentPhase()
+	return ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE
 end

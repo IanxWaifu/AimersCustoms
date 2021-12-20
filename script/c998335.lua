@@ -25,8 +25,8 @@ function s.initial_effect(c)
 end
 function s.filter(c,e,tp)
 	local ph=Duel.GetCurrentPhase()
-	return ((c:IsLocation(LOCATION_GRAVE+LOCATION_HAND)) or (c:IsLocation(LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND) and Duel.GetTurnPlayer()==tp and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE and Duel.GetFlagEffect(tp,998396)>0)) 
-		and c:IsSetCard(0x12E5) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return ((c:IsLocation(LOCATION_GRAVE+LOCATION_HAND)) or (c:IsLocation(LOCATION_DECK+LOCATION_GRAVE+LOCATION_HAND) and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE and Duel.GetFlagEffect(tp,998396)>0) 
+		and (Duel.GetTurnPlayer()==tp or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365)))) and c:IsSetCard(0x12E5) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.ttfilter(c)
 	return c:IsSetCard(0x12E5) and not c:IsCode(id)
@@ -34,7 +34,7 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK,0,1,nil,e,tp) and  
-		Duel.IsExistingMatchingCard(s.ttfilter,tp,LOCATION_DECK,0,1,nil) and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>1 end
+		Duel.IsExistingMatchingCard(s.ttfilter,tp,LOCATION_DECK,0,1,nil) and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
@@ -55,12 +55,13 @@ end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetAttacker()
 	local bc=Duel.GetAttackTarget()
+	if not bc or not tc then return false end
 	e:SetLabelObject(tc)
 	return bc:IsFaceup() and bc:IsSetCard(0x12E5) and tc:GetAttack()>0 and tc:IsFaceup() and tc:IsControler(1-tp)
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	if tc:IsRelateToBattle() and tc:IsFaceup() and tc:GetAttack()>0 then
+	if tc and tc:IsRelateToBattle() and tc:IsFaceup() and tc:GetAttack()>0 then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_SET_ATTACK_FINAL)

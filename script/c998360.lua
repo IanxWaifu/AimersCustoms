@@ -39,7 +39,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp and e:GetHandler():GetFlagEffect(id)==0
+	return (Duel.GetTurnPlayer()==tp and e:GetHandler():GetFlagEffect(id)==0) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365) and e:GetHandler():GetFlagEffect(id)==0)
 end
 function s.cfilter1(c,e,tp)
 	return c:IsSetCard(0x12E5) and c:IsAbleToGrave() 

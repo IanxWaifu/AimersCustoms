@@ -30,9 +30,20 @@ function s.initial_effect(c)
 	local e3=e2:Clone()
 	e3:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
 	c:RegisterEffect(e3)
+	--Special Summon
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_FREE_CHAIN)
+	e4:SetRange(LOCATION_FZONE)
+	e4:SetCountLimit(1,{id,1})
+	e4:SetTarget(s.sptg)
+	e4:SetOperation(s.spop)
+	c:RegisterEffect(e4)
 end
 function s.cond(e)
-	return Duel.GetTurnPlayer()==e:GetHandlerPlayer()
+	return (Duel.GetTurnPlayer()==e:GetHandlerPlayer()) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365))
 end
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()==PHASE_MAIN1
@@ -108,3 +119,35 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterFlagEffect(tp,998396,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
 end
 
+function s.spfilter(c,e,tp)
+	local ph=Duel.GetCurrentPhase()
+	local top=Duel.GetFieldCard(tp,LOCATION_DECK,Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)-1)
+	return (c:IsLocation(LOCATION_HAND) or (c:IsLocation(LOCATION_DECK) and c:IsFaceup() and c==top)) and c:IsSetCard(0x12E5) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	and ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE and ((Duel.GetTurnPlayer()==tp) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365)))
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) and Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>1 end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_DECK)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 or Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)==0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp)
+	if #g>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)~=0 then 
+		Duel.ConfirmDecktop(tp,1)
+		Duel.DisableShuffleCheck()
+		local rt=Duel.GetDecktopGroup(tp,1):GetFirst()
+		if rt:IsSetCard(0x12E5) then
+			Duel.BreakEffect()
+			Duel.ShuffleDeck(tp)
+			Duel.MoveSequence(rt,0)
+			rt:ReverseInDeck()
+			Duel.ConfirmDecktop(tp,1)
+		elseif not rt:IsSetCard(0x12E5) then 
+			Duel.BreakEffect()
+			Duel.ShuffleDeck(tp)
+			Duel.MoveSequence(rt,1)
+		end
+	end
+end

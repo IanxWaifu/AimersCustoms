@@ -50,7 +50,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:GetHandler():IsSetCard(0x12E5) and Duel.GetTurnPlayer()==tp and (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE) and Duel.GetFlagEffect(tp,998396)>0
+	return re and re:GetHandler():IsSetCard(0x12E5) and (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE) 
+	and ((Duel.GetFlagEffect(tp,998396)>0 and Duel.GetTurnPlayer()==tp) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365)))
 end
 function s.rmfilter(c)
 	return c:IsAbleToRemove() and c:IsType(TYPE_MONSTER) and c:IsFaceup()

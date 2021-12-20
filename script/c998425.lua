@@ -11,6 +11,7 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_EXTRA)
 	e1:SetCountLimit(1,id)
 	e1:SetCost(s.spcost)
+	e1:SetCondition(s.spcon)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
@@ -22,7 +23,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--Set
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetDescription(aux.Stringid(id,1))
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -33,7 +34,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 	--Gain ATK/DEF
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetDescription(aux.Stringid(id,0))
 	e4:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e4:SetCode(EVENT_PHASE+PHASE_BATTLE)
@@ -65,6 +66,9 @@ function s.initial_effect(c)
 	e6:SetValue(1)
 	c:RegisterEffect(e6)
 end
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.CheckPhaseActivity()
+end
 function s.spfilter1(c)
 	return c:IsFaceup() and c:IsSetCard(0x12E5) and c:IsAbleToGraveAsCost() and (c:IsType(TYPE_TUNER) or c:IsCode(998385)) and not c:IsCode(id)
 end
@@ -86,7 +90,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g4=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_MZONE,0,1,1,tcg)
 	g3:Merge(g4)
-	Duel.SendtoGrave(g3,REASON_COST)
+	Duel.SendtoGrave(g3,REASON_COST+REASON_MATERIAL)
 	end
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -144,7 +148,7 @@ function s.posop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.avcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==1-tp
+	return not Duel.GetTurnPlayer()==tp
 end
 function s.avfilter(e,c)
 	return c:IsSetCard(0x12E5) 

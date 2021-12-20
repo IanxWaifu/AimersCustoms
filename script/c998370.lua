@@ -14,7 +14,7 @@ function s.initial_effect(c)
 	--Spsummon
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetRange(LOCATION_GRAVE)
@@ -60,7 +60,8 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return ec:IsPreviousControler(tp) and ec:IsType(TYPE_SYNCHRO) and ec:IsSetCard(0x12E5)
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x12E5) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsFaceup()
+	local top=Duel.GetFieldCard(tp,LOCATION_DECK,Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)-1)
+	return c:IsSetCard(0x12E5) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsFaceup() and c==top
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tg=Duel.GetFieldGroup(tp,LOCATION_DECK,0)

@@ -30,7 +30,6 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_ACTIVATE)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetCountLimit(1,id)
-	e3:SetCondition(s.rmcon)
 	e3:SetTarget(s.rmtg)
 	e3:SetOperation(s.rmop)
 	c:RegisterEffect(e3)
@@ -42,7 +41,7 @@ function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
 	return (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE)
 end
 function s.cfilter1(c,e,tp)
-	return c:IsSetCard(0x12E5) and c:IsAbleToHand() 
+	return c:IsSetCard(0x12E5) and c:IsAbleToHand() and c:IsType(TYPE_MONSTER)
 		and Duel.IsExistingMatchingCard(s.cfilter2,tp,LOCATION_HAND,0,1,nil,e,tp,c:GetCode())		
 end
 function s.cfilter2(c,e,tp,code)
@@ -50,8 +49,8 @@ function s.cfilter2(c,e,tp,code)
 end
 function s.sptg1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if chk==0 then return ft>-1 and Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_MZONE,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_MZONE)
+	if chk==0 then return ft>-1 and Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_MZONE+LOCATION_GRAVE)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,LOCATION_HAND)
 end
 function s.spop1(e,tp,eg,ep,ev,re,r,rp)
@@ -59,7 +58,7 @@ function s.spop1(e,tp,eg,ep,ev,re,r,rp)
 	local dg=Duel.GetMatchingGroup(s.cfilter1,tp,LOCATION_MZONE,0,nil,e,tp,c:GetCode())
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter1,tp,LOCATION_MZONE,0,1,1,nil,e,tp,c:GetCode())
+	local g=Duel.SelectMatchingCard(tp,s.cfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,e,tp,c:GetCode())
 	e:SetLabel(g:GetFirst():GetCode())
 	local tc=g:GetFirst()
 	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 then
@@ -72,17 +71,17 @@ function s.spop1(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if chk==0 then return ft>-1 and Duel.IsPlayerCanDiscardDeck(tp,1) and Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_MZONE,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_MZONE)
+	if chk==0 then return ft>-1 and Duel.IsPlayerCanDiscardDeck(tp,1) and Duel.IsExistingMatchingCard(s.cfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_MZONE+LOCATION_GRAVE)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,0,LOCATION_HAND)
 	Duel.SetOperationInfo(0,CATEGORY_DECKDES,nil,0,tp,1)
 end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local dg=Duel.GetMatchingGroup(s.cfilter1,tp,LOCATION_MZONE,0,nil,e,tp,c:GetCode())
+	local dg=Duel.GetMatchingGroup(s.cfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,nil,e,tp,c:GetCode())
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter1,tp,LOCATION_MZONE,0,1,1,nil,e,tp,c:GetCode())
+	local g=Duel.SelectMatchingCard(tp,s.cfilter1,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,1,nil,e,tp,c:GetCode())
 	e:SetLabel(g:GetFirst():GetCode())
 	local tc=g:GetFirst()
 	if tc and Duel.SendtoHand(tc,nil,REASON_EFFECT)>0 then
@@ -94,15 +93,14 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.rmfilter,e:GetHandlerPlayer(),LOCATION_DECK,0,1,nil)
-end
-function s.rmfilter(c,tp)
-	return c:IsSetCard(0x12E5) and c:IsFaceup()
+
+function s.rmfilter(c,e,tp)
+	local top=Duel.GetFieldCard(tp,LOCATION_DECK,Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)-1)
+	return c:IsLocation(LOCATION_DECK) and c:IsFaceup() and c==top and c:IsSetCard(0x12E5)
 end
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(nil,tp,0,LOCATION_ONFIELD,nil)
-	if chk==0 then return #g>0 end
+	if chk==0 then return #g>0 and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
