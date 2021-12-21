@@ -89,7 +89,7 @@ end
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	local ac=Duel.GetAttacker()
 	local bc=Duel.GetAttackTarget()
-	if not ac then return false end
+	if not ac or not bc then return false end
 	e:SetLabelObject(ac)
 	return ac:IsControler(1-tp) and bc:IsFaceup() and bc:IsSetCard(0x12E5) and bc:IsControler(tp)
 end

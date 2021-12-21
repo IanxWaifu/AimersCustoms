@@ -32,7 +32,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 	--Special Summon
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetDescription(aux.Stringid(id,2))
 	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
 	e4:SetCode(EVENT_FREE_CHAIN)
@@ -41,9 +41,20 @@ function s.initial_effect(c)
 	e4:SetTarget(s.sptg)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
+	--Activate from Deck Top
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,3))
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_DECK)
+	e5:SetCountLimit(1,{id,2})
+	e5:SetCondition(s.actcon)
+	e5:SetTarget(s.acttg)
+	e5:SetOperation(s.actop)
+	c:RegisterEffect(e5)
 end
 function s.cond(e)
-	return (Duel.GetTurnPlayer()==e:GetHandlerPlayer()) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365))
+	local tp=e:GetHandlerPlayer()
+	return (Duel.GetTurnPlayer()==tp) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365))
 end
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()==PHASE_MAIN1
@@ -148,6 +159,65 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.BreakEffect()
 			Duel.ShuffleDeck(tp)
 			Duel.MoveSequence(rt,1)
+		end
+	end
+end
+
+function s.actcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=Duel.GetFieldCard(tp,LOCATION_DECK,Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)-1)
+	return e:GetHandler():IsFaceup() and e:GetHandler()==c
+end
+function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():GetActivateEffect():IsActivatable(tp,true) end
+end
+function s.actop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetHandler()
+	if tc and tc:IsFaceup() then
+	local tpe=tc:GetType()
+	local te=tc:GetActivateEffect()
+	local tg=te:GetTarget()
+	local co=te:GetCost()
+	local op=te:GetOperation()
+	e:SetCategory(te:GetCategory())
+	e:SetProperty(te:GetProperty())
+	Duel.ClearTargetCard()
+	if bit.band(tpe,TYPE_FIELD)~=0 and not tc:IsType(TYPE_FIELD) and not tc:IsFacedown() then
+		local fc=Duel.GetFieldCard(1-tp,LOCATION_FZONE,5)
+		if Duel.IsDuelType(DUEL_OBSOLETE_RULING) then
+			if fc then Duel.Destroy(fc,REASON_RULE) end
+			fc=Duel.GetFieldCard(tp,LOCATION_FZONE,5)
+			if fc and Duel.Destroy(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+		else
+			fc=Duel.GetFieldCard(tp,LOCATION_FZONE,5)
+			if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+		end
+	end
+	Duel.MoveToField(tc,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
+	if tc and tc:IsFacedown() then Duel.ChangePosition(tc,POS_FACEUP) end
+	Duel.Hint(HINT_CARD,0,tc:GetCode())
+	tc:CreateEffectRelation(te)
+	if bit.band(tpe,TYPE_EQUIP+TYPE_CONTINUOUS+TYPE_FIELD)==0 and not tc:IsHasEffect(EFFECT_REMAIN_FIELD) then
+		tc:CancelToGrave(false) 	
+	end
+	if co then co(te,tp,eg,ep,ev,re,r,rp,1) end
+	if tg then tg(te,tp,eg,ep,ev,re,r,rp,1) end
+	Duel.BreakEffect()
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	if g then
+		local etc=g:GetFirst()
+		while etc do
+			etc:CreateEffectRelation(te)
+			etc=g:GetNext()
+		end
+	end
+	if op then op(te,tp,eg,ep,ev,re,r,rp) end
+	tc:ReleaseEffectRelation(te)
+	if etc then	
+		etc=g:GetFirst()
+		while etc do
+			etc:ReleaseEffectRelation(te)
+			etc=g:GetNext()
+			end
 		end
 	end
 end

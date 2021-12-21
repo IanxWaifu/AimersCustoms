@@ -1,5 +1,5 @@
 --Scripted by IanxWaifu
---Gotheatrè Evelyn
+--Gotheatrè Sophia
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
@@ -20,49 +20,51 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetOperation(s.atklimit)
 	c:RegisterEffect(e2)
-	--Set
+	--Cannot Negate activations and effects
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e3:SetCondition(s.setcon)
-	e3:SetTarget(s.settg)
-	e3:SetCountLimit(1,id+1)
-	e3:SetOperation(s.setop)
+	e3:SetCondition(s.actcon)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetOperation(s.actop)
 	c:RegisterEffect(e3)
-	--Gain ATK/DEF
+	--Reveal, Target Banish
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,0))
-	e4:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e4:SetCode(EVENT_PHASE+PHASE_BATTLE)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_REMOVE)
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCountLimit(1)
-	e4:SetOperation(s.atkop)
+	e4:SetHintTiming(0,TIMING_BATTLE_START)
+	e4:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetCondition(s.rmcon)
+	e4:SetTarget(s.rmtg)
+	e4:SetOperation(s.rmop)
 	c:RegisterEffect(e4)
-	--Position
+	--Special Summon
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(id,2))
-	e5:SetCategory(CATEGORY_POSITION)
-	e5:SetType(EFFECT_TYPE_QUICK_O)
-	e5:SetCode(EVENT_FREE_CHAIN)
-	e5:SetRange(LOCATION_MZONE)
-	e5:SetProperty(EFFECT_FLAG_DELAY)
-	e5:SetCountLimit(1,id+2)
-	e5:SetTarget(s.postg)
-	e5:SetOperation(s.posop)
+	e5:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e5:SetCode(EVENT_LEAVE_FIELD)
+	e5:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e5:SetCountLimit(1,{id,3})
+	e5:SetCondition(s.spcon2)
+	e5:SetTarget(s.sptg2)
+	e5:SetOperation(s.spop2)
 	c:RegisterEffect(e5)
-	--Avoid Battle Damage
+	--Gain ATK/DEF
 	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_FIELD)
-	e6:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-	e6:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e6:SetDescription(aux.Stringid(id,3))
+	e6:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
+	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e6:SetCode(EVENT_PHASE+PHASE_BATTLE)
 	e6:SetRange(LOCATION_MZONE)
-	e6:SetTargetRange(LOCATION_MZONE,0)
-	e6:SetCondition(s.avcon)
-	e6:SetTarget(s.avfilter)
-	e6:SetValue(1)
+	e6:SetCountLimit(1)
+	e6:SetOperation(s.atkop)
 	c:RegisterEffect(e6)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
@@ -114,42 +116,89 @@ function s.atklimit(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 	e:GetHandler():RegisterEffect(e1)
 end
-function s.setcon(e,tp,eg,ep,ev,re,r,rp)
+function s.actcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
-function s.setfilter(c)
-	return c:IsSetCard(0x12E5) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
+function s.actop(e,tp,eg,ep,ev,re,r,rp)
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CANNOT_DISEFFECT)
+	e1:SetValue(s.effectfilter)
+	e1:SetReset(RESET_PHASE+PHASE_END,2)
+	Duel.RegisterEffect(e1,tp)
+	local e2=Effect.CreateEffect(e:GetHandler())
+	e2:SetType(EFFECT_TYPE_FIELD)
+	e2:SetCode(EFFECT_CANNOT_INACTIVATE)
+	e2:SetRange(LOCATION_SZONE)
+	e2:SetValue(s.effectfilter)
+	e2:SetReset(RESET_PHASE+PHASE_END,2)
+	Duel.RegisterEffect(e2,tp)
+	aux.RegisterClientHint(e:GetHandler(),nil,tp,1,0,aux.Stringid(id,4),nil)
 end
-function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end
+function s.effectfilter(e,ct)
+	local te=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT)
+	local tc=te:GetHandler()
+	return tc:IsSetCard(0x12E5) and tc:IsType(TYPE_SPELL+TYPE_TRAP)
 end
-function s.setop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if g:GetCount()>0 then
-		Duel.SSet(tp,g:GetFirst())
-		Duel.ConfirmCards(1-tp,g)
+
+
+function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE
+end
+function s.rmfilter(c,tp)
+	return c:IsSetCard(0x12E5) and c:IsAbleToHand() and not c:IsCode(id)
+end
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local g=Duel.GetFieldGroup(tp,LOCATION_DECK,0)
+	if chk==0 then return #g>0 and Duel.IsExistingTarget(Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_ONFIELD)
+end
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetFieldGroup(tp,LOCATION_DECK,0)
+	if #g<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	Duel.ConfirmDecktop(tp,1)
+	Duel.DisableShuffleCheck()
+		local tc=Duel.GetDecktopGroup(tp,1):GetFirst()
+		if tc:IsSetCard(0x12E5) then
+		Duel.DisableShuffleCheck()
+		Duel.MoveSequence(tc,0)
+		tc:ReverseInDeck()
+	elseif not tc:IsSetCard(0x12E5) then 
+		Duel.DisableShuffleCheck()
+		Duel.MoveSequence(tc,1)
+	end
+	Duel.BreakEffect()
+	local g1=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,0,LOCATION_ONFIELD,1,1,nil)
+	if #g1>0 then
+		Duel.Remove(g1,POS_FACEUP,REASON_EFFECT)
 	end
 end
 
 
-function s.posfilter(c)
-	return c:IsFaceup() and c:IsCanChangePosition()
+function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return c:IsPreviousPosition(POS_FACEUP) and c:GetLocation()~=LOCATION_EXTRA
 end
-function s.postg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.posfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_POSITION,nil,1,tp,LOCATION_MZONE)
+function s.spfilter3(c,e,tp)
+	return c:IsSetCard(0x12E5) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
-function s.posop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
-	local g=Duel.SelectMatchingCard(tp,s.posfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	local tc=g:GetFirst()
-	if tc then
-		Duel.HintSelection(g)
-		Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and Duel.IsExistingMatchingCard(s.spfilter3,tp,0x13,0,1,nil,e,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0x13)
+end
+function s.spop2(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter3),tp,0x13,0,1,1,nil,e,tp)
+	if #g>0 then
+		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
 end
+
+
+
 
 function s.avcon(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.GetTurnPlayer()==tp
