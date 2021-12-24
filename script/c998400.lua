@@ -62,7 +62,7 @@ function s.initial_effect(c)
 	e8:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e8:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e8:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e8:SetCountLimit(1,id+2)
+	e8:SetCountLimit(1)
 	e8:SetRange(LOCATION_MZONE)
 	e8:SetCondition(s.descon)
 	e8:SetTarget(s.destg)
@@ -75,7 +75,7 @@ function s.initial_effect(c)
 	e9:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
 	e9:SetProperty(EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DAMAGE_STEP)
 	e9:SetCode(EVENT_ATTACK_ANNOUNCE)
-	e9:SetCountLimit(1,id+2)
+	e9:SetCountLimit(1)
 	e9:SetRange(LOCATION_MZONE)
 	e9:SetCondition(s.descon2)
 	e9:SetTarget(s.destg2)
@@ -86,15 +86,20 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.CheckPhaseActivity()
 end
 function s.spfilter1(c)
-	return c:IsFaceup() and c:IsSetCard(0x12E5) and c:IsAbleToGraveAsCost() and (c:IsType(TYPE_TUNER) or c:IsCode(998385)) and not c:IsCode(id)
+	return c:IsFaceup() and c:IsSetCard(0x12E5) and c:IsAbleToGraveAsCost() and (c:IsType(TYPE_TUNER) or c:IsCode(998385)) and not c:IsCode(id) and c:IsCanBeSynchroMaterial(c)
 end
 function s.spfilter2(c)
-	return c:IsFaceup() and c:IsSetCard(0x12E5) and (c:IsCode(998385) or not c:IsType(TYPE_TUNER)) and c:IsAbleToGraveAsCost() and not c:IsCode(id)
+	return c:IsFaceup() and c:IsSetCard(0x12E5) and (c:IsCode(998385) or not c:IsType(TYPE_TUNER)) and c:IsAbleToGraveAsCost() and not c:IsCode(id) and c:IsCanBeSynchroMaterial(c)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
+	local g1=Duel.GetMatchingGroup(s.spfilter1,tp,LOCATION_MZONE,0,nil)
+	local g2=Duel.GetMatchingGroup(s.spfilter2,tp,LOCATION_MZONE,0,nil)
+	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
+	local tc=g:GetFirst()
+	if #g1==1 and tc:IsFaceup() and tc:IsCode(998385) then return false end
 	if chk==0 then local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,nil,nil,REASON_SYNCHRO)
-		return #pg<=0 and  Duel.GetLocationCountFromEx(tp,tp,nil,c)>-1
+		return #pg<=0 and  Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and #g1>0 and #g2>0 
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,true,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,LOCATION_EXTRA)
 end
@@ -106,22 +111,18 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g2=Duel.GetMatchingGroup(s.spfilter2,tp,LOCATION_MZONE,0,nil)
 	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
 	local tc=g:GetFirst()
-	e:SetLabelObject(tc)
-	if #g==1 and tc:IsFaceup() and tc:IsCode(998385) then return false end
-	if #g>1 and tc:IsFaceup() and tc:IsSetCard(0x12E5) and not tc:IsCode(id) then
-	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,c)>-1 and #g1>0 and #g2>0 end
+	if #g1==1 and tc:IsFaceup() and tc:IsCode(998385) then return false end
+	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and #g1>0 and #g2>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g3=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_MZONE,0,1,1,nil)
 	local tcg=g3:GetFirst()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g4=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_MZONE,0,1,1,tcg)
-	g3:Merge(g4)
-	Duel.SendtoGrave(g3,REASON_EFFECT+REASON_SYNCHRO)
+	Duel.SendtoGrave(g3+g4,REASON_EFFECT+REASON_SYNCHRO)
 	if c then
-		c:SetMaterial(g3)	 
+		c:SetMaterial(g3+g4)	 
 		Duel.SpecialSummon(c,SUMMON_TYPE_SYNCHRO,tp,tp,true,false,POS_FACEUP)
 		c:CompleteProcedure()
-		end
 	end
 end
 function s.atklimit(e,tp,eg,ep,ev,re,r,rp)

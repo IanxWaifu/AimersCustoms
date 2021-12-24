@@ -47,7 +47,29 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) and not c:IsFaceup() then return end
 	Duel.DisableShuffleCheck()
-	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
+	if c:IsRelateToEffect(e) and Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP_DEFENSE) then
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CANNOT_BE_LINK_MATERIAL)
+			e1:SetValue(s.matlimit)
+			e1:SetReset(RESET_EVENT+0x1fe0000)
+			c:RegisterEffect(e1,true)
+			local e2=e1:Clone()
+			e2:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
+			c:RegisterEffect(e2,true)
+			local e3=e1:Clone()
+			e3:SetCode(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)
+			c:RegisterEffect(e3,true)
+			local e4=e1:Clone()
+			e4:SetCode(EFFECT_CANNOT_BE_FUSION_MATERIAL)
+			c:RegisterEffect(e4,true)
+			c:RegisterFlagEffect(0,RESET_EVENT+0x1fe0000,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,2))
+		end
+	Duel.SpecialSummonComplete()
+end
+function s.matlimit(e,c)
+	if not c then return false end
+	return not c:IsSetCard(0x12E5)
 end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	return re and re:GetHandler():IsSetCard(0x12E5) and (Duel.GetCurrentPhase()>=PHASE_BATTLE_START and Duel.GetCurrentPhase()<=PHASE_BATTLE) 

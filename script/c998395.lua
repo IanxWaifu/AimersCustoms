@@ -145,19 +145,20 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 or Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp)
+	Duel.DisableShuffleCheck()
 	if #g>0 and Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)~=0 then 
 		Duel.ConfirmDecktop(tp,1)
 		Duel.DisableShuffleCheck()
 		local rt=Duel.GetDecktopGroup(tp,1):GetFirst()
 		if rt:IsSetCard(0x12E5) then
 			Duel.BreakEffect()
-			Duel.ShuffleDeck(tp)
+			Duel.DisableShuffleCheck()
 			Duel.MoveSequence(rt,0)
 			rt:ReverseInDeck()
 			Duel.ConfirmDecktop(tp,1)
 		elseif not rt:IsSetCard(0x12E5) then 
 			Duel.BreakEffect()
-			Duel.ShuffleDeck(tp)
+			Duel.DisableShuffleCheck()
 			Duel.MoveSequence(rt,1)
 		end
 	end
@@ -192,6 +193,7 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 			if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
 		end
 	end
+	Duel.DisableShuffleCheck()
 	Duel.MoveToField(tc,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
 	if tc and tc:IsFacedown() then Duel.ChangePosition(tc,POS_FACEUP) end
 	Duel.Hint(HINT_CARD,0,tc:GetCode())

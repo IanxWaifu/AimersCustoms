@@ -39,6 +39,7 @@ function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
+	Duel.Hint(HINT_CARD,0,id)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	if #g>0 and e:GetHandler():GetFlagEffect(id)==0 and Duel.SSet(tp,g:GetFirst())~=0 then 
 		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,0)

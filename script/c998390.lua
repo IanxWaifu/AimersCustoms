@@ -79,6 +79,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		local g2=Duel.SelectMatchingCard(tp,s.cfilter2,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_DECK,0,1,1,nil,e,tp,e:GetLabel())
 			local tc2=g2:GetFirst()
 			Duel.BreakEffect()
+			Duel.DisableShuffleCheck()
 			Duel.SpecialSummon(tc2,0,tp,tp,false,false,POS_FACEUP)
 	end
 end

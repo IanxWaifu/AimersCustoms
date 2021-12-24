@@ -49,6 +49,7 @@ function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	Duel.Hint(HINT_CARD,0,id)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	if g and e:GetHandler():GetFlagEffect(id)==0 then
 		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,0)
@@ -73,7 +74,7 @@ function s.ttop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.ttfilter,tp,LOCATION_DECK,0,1,1,nil)
 	local tc=g:GetFirst()
 	if tc then
-		Duel.ShuffleDeck(tp)
+		Duel.DisableShuffleCheck()
 		Duel.MoveSequence(tc,0)
 		Duel.ConfirmDecktop(tp,1)
 		tc:ReverseInDeck()

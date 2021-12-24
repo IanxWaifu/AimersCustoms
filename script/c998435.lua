@@ -90,6 +90,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	local hg=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if #hg>0 then
 		local tc=hg:GetFirst()
+		Duel.DisableShuffleCheck()
 		Duel.MoveSequence(tc,0)
 		Duel.ConfirmDecktop(tp,1)
 		tc:ReverseInDeck()
@@ -158,7 +159,7 @@ end
 
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and re:IsActiveType(TYPE_MONSTER)
-		and re:GetHandler():GetAttack()<re:GetHandler():GetBaseAttack() and re:GetHandler():IsOnField() and rp~=tp
+		and re:GetHandler():GetAttack()~=re:GetHandler():GetBaseAttack() and re:GetHandler():IsOnField() and rp~=tp
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToGraveAsCost() end
@@ -179,13 +180,15 @@ function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	if not bc then return false end
 	if not (tc:IsControler(1-tp) or bc:IsControler(1-tp)) then return false end
 	if tc:IsControler(1-tp) then tc,bc=bc,tc end
-	if (tc:IsFaceup() and tc:IsSetCard(0x12E5) and tc:IsControler(tp) and tc:GetBaseAttack()<tc:GetAttack())
-		or (bc:IsFaceup() and bc:IsSetCard(0x12E5) and bc:IsControler(tp) and bc:GetBaseAttack()<tc:GetAttack()) then
+	if (tc:IsFaceup() and tc:IsSetCard(0x12E5) and tc:IsControler(tp) and bc:GetAttack()~=bc:GetBaseAttack())
+		or (bc:IsFaceup() and bc:IsSetCard(0x12E5) and bc:IsControler(tp) and tc:GetAttack()~=tc:GetBaseAttack()) then
 		e:SetLabelObject(bc)
 		return true
 	end
 	return false
 end
+
+
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
 	local bc=e:GetLabelObject()

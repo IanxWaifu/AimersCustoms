@@ -1,5 +1,5 @@
 --Scripted by IanxWaifu
---Gotheatrè Evelyn
+--Gotheatrè Sylvie
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
@@ -20,50 +20,58 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetOperation(s.atklimit)
 	c:RegisterEffect(e2)
-	--Set
+	--Cannot Negate activations and effects
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,1))
+	e3:SetDescription(aux.Stringid(id,0))
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e3:SetCondition(s.setcon)
-	e3:SetTarget(s.settg)
-	e3:SetCountLimit(1,id+1)
-	e3:SetOperation(s.setop)
+	e3:SetCondition(s.actcon)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetOperation(s.actop)
 	c:RegisterEffect(e3)
-	--Gain ATK/DEF
+	--TopDeckFaceup
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,3))
-	e4:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
-	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
-	e4:SetCode(EVENT_PHASE+PHASE_BATTLE)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetType(EFFECT_TYPE_QUICK_O)
+	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetCountLimit(1)
-	e4:SetOperation(s.atkop)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetTarget(s.tdtg)
+	e4:SetOperation(s.tdop)
 	c:RegisterEffect(e4)
-	--Position
+	--must attack
 	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,2))
-	e5:SetCategory(CATEGORY_POSITION)
-	e5:SetType(EFFECT_TYPE_QUICK_O)
-	e5:SetCode(EVENT_FREE_CHAIN)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_MUST_ATTACK)
 	e5:SetRange(LOCATION_MZONE)
-	e5:SetProperty(EFFECT_FLAG_DELAY)
-	e5:SetCountLimit(1,id+2)
-	e5:SetTarget(s.postg)
-	e5:SetOperation(s.posop)
+	e5:SetTargetRange(0,LOCATION_MZONE)
 	c:RegisterEffect(e5)
-	--Avoid Battle Damage
-	local e6=Effect.CreateEffect(c)
-	e6:SetType(EFFECT_TYPE_FIELD)
-	e6:SetCode(EFFECT_AVOID_BATTLE_DAMAGE)
-	e6:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e6:SetRange(LOCATION_MZONE)
-	e6:SetTargetRange(LOCATION_MZONE,0)
-	e6:SetCondition(s.avcon)
-	e6:SetTarget(s.avfilter)
-	e6:SetValue(1)
+	local e6=e5:Clone()
+	e6:SetCode(EFFECT_MUST_ATTACK_MONSTER)
+	e6:SetValue(s.atklimit2)
 	c:RegisterEffect(e6)
+	--ATKDEF and Negate Battle
+	local e7=Effect.CreateEffect(c)
+	e7:SetDescription(aux.Stringid(id,2))
+	e7:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
+	e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e7:SetCode(EVENT_BATTLE_CONFIRM)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetCondition(s.atkcon1)
+	e7:SetOperation(s.atkop1)
+	c:RegisterEffect(e7)
+	--Gain ATK/DEF
+	local e8=Effect.CreateEffect(c)
+	e8:SetDescription(aux.Stringid(id,3))
+	e8:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
+	e8:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e8:SetCode(EVENT_PHASE+PHASE_BATTLE)
+	e8:SetRange(LOCATION_MZONE)
+	e8:SetCountLimit(1,{id,4})
+	e8:SetOperation(s.atkop2)
+	c:RegisterEffect(e8)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.CheckPhaseActivity()
@@ -115,50 +123,84 @@ function s.atklimit(e,tp,eg,ep,ev,re,r,rp)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 	e:GetHandler():RegisterEffect(e1)
 end
-function s.setcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
+function s.actcon(e,tp,eg,ep,ev,re,r,rp)
+	return re and re:GetHandler():IsSetCard(0x12E5)
 end
-function s.setfilter(c)
-	return c:IsSetCard(0x12E5) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
+function s.actop(e,tp,eg,ep,ev,re,r,rp)
+	local e1=Effect.CreateEffect(e:GetHandler())
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CANNOT_EP)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e1:SetTargetRange(0,1)
+	e1:SetCondition(s.turncon)
+	if Duel.GetTurnPlayer()==tp then
+		e1:SetReset(RESET_PHASE+PHASE_END+RESET_OPPO_TURN)
+	else
+		e1:SetReset(RESET_PHASE+PHASE_END+RESET_OPPO_TURN,2)
+	end
+	Duel.RegisterEffect(e1,tp)
+	aux.RegisterClientHint(e:GetHandler(),nil,tp,1,0,aux.Stringid(id,0),nil)
 end
-function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
-		and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end
+function s.turncon(e)
+	return Duel.GetTurnCount()~=e:GetLabel() and Duel.GetTurnPlayer()~=e:GetOwnerPlayer()
 end
-function s.setop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local g=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if g:GetCount()>0 then
-		Duel.SSet(tp,g:GetFirst())
-		Duel.ConfirmCards(1-tp,g)
+
+
+
+
+function s.tdfilter(c)
+	return c:IsSetCard(0x12E5) and not c:IsFaceup()
+end
+function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_DECK,0,1,nil) end
+end
+function s.tdop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+	local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		local tc=g:GetFirst()
+		Duel.DisableShuffleCheck()
+		Duel.MoveSequence(tc,0)
+		Duel.ConfirmDecktop(tp,1)
+		tc:ReverseInDeck()
+	end
+end
+function s.atklimit2(e,c)
+	return c==e:GetHandler()
+end
+
+function s.atkcon1(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local bc=c:GetBattleTarget()
+	e:SetLabelObject(bc)
+	return c:IsRelateToBattle() and bc and bc:IsFaceup() and bc:IsRelateToBattle() and not bc:IsDisabled()
+end
+function s.atkop1(e,tp,eg,ep,ev,re,r,rp)
+	local bc=e:GetLabelObject()
+	if bc:IsRelateToBattle() and bc:IsFaceup() and bc:IsControler(1-tp) then
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(-500)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		bc:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
+		bc:RegisterEffect(e2)
+		local e3=Effect.CreateEffect(e:GetHandler())
+		e3:SetType(EFFECT_TYPE_SINGLE)
+		e3:SetCode(EFFECT_DISABLE)
+		e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
+		bc:RegisterEffect(e3,true)
+		local e4=Effect.CreateEffect(e:GetHandler())
+		e4:SetType(EFFECT_TYPE_SINGLE)
+		e4:SetCode(EFFECT_DISABLE_EFFECT)
+		e4:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
+		bc:RegisterEffect(e4,true)
 	end
 end
 
-
-function s.posfilter(c)
-	return c:IsFaceup() and c:IsCanChangePosition()
-end
-function s.postg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.posfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_POSITION,nil,1,tp,LOCATION_MZONE)
-end
-function s.posop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
-	local g=Duel.SelectMatchingCard(tp,s.posfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-	local tc=g:GetFirst()
-	if tc then
-		Duel.HintSelection(g)
-		Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
-	end
-end
-
-function s.avcon(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.GetTurnPlayer()==tp
-end
-function s.avfilter(e,c)
-	return c:IsSetCard(0x12E5) 
-end
-function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+function s.atkop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)

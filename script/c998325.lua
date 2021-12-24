@@ -40,6 +40,7 @@ function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	Duel.Hint(HINT_CARD,0,id)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
 	if g and e:GetHandler():GetFlagEffect(id)==0 then
 		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,0)
@@ -66,6 +67,7 @@ function s.rvop(e,tp,eg,ep,ev,re,r,rp)
 	if tc:IsSetCard(0x12E5) then
 		local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
 		if tc:IsType(TYPE_MONSTER) and tc:IsSetCard(0x12E5) and tc:IsCanBeSpecialSummoned(e,0,tp,false,false) and ft>=0 and not tc:IsCode(id) then
+		Duel.DisableShuffleCheck()
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 	elseif tc:IsType(TYPE_SPELL+TYPE_TRAP) and tc:IsSetCard(0x12E5) then
 		local tg=Duel.GetMatchingGroup(s.atkfilter,tp,LOCATION_MZONE,0,nil)

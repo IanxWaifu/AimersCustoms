@@ -48,6 +48,7 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 			if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
 		end
 	end
+	Duel.DisableShuffleCheck()
 	Duel.MoveToField(tc,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
 	if tc and tc:IsFacedown() then Duel.ChangePosition(tc,POS_FACEUP) end
 	Duel.Hint(HINT_CARD,0,tc:GetCode())
@@ -90,13 +91,13 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 			local rt=Duel.GetDecktopGroup(tp,1):GetFirst()
 				if rt:IsSetCard(0x12E5) then
 				Duel.BreakEffect()
-				Duel.ShuffleDeck(tp)
+				Duel.DisableShuffleCheck()
 				Duel.MoveSequence(rt,0)
 				rt:ReverseInDeck()
 				Duel.ConfirmDecktop(tp,1)
 			elseif not rt:IsSetCard(0x12E5) then 
 				Duel.BreakEffect()
-				Duel.ShuffleDeck(tp)
+				Duel.DisableShuffleCheck()
 				Duel.MoveSequence(rt,1)
 			end
 		else
