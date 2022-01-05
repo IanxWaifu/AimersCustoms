@@ -87,7 +87,6 @@ function s.sendfilter(c)
 	return c:IsSetCard(0x12EA) and c:IsFaceup()
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 	local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_GRAVE,0,1,1,nil,tp)
 		local tc=sg:GetFirst()

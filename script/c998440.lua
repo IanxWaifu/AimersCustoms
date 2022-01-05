@@ -19,6 +19,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetCountLimit(1,{id,1})
+	e2:SetCondition(aux.exccon)
 	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(s.settg)
 	e2:SetOperation(s.setop)
@@ -30,17 +31,20 @@ end
 function s.actcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_ONFIELD,0,1,nil)
 end
+function s.actfilter(c)
+	return c:IsFaceup() and not c:IsDisabled() and (c:IsSSetable() or c:IsMSetable())
+end
 function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and aux.disfilter3(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(aux.disfilter3,tp,0,LOCATION_ONFIELD,1,nil) end
+	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and s.actfilter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(s.actfilter,tp,0,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
-	local g=Duel.SelectTarget(tp,aux.disfilter3,tp,0,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,s.actfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 and tc:IsRelateToEffect(e) and not tc:IsDisabled() and tc:IsFaceup() then
+	if Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 and tc:IsRelateToEffect(e) and not tc:IsDisabled() and tc:IsFaceup() and (c:IsSSetable() or c:IsMSetable()) then
 		tc:CancelToGrave()
 		Duel.ChangePosition(tc,POS_FACEDOWN)
 		tc:SetStatus(STATUS_ACTIVATE_DISABLED,false)
