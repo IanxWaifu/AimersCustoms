@@ -38,7 +38,7 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
 end
 function s.thfilter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand() and c:IsSetCard(0x12EE) 
+	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand() and c:IsSetCard(0x12EF) 
 		and c:IsLocation(LOCATION_GRAVE)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -77,7 +77,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spfilter(c,e,tp,mc)
 	return c:IsSetCard(0x12EE) and c:IsLinkMonster() and c:IsLinkBelow(2) 
-		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_LINK,tp,false,false)
+		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_LINK,tp,false,false) 
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local zone=e:GetHandler():GetLinkedZone(tp)
@@ -89,8 +89,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local zone=e:GetHandler():GetLinkedZone(tp)
 	if zone==0 or Duel.GetLocationCountFromEx(tp,tp,mc,c)<1 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c,zone)
-	if #g>0 then 
+	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c,zone):GetFirst()
+	if g then 
+		g:SetMaterial(nil)
+		Duel.BreakEffect()
 		Duel.SpecialSummon(g,SUMMON_TYPE_LINK,tp,tp,false,false,POS_FACEUP)
+		g:CompleteProcedure()
 	end
 end

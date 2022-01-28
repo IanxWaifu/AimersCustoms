@@ -48,7 +48,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.cfilter1(c,tp,code)
-	return c:IsSetCard(0x12EE) and c:IsAbleToDeckAsCost()
+	return c:IsSetCard(0x12EE) and c:IsAbleToDeckOrExtraAsCost()
 		and Duel.IsExistingMatchingCard(s.cfilter2,tp,LOCATION_DECK,0,1,nil,c:GetCode())		
 end
 function s.cfilter2(c,code)
