@@ -8,6 +8,7 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCondition(s.actcon)
 	e1:SetCountLimit(1,id)
+	e1:SetHintTiming(0,0x1c1)
 	e1:SetCondition(s.actcon)
 	e1:SetTarget(s.acttg)
 	e1:SetOperation(s.actop)
@@ -32,7 +33,7 @@ function s.actcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_ONFIELD,0,1,nil)
 end
 function s.actfilter(c)
-	return c:IsFaceup() and not c:IsDisabled() and (c:IsSSetable() or c:IsMSetable())
+	return c:IsFaceup() and not c:IsDisabled() and c:IsCanTurnSet()
 end
 function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(1-tp) and chkc:IsOnField() and s.actfilter(chkc) end
@@ -44,7 +45,7 @@ end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 and tc:IsRelateToEffect(e) and not tc:IsDisabled() and tc:IsFaceup() and (c:IsSSetable() or c:IsMSetable()) then
+	if Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 and tc:IsRelateToEffect(e) and not tc:IsDisabled() and tc:IsFaceup() and c:IsCanTurnSet() then
 		tc:CancelToGrave()
 		Duel.ChangePosition(tc,POS_FACEDOWN)
 		tc:SetStatus(STATUS_ACTIVATE_DISABLED,false)

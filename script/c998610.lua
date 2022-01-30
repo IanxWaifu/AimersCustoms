@@ -104,7 +104,7 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetTurnPlayer()~=tp
 end
 function s.cfilter(c,e,tp)
-	return c:IsSetCard(0x12EA) and not c:IsType(TYPE_RITUAL+TYPE_SYNCHRO) and c:IsAbleToDeck() and c:IsFaceup()
+	return c:IsSetCard(0x12EA) and c:IsType(TYPE_MONSTER) and not c:IsType(TYPE_RITUAL+TYPE_SYNCHRO) and c:IsAbleToDeck() and c:IsFaceup()
 	and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil,e,tp,c:GetCode())
 end
 function s.tgfilter(c,e,tp,code)
@@ -141,7 +141,7 @@ end
 end
 
 function s.sefilter(c,tp)
-	return c:IsSetCard(0x12EA) and c:IsType(TYPE_MONSTER)
+	return c:IsSetCard(0x12EA) and c:IsType(TYPE_MONSTER) and c:IsControler(tp)
 end
 function s.secon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.sefilter,1,nil,tp)

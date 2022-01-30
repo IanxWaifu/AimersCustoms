@@ -89,9 +89,10 @@ end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 	local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_GRAVE,0,1,1,nil,tp)
-		local tc=sg:GetFirst()
+	local tc=sg:GetFirst()
 	local te=tc:GetActivateEffect()
 	if not te then return end
+	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,0)
 	local pre={Duel.GetPlayerEffect(tp,EFFECT_CANNOT_ACTIVATE)}
 	if pre[1] then
 		for i,eff in ipairs(pre) do
