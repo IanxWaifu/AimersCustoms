@@ -243,19 +243,32 @@ function s.matcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.mattg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)>=1 end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_DECK)
 end
 function s.matop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)==0 then return end
 	Duel.ConfirmDecktop(tp,1)
 	local g=Duel.GetDecktopGroup(tp,1)
 	local tc=g:GetFirst()
-		if tc and tc:IsAbleToGrave() and (not tc:IsAbleToRemove() or Duel.SelectYesNo(tp,aux.Stringid(id,7))) then
-			Duel.DisableShuffleCheck()
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-			Duel.SendtoGrave(tc,REASON_EFFECT)
-		else
-			Duel.DisableShuffleCheck()
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-			Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
+	local b1=tc:IsAbleToGrave()
+	local b2=tc:IsAbleToRemove()
+	local op=0
+	if b1 and b2 then
+		op=Duel.SelectOption(tp,aux.Stringid(id,5),aux.Stringid(id,6))
+	elseif b1 then
+		op=Duel.SelectOption(tp,aux.Stringid(id,5))
+	else
+		op=Duel.SelectOption(tp,aux.Stringid(id,6))+1
+	end
+	if op==2 then return end
+	if op==0 then
+		Duel.DisableShuffleCheck()
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+		Duel.SendtoGrave(tc,REASON_EFFECT)
+	else
+		Duel.DisableShuffleCheck()
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
 end
