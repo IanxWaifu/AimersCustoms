@@ -22,7 +22,7 @@ function s.cfilter(c,tp)
 		and Duel.IsExistingTarget(s.filter,tp,0,LOCATION_ONFIELD,1,c) and not c:IsCode(id)
 end
 function s.filter(c)
-	return c:IsFaceup() and (c:IsType(TYPE_SPELL+TYPE_TRAP) or (c:IsType(TYPE_EFFECT) and c:IsAbleToRemove()))
+	return c:IsFaceup() and (c:IsType(TYPE_EFFECT) or (c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToRemove()))
 end
 function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,2,e:GetHandler(),tp) end
@@ -37,9 +37,7 @@ end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsType(TYPE_EFFECT) then
-	Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
-	elseif tc and tc:IsRelateToEffect(e) and tc:IsType(TYPE_SPELL+TYPE_TRAP) and tc:IsFaceup() then
+	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsType(TYPE_SPELL+TYPE_TRAP) then
 		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
@@ -58,6 +56,8 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 			e4:SetCode(EFFECT_DISABLE_TRAPMONSTER)
 			e4:SetReset(RESET_EVENT+RESETS_STANDARD)
 			tc:RegisterEffect(e4)
-		end
+	end
+	elseif tc and tc:IsRelateToEffect(e) and tc:IsType(TYPE_MONSTER) and tc:IsFaceup() then
+	Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
 	end
 end

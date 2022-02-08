@@ -19,7 +19,7 @@ function s.initial_effect(c)
 	--place pzone
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DESTROY)
+	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET+EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -89,6 +89,7 @@ function s.pcfilter(c)
 	return c:IsLocation(LOCATION_GRAVE) and c:IsSetCard(0xFA0) and c:IsType(TYPE_PENDULUM) and not c:IsForbidden()
 end
 function s.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return false end
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.pcfilter(chkc) end
 	if chk==0 then return Duel.IsExistingTarget(s.pcfilter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
@@ -96,21 +97,10 @@ function s.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,1,0,0)
 end
 function s.sumop(e,tp,eg,ep,ev,re,r,rp)
+	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return false end
 	local tc=Duel.GetFirstTarget()
-	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) and tc and tc:IsRelateToEffect(e) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.GetFieldGroup(tp,LOCATION_PZONE,0):Select(tp,1,1,nil)
-			if #g>0 then
-			Duel.HintSelection(g)
-			if Duel.Destroy(g,REASON_EFFECT)==0 then return end
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-			Duel.MoveToField(tc,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
-		end
-	elseif tc and tc:IsRelateToEffect(e) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	if tc and tc:IsRelateToEffect(e) then
 		Duel.MoveToField(tc,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
 end
-
-
 	

@@ -28,7 +28,7 @@ function s.initial_effect(c)
 end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
-	return rp~=tp and re:IsActiveType(TYPE_MONSTER) and loc==LOCATION_MZONE
+	return ep~=tp and re:IsActiveType(TYPE_MONSTER) and loc==LOCATION_MZONE
 end
 function s.desfilter(c)
 	return c:IsSetCard(0x12E8) 
