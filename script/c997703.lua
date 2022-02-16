@@ -55,7 +55,7 @@ function s.atcop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	local sc=e:GetLabelObject()
 	if sc:IsRelateToEffect(e) and sc:IsFaceup() and tc:IsRelateToEffect(e) and not tc:IsImmuneToEffect(e) then
-		Duel.Overlay(sc,Group.FromCards(tc))
+		Duel.Overlay(sc,tc)
 	end
 end
 

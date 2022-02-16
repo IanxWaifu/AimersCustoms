@@ -7,7 +7,7 @@ function s.initial_effect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
-	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,id)
 	e1:SetOperation(s.thop)
@@ -60,10 +60,10 @@ end
 
 --Choose 2
 function s.rtfilter(c)
-	return c:IsSetCard(0x19f) and c:IsFaceup()
+	return c:IsSetCard(0x19f) and c:IsFaceup() and c:IsAbleToHand() and c:IsAbleToDeck()
 end
 function s.chtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rtfilter,tp,LOCATION_REMOVED,0,2,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,0)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,0,0)
 end
@@ -72,7 +72,7 @@ function s.chop(e,tp,eg,ep,ev,re,r,rp)
 	local sg=aux.SelectUnselectGroup(g,e,tp,2,2,rtfilter,1,tp,HINTMSG_SELECT)
 	if #sg~=2 then return end
 	Duel.ConfirmCards(1-tp,sg)
-	Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_ATOHAND)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local cg=sg:Select(tp,1,1,nil)
 	local tc=cg:GetFirst()
 	Duel.SendtoHand(tc,nil,REASON_EFFECT)

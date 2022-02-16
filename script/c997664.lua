@@ -79,6 +79,8 @@ end
 function s.tdfilter(c,e,tp)
 	local att=c:GetAttribute()
 	local tatt=s.list[att]
+	Debug.Message(tatt)
+	Debug.Message("no u gay")
 	return att and c:IsSetCard(0x12D9) and c:IsType(TYPE_MONSTER) 
 	and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil,tatt,e,tp)
 end

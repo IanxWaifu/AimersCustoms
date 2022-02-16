@@ -19,14 +19,14 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,{id,1})
---[[	e2:SetCondition(s.actcon)--]]
+	e2:SetCondition(s.actcon)
 	e2:SetTarget(s.acttg)
 	e2:SetOperation(s.actop)
 	c:RegisterEffect(e2)
 end
 --Return to hand and Add Temporum
 function s.filter(c)
-	return --[[c:IsCode(998857) and --]]c:IsAbleToHand()
+	return c:IsCode(998857) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
@@ -45,7 +45,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.actcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:IsActiveType(TYPE_MONSTER) and re:Geandler():IsSetCard(0x19f)
+	return re and re:GetHandler():IsSetCard(0x19f)
 end
 function s.actfilter(c,tp)
 	return c:IsCode(998855) and c:GetActivateEffect():IsActivatable(tp,true) 
@@ -88,10 +88,8 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 				fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
 				if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
 			end
-		end
 		if (tpe&TYPE_FIELD)==TYPE_FIELD then
-			aux.PlayFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
-			else Duel.MoveToField(tc,tp,tp,loc,POS_FACEUP,true) end
+			Duel.MoveToField(tc,tp,tp,loc,POS_FACEUP,true) end
 		end
 		Duel.Hint(HINT_CARD,0,tc:GetCode())
 		tc:CreateEffectRelation(te)
@@ -148,6 +146,7 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 			while etc do
 				etc:ReleaseEffectRelation(te)
 				etc=g:GetNext()
+			end
 		end
 	end
 end
