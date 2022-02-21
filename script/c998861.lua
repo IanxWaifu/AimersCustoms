@@ -21,7 +21,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 	--Custom Fusion Activation
-	local e3=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsCode,32775808),matfilter=s.matfil,extrafil=s.extrafilter,extraop=s.extraop})
+	local e3=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsSetCard,0x19f),matfilter=s.matfil,extrafil=s.extrafilter,extraop=s.extraop})
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetCode(EVENT_FREE_CHAIN)

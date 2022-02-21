@@ -3,18 +3,53 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--Custom Fusion Activation
-	local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsCode,32775808),matfilter=s.matfil,extrafil=s.extrafilter,stage2=s.stage2,extraop=s.extraop})
+	local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsSetCard,0x19f),matfilter=s.matfil,extrafil=s.extrafilter,stage2=s.stage2,extraop=s.extraop})
 	c:RegisterEffect(e1)
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetCategory(CATEGORY_TOHAND)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_TO_GRAVE)
+	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetRange(LOCATION_GRAVE)
+	e2:SetCondition(s.thcon)
+	e2:SetTarget(s.thtg)
+	e2:SetOperation(s.thop)
+	c:RegisterEffect(e2)
 	AshBlossomTable=AshBlossomTable or {}
 	table.insert(AshBlossomTable,e1)
 end
 
+--Fusion Sent to GY
+function s.thcfilter(c,tp)
+	return c:IsPreviousControler(tp) and c:IsSetCard(0x19f) and c:IsType(TYPE_FUSION)
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg and eg:IsExists(s.thcfilter,1,nil,tp)
+end
+--Return to hand
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsAbleToHand() end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,c,1,0,0)
+	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,c,1,0,0)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SendtoHand(c,nil,REASON_EFFECT)
+	end
+end
+
+
+
 --Material Check
 function s.matfil(c,e,tp,chk)
-	return c:IsLocation(LOCATION_HAND+LOCATION_MZONE) and c:IsAbleToGrave() or (c:IsLocation(LOCATION_GRAVE) and c:IsAbleToRemove())
+	return c:IsLocation(LOCATION_HAND+LOCATION_MZONE) or (c:IsLocation(LOCATION_GRAVE) and c:IsAbleToRemove()) and c:IsCanBeFusionMaterial()
 end
 function s.filter(c)
-	return (c:IsAbleToRemove() and c:IsLocation(LOCATION_GRAVE)) or (c:IsAbleToGrave() and c:IsLocation(LOCATION_HAND+LOCATION_MZONE+LOCATION_DECK))
+	return (c:IsAbleToRemove() and c:IsLocation(LOCATION_GRAVE)) or (c:IsAbleToGrave() and c:IsLocation(LOCATION_DECK)) or (c:IsLocation(LOCATION_HAND+LOCATION_MZONE)) and c:IsCanBeFusionMaterial()
 end
 
 --Flag Check for 1 Deck Material and Gy banish
@@ -103,11 +138,8 @@ function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetTargetPlayer(tp)
 	Duel.SetTargetParam(1)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
-	Duel.SetOperationInfo(0,CATEGORY_RECOVER,nil,0,1-tp,1000)
 end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	if Duel.Draw(p,d,REASON_EFFECT)>0 then
-		Duel.BreakEffect()
-	end
+	Duel.Draw(p,d,REASON_EFFECT)
 end
