@@ -74,7 +74,7 @@ function s.efilter(e,te)
 end
 
 function s.setcostfilter(c)
-   return c:IsSetCard(0x12EA) and c:IsType(TYPE_RITUAL+TYPE_SYNCHRO) and c:IsAbleToRemoveAsCost()
+   return c:IsSetCard(0x12EA) and c:IsType(TYPE_RITUAL+TYPE_SYNCHRO) and c:IsType(TYPE_MONSTER) and c:IsAbleToRemoveAsCost()
 end
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
    if chk==0 then return Duel.IsExistingMatchingCard(s.setcostfilter,tp,LOCATION_GRAVE,0,1,nil) end

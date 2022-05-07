@@ -173,7 +173,7 @@ end
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
 	return tc:IsPreviousPosition(POS_FACEUP) and not tc:IsLocation(LOCATION_EXTRA)
-		and (not re or re:GetHandler()~=tc) and ((rp==1-tp and c:IsReason(REASON_EFFECT)) or (r & REASON_FUSION == REASON_FUSION))
+		and (not re or re:GetHandler()~=tc) and ((rp==1-tp and e:GetHandler():IsReason(REASON_EFFECT)) or (r & REASON_FUSION == REASON_FUSION))
 end
 function s.drfilter(c)
 	return c:IsSetCard(0x19f) and c:IsAbleToGrave()

@@ -8,12 +8,12 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_TOGRAVE)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
---[[	e1:SetCost(s.cost)--]]
+	e1:SetCost(s.cost)
 	e1:SetCountLimit(1,id)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
---[[	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)--]]
+	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
 	--Special Summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
@@ -27,7 +27,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
---[[function s.counterfilter(c)
+function s.counterfilter(c)
 	return c:IsSetCard(0x19f)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -45,7 +45,7 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
 	return not c:IsSetCard(0x19f)
-end--]]
+end
 function s.tgfilter(c)
 	return c:IsSetCard(0x19f) and c:IsAbleToGrave() and not c:IsCode(id)
 end

@@ -46,7 +46,7 @@ function s.initial_effect(c)
 end
 
 function s.setfilter(c)
-	return c:IsSSetable() --and c:IsSetCard(0x12EA) 
+	return c:IsSSetable() and c:IsSetCard(0x12EA) 
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
