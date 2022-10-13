@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.chtg)
 	e2:SetOperation(s.chop)
 	c:RegisterEffect(e2)
-	--Remove Special Summon
+--[[	--Remove Special Summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
@@ -36,7 +36,7 @@ function s.initial_effect(c)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
-	c:RegisterEffect(e3)
+	c:RegisterEffect(e3)--]]
 end
 function s.thfilter(c)
 	return c:IsSetCard(0x19f) and c:IsAbleToHand() and not c:IsCode(id) 

@@ -9,7 +9,7 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_HAND)
-	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+	--[[e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)--]]
 	e1:SetCondition(s.spcon)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
@@ -37,38 +37,27 @@ function s.initial_effect(c)
 	e4:SetTarget(s.tgtg)
 	e4:SetOperation(s.tgop)
 	c:RegisterEffect(e4)
-		aux.GlobalCheck(s,function()
+	aux.GlobalCheck(s,function()
 		local ge1=Effect.CreateEffect(c)
 		ge1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		ge1:SetCode(EVENT_TO_HAND)
-		ge1:SetOperation(s.gchk)
+		ge1:SetOperation(s.checkop)
 		Duel.RegisterEffect(ge1,0)
-		local ge2=Effect.CreateEffect(c)
-		ge2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-		ge2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge2:SetCode(EVENT_PHASE_START+PHASE_MAIN1)
-		ge2:SetCountLimit(1)
-		ge2:SetOperation(s.gclear)
-		Duel.RegisterEffect(ge2,0)
 	end)
 end
-s_g=Group.CreateGroup()
+
 s.listed_series={0x1A0}
 s.listed_names={id}
-function s.gchk(e,tp,eg,ev,ep,re,r,rp)
-	local c=eg:GetFirst()
-	while c do
-		if c:IsPreviousControler(tp) and c:IsMonster() and c:IsSetCard(0x1A0)then
-			s_g:AddCard(c) 
+function s.checkop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=eg:GetFirst()
+	local p1=false
+	for tc in aux.Next(eg) do
+		if tc:IsPreviousLocation(LOCATION_MZONE) then
+			if tc:IsSetCard(0x1A0) then p1=true end
 		end
-		c=eg:GetNext()
 	end
-end
-function s.gclear(e,tp,eg,ev,ep,re,r,rp)
-	if s_g then
-		s_g:Clear()
-	end
+	if p1 then Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1) end
 end
 function s.spfilter(c,ft)
 	return c:IsFaceup() and c:IsSetCard(0x1A0) and not c:IsCode(id) and c:IsAbleToHandAsCost()
@@ -117,17 +106,14 @@ function s.actfilter(c,tp)
 	return c:IsCode(998924) and c:GetActivateEffect():IsActivatable(tp,true,true) 
 end
 function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local n=#s_g
-	if chk==0 then return n>1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.actfilter,tp,LOCATION_DECK,0,1,nil,tp) end 
+	if chk==0 then return Duel.GetFlagEffect(tp,id)>1 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.actfilter,tp,LOCATION_DECK,0,1,nil,tp) end 
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
-   		local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
-		local n=#s_g
+   	local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
 		local tc=sg:GetFirst()
 		local te=tc:GetActivateEffect()
-		if not te or n<2 then return end
-		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,0)
+		if not te or Duel.GetFlagEffect(tp,id)<2 then return end
 		local pre={Duel.GetPlayerEffect(tp,EFFECT_CANNOT_ACTIVATE)}
 		if pre[1] then
 			for i,eff in ipairs(pre) do
