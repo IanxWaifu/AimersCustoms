@@ -37,7 +37,7 @@ end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local cg=e:GetHandler():GetColumnGroup()
 	local b1=Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_GRAVE+LOCATION_ONFIELD,0,3,e:GetHandler())
-	local b2=Duel.IsPlayerCanDraw(tp,1) and cg:IsExists(s.cgfilter,1,nil)
+	local b2=Duel.IsPlayerCanDraw(tp,2) and cg:IsExists(s.cgfilter,1,nil)
 	if chk==0 then return b1 end
 	local op=0
 	if b1 and b2 then
@@ -49,9 +49,9 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	e:SetLabel(op)
 	Duel.SetTargetPlayer(tp)
-	Duel.SetTargetParam(1)
+	Duel.SetTargetParam(2)
 	Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
+	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,2)
 	Duel.SetOperationInfo(0,CATEGORY_HANDES,nil,0,tp,1)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
@@ -62,9 +62,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetLabel()==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 		local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE+LOCATION_ONFIELD,0,3,6,e:GetHandler())
-		if Duel.SendtoDeck(g,nil,2,REASON_EFFECT)~=0 and g:GetFirst():IsLocation(LOCATION_DECK) and Duel.IsPlayerCanDraw(tp,1) then
+		if Duel.SendtoDeck(g,nil,2,REASON_EFFECT)~=0 and g:GetFirst():IsLocation(LOCATION_DECK) and Duel.IsPlayerCanDraw(tp,2) then
 			Duel.BreakEffect()
-			Duel.Draw(tp,1,REASON_EFFECT)
+			Duel.Draw(tp,2,REASON_EFFECT)
 		end
 	else
 		local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)

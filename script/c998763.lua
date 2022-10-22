@@ -26,7 +26,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.filter(c)
-	return c:IsSetCard(0x12EE) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+	return (c:IsSetCard(0x12EE) or c:IsSetCard(0x12E5)) and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.tgfilter(c,g,cg)
 	return c:IsAbleToGrave() and g:IsContains(c)
