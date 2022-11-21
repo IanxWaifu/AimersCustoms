@@ -45,31 +45,23 @@ function s.spcon(e)
 	return cg:IsExists(s.cgfilter,1,nil)
 end
 
-function s.spcfilter(c,hc)
-	return c:GetColumnGroup():IsContains(hc) and c:IsAbleToGraveAsCost()
-end
-function s.rthfilter(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()
+function s.spcfilter(c)
+	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToGrave()
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_ONFIELD,0,1,c,c) and Duel.IsExistingMatchingCard(s.rthfilter,tp,0,LOCATION_SZONE,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,1,1,tp,LOCATION_ONFIELD)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,1-tp,LOCATION_SZONE)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.spcfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,TYPE_SPELL+TYPE_TRAP) end
+	local g=Duel.GetMatchingGroup(s.spcfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,TYPE_SPELL+TYPE_TRAP)
+	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.SelectMatchingCard(tp,s.spcfilter,tp,LOCATION_ONFIELD,0,1,1,c,c)
-	local tc=g:GetFirst()
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	if Duel.SendtoGrave(tc,REASON_EFFECT)~=0 and tc:IsLocation(LOCATION_GRAVE) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-		local g2=Duel.SelectMatchingCard(tp,s.rthfilter,tp,0,LOCATION_SZONE,1,1,nil)
-		if #g2>0 then
-			Duel.SendtoHand(g2,nil,REASON_EFFECT)
-		end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	local g=Duel.SelectMatchingCard(tp,s.spcfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,TYPE_SPELL+TYPE_TRAP)
+	if #g>0 then
+		Duel.HintSelection(g)
+		Duel.SendtoGrave(g,REASON_EFFECT)
 	end
 end
+
 
 
 function s.regcon(e,tp,eg,ep,ev,re,r,rp)

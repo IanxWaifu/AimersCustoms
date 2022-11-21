@@ -82,13 +82,18 @@ function c40933360.operation(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterEffect(e2,tp)
 		local e3=Effect.CreateEffect(e:GetHandler())
 		e3:SetType(EFFECT_TYPE_SINGLE)
-		e3:SetCode(EFFECT_MUST_BE_ATTACKED)
-		e3:SetValue(1)
+		e3:SetCode(EFFECT_MUST_ATTACK_MONSTER)
+		e3:SetValue(c40933360.atklimit)
 		e3:SetReset(RESET_PHASE+PHASE_BATTLE+RESET_EVENT+0x1fc0000)
 		tc:RegisterEffect(e3,true)
 		Duel.ChangeAttackTarget(tc)
 	end
 end
+
+function c40933360.atklimit(e,c)
+	return c==e:GetHandler()
+end
+
 function c40933360.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetBattledGroupCount()>0
 end
