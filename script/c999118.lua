@@ -49,17 +49,20 @@ end
 function s.filter(c,ignore)
 	return c:IsSetCard(0x12A7) and c:IsSpellTrap() and c:IsSSetable(ignore)
 end
+function s.fieldfilter(c,ignore)
+	return c:IsSetCard(0x12A7) and c:IsType(TYPE_FIELD) and c:IsSSetable(ignore)
+end
 function s.cfilter(c,tp)
 	if not (c:IsSetCard(0x12A7) and c:IsOriginalType(TYPE_PENDULUM)) then return false end
 	if not c:IsLocation(LOCATION_SZONE) then
-		return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil)
+		return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,true)
 	else
 		return c:IsFaceup() and Duel.GetLocationCount(tp,LOCATION_SZONE)>-1 
-			and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,true)
+			and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,true) and c:IsControler(tp)
 	end
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,nil,1,tp,LOCATION_ONFIELD)
 end
@@ -68,10 +71,10 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local dg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_DECK,0,nil)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,0,1,1,nil,tp)
+	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,tp)
 	if #g>0 and Duel.Destroy(g,REASON_EFFECT)~=0 and #dg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-		local dg2=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
+		local dg2=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,false):GetFirst()
 		if #dg2>0 then
 		Duel.SSet(tp,dg2:GetFirst())
 	end

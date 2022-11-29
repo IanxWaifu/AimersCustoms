@@ -84,13 +84,15 @@ function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
 	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	if not Duel.SelectYesNo(tp,aux.Stringid(id,1)) then return end
+	if not Duel.SelectYesNo(tp,aux.Stringid(id,1)) then return false end
 	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	Duel.Destroy(tc,REASON_EFFECT)
+	if tc then
+		Duel.Destroy(tc,REASON_EFFECT)
+	end
 end
 
 --Set self
