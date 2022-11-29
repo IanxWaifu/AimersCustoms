@@ -23,7 +23,7 @@ function s.initial_effect(c)
 end
 s.listed_series={0x190}
 function s.chainfilter(re,tp,cid)
-	return (not(re:IsActiveType(TYPE_MONSTER) and not re:GetHandler():IsSetCard(0xFA0)) or (re:IsActiveType(TYPE_MONSTER) and not re:GetHandler():IsSetCard(0x190)))
+	return not (re:IsActiveType(TYPE_MONSTER) and not (re:GetHandler():IsSetCard(0xFA0) or re:GetHandler():IsSetCard(0x190)))
 end
 function s.filter1(c)
 	return c:IsSetCard(0xFA0) and c:IsType(TYPE_PENDULUM) and c:IsAbleToHand() and c:GetLevel()==4

@@ -1,7 +1,7 @@
 --Searing Twilight Red Dragon Archfiend
 function c13315.initial_effect(c)
 	--synchro summon
-	aux.AddSynchroProcedure(c,nil,aux.NonTuner(Card.IsType,TYPE_SYNCHRO),1)
+	Synchro.AddProcedure(c,nil,1,1,Synchro.NonTuner(Card.IsType,TYPE_SYNCHRO),1,1)
 	c:EnableReviveLimit()
 	--destroy
 	local e1=Effect.CreateEffect(c)

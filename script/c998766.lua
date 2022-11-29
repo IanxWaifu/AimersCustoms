@@ -44,7 +44,7 @@ end
 
 --Direct Attack
 function s.eftg(e,c)
-	return e:GetHandler():GetMutalLinkedGroup():IsContains(c) and c:IsSetCard(0x12EE) and c:IsLinkMonster()
+	return e:GetHandler():GetMutalLinkedGroup() and c:IsSetCard(0x12EE)
 end
 
 function s.spcfilter(c,lg)

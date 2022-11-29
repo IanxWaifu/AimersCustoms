@@ -73,10 +73,8 @@ function s.atkval(e,c)
 	if lg>=1 then lg=lg+1 end
 	return lg*300
 end
-
 function s.dmgcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:GetMutualLinkedGroupCount()>=2
+	return e:GetHandler():GetMutualLinkedGroupCount()>=2
 end
 function s.cfilter(c)
 	return c:IsSetCard(0x12EF) and c:IsType(TYPE_CONTINUOUS)

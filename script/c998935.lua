@@ -1,5 +1,5 @@
---Scripted by IanxWaifu
---Iron Saga - Ruins of Reconception
+--Scripted by Aimer
+--Iron Saga - Andrometeor, Full Ordinal Link
 local s,id=GetID()
 function s.initial_effect(c)
 	--xyz summon

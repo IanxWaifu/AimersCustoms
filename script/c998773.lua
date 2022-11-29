@@ -86,6 +86,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetValue(LOCATION_EXTRA)
 		c:RegisterEffect(e2,true)
 	end
+	Duel.SpecialSummonComplete()
 end
 function s.linklimit(e,c)
 	if not c then return false end
