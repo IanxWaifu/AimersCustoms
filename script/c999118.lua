@@ -87,19 +87,16 @@ function s.repfilter(c,tp)
 		and c:IsReason(REASON_BATTLE+REASON_EFFECT) and not c:IsReason(REASON_REPLACE)
 end
 function s.desfilter(c,e,tp)
-	return c:IsOriginalType(TYPE_PENDULUM) and c:IsSetCard(0x12A7) and c:IsDestructable(e)
+	return c:IsFaceup() and c:IsOriginalType(TYPE_PENDULUM) and c:IsSetCard(0x12A7) and c:IsDestructable(e)
 		and not c:IsStatus(STATUS_DESTROY_CONFIRMED+STATUS_BATTLE_DESTROYED)
 end
-function s.cfilter(c)
-	return c:IsFaceup() and c:IsOriginalType(TYPE_PENDULUM) and c:IsSetCard(0x12A7)
-end
 function s.desreptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_MZONE,0,nil)
+	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e)
 	if chk==0 then return eg:IsExists(s.repfilter,1,nil,tp)
 		and g:IsExists(s.desfilter,1,nil,e,tp) end
 	if Duel.SelectEffectYesNo(tp,e:GetHandler(),96) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESREPLACE)
-		local sg=g:FilterSelect(tp,s.desfilter,1,1,nil,e,tp)
+		local sg=g:FilterSelect(tp,s.desfilter,1,1,nil,e)
 		e:SetLabelObject(sg:GetFirst())
 		Duel.HintSelection(sg)
 		sg:GetFirst():SetStatus(STATUS_DESTROY_CONFIRMED,true)
