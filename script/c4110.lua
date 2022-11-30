@@ -48,19 +48,19 @@ function c4110.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Damage(1-tp,500,REASON_EFFECT)
 	end
 end
-function c4110.filter(c,e,tp)
+function c4110.filter(c)
 	return c:IsSetCard(0x1004) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand() and not c:IsCode(4110)
 end
 function c4110.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c4110.filter(chkc,e,tp) end
-	if chk==0 then return Duel.IsExistingTarget(c4110.filter,tp,LOCATION_GRAVE,0,1,nil,e,tp) end
+	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and c4110.filter(chkc) end
+	if chk==0 then return Duel.IsExistingTarget(c4110.filter,tp,LOCATION_GRAVE,0,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOHAND)
-	local g=Duel.SelectTarget(tp,c4110.filter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+	local g=Duel.SelectTarget(tp,c4110.filter,tp,LOCATION_GRAVE,0,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
 end
 function c4110.op(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
+	if tc then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
 end

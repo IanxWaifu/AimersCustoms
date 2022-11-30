@@ -4,13 +4,13 @@ function s.initial_effect(c)
 	c:SetUniqueOnField(1,0,id)
 	--fusion material
 	c:EnableReviveLimit()
-	--spsummon limit
+--[[	--spsummon limit
 	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
 	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 	e0:SetCode(EFFECT_SPSUMMON_CONDITION)
 	e0:SetValue(s.splimit)
-	c:RegisterEffect(e0)
+	c:RegisterEffect(e0)--]]
 	--atkup
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)

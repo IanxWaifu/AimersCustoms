@@ -24,46 +24,117 @@ function s.initial_effect(c)
 	e2:SetOperation(s.disop)
 	c:RegisterEffect(e2)
 	--To hand
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,2))
-	e2:SetCategory(CATEGORY_TOHAND)
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
-	e2:SetCode(EVENT_TO_GRAVE)
-	e2:SetCountLimit(1,{id,1})
-	e2:SetTarget(s.thtg)
-	e2:SetOperation(s.thop)
-	c:RegisterEffect(e2)
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetCategory(CATEGORY_TOHAND)
+	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e3:SetCode(EVENT_TO_GRAVE)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetTarget(s.thtg)
+	e3:SetOperation(s.thop)
+	c:RegisterEffect(e3)
 end
 s.listed_series={0x12A7}
 s.listed_names={id}
 
+
 function s.cfilter(c)
 	return c:IsSetCard(0x12A7) and c:IsFaceup()
 end
+
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsChainNegatable(ev) and re:IsActiveType(TYPE_MONSTER) and ep==1-tp
 end
-function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,e:GetHandler()) end
-	Duel.SetOperationInfo(0,CATEGORY_DISABLE,eg,1,0,0)
-	if re:GetHandler():IsDestructable() and re:GetHandler():IsRelateToEffect(re) then
-		Duel.SetOperationInfo(0,CATEGORY_DESTROY,eg,1,0,0)
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then
+		local g=Group.CreateGroup()
+		for i=1,ev do
+			local te=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_EFFECT)
+			local tc=te:GetHandler()
+			if tc and te:IsActiveType(TYPE_MONSTER) then
+				local loc=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_LOCATION)
+				g:AddCard(tc)
+			end
+		end
+		return g:IsContains(chkc) end
+	if chk==0 then
+		local g=Group.CreateGroup()
+		for i=1,ev do
+			local te=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_EFFECT)
+			local tc=te:GetHandler()
+			if tc and te:IsActiveType(TYPE_MONSTER) then
+				local loc=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_LOCATION)
+				g:AddCard(tc)
+			end
+		end
+		local dg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_ONFIELD,0,e:GetHandler())
+		return #g>0 and #g<=#dg
+	end
+	local g=Group.CreateGroup()
+	for i=1,ev do
+		local te=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_EFFECT)
+		local tc=te:GetHandler()
+		if tc and te:IsActiveType(TYPE_MONSTER) then
+			local loc=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_LOCATION)
+			g:AddCard(tc)
+			tc:RegisterFlagEffect(id,RESET_CHAIN,0,1,i)
+		end
+	end
+  	g:KeepAlive()
+    e:SetLabelObject(g)
+	local i=g:GetFirst():GetFlagEffectLabel(id)
+	local te=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_EFFECT)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,1,0,0)
+	if g:GetFirst():IsRelateToEffect(te) then
+		Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
 	end
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,0,e:GetHandler())
-	if #g>0 then 
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-		local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_ONFIELD,0,1,1,e:GetHandler())
-		local tg=g:GetFirst()
-		if tg and Duel.Destroy(tg,REASON_EFFECT)~=0 then
-			if Duel.NegateEffect(ev) and re:GetHandler():IsRelateToEffect(re) then
-				Duel.Destroy(eg,REASON_EFFECT)
-			end
+	local c=e:GetHandler()
+	local g=e:GetLabelObject()
+	local dg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_ONFIELD,0,e:GetHandler())
+	if #g>#dg then return end
+	if #g>0 and #g<=#dg then
+			local ct=dg:Select(tp,#g,#g,nil)
+			if ct and Duel.Destroy(ct,REASON_EFFECT)~=0 then
+			local sg=g:Select(tp,#ct,#ct,nil)
+			local tc=sg:GetFirst()
+			if not tc or tc:IsDisabled() then return end
+				for tc in aux.Next(sg) do
+				Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+				local e1=Effect.CreateEffect(c)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e1:SetCode(EFFECT_DISABLE)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e1)
+				local e2=Effect.CreateEffect(c)
+				e2:SetType(EFFECT_TYPE_SINGLE)
+				e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e2:SetCode(EFFECT_DISABLE_EFFECT)
+				e2:SetValue(RESET_TURN_SET)
+				e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e2)
+				if tc:IsType(TYPE_TRAPMONSTER) then
+					local e3=Effect.CreateEffect(c)
+					e3:SetType(EFFECT_TYPE_SINGLE)
+					e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+					e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
+					e3:SetReset(RESET_EVENT+RESETS_STANDARD)
+					tc:RegisterEffect(e3)
+				end
+					Duel.AdjustInstantly()
+					if not tc:IsDestructable(e) then return end
+					Duel.Destroy(tc,REASON_EFFECT)
+				end
+			sg:DeleteGroup()
 		end
 	end
 end
+
+
+
 
 
 --Disable Specials
@@ -104,7 +175,7 @@ end
 
 --To hand
 function s.thfilter(c)
-	return c:IsSetCard(0x12A7) and c:IsAbletoHand() and c:IsType(TYPE_PENDULUM)
+	return c:IsSetCard(0x12A7) and c:IsAbleToHand() and c:IsType(TYPE_PENDULUM)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and chkc:IsAbleToHand() end

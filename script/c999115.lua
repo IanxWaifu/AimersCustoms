@@ -52,7 +52,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			Duel.BreakEffect()
 			e:SetProperty(EFFECT_FLAG_CARD_TARGET)
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-			local tc=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,count+1,nil)
+			local tc=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,count,nil)
 			Duel.Destroy(tc,REASON_EFFECT)
 		end
 	end

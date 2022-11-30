@@ -74,11 +74,11 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,tp)
 	if #g>0 and Duel.Destroy(g,REASON_EFFECT)~=0 and #dg>0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-		local dg2=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,false):GetFirst()
+		local dg2=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,false)
 		if #dg2>0 then
-		Duel.SSet(tp,dg2:GetFirst())
+			Duel.SSet(tp,dg2:GetFirst())
+		end
 	end
-end
 end
 
 --Destroy Replace

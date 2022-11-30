@@ -98,34 +98,36 @@ function c4128.tgcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function c4128.tgfilter(c,e,tp)
-	return c:IsSetCard(0x1004) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,true,true)
+	return c:IsSetCard(0x1004) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,true,false)
 end
 function c4128.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsFaceup() then
+	local chain=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local dg=Duel.GetMatchingGroup(c4128.tgfilter,tp,0,LOCATION_GRAVE,nil,e,tp)
+	if chain and chain:GetFirst():IsRelateToEffect(e) then
 		local g=Group.CreateGroup()
 		g:AddCard(c)
 		Duel.ChangeTargetCard(ev,g)
-		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(c4128.tgfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp) and 
-		Duel.SelectYesNo(tp,aux.Stringid(4128,2)) then
-			Duel.BreakEffect()
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-			local g1=Duel.SelectMatchingCard(tp,c4128.tgfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
-			if g1:IsExists(Card.IsHasEffect,1,nil,EFFECT_NECRO_VALLEY) then return end
-			Duel.SpecialSummon(g1,0,tp,tp,true,true,POS_FACEUP)
-			local tc=g1:GetFirst()
-			while tc do
-				local e1=Effect.CreateEffect(c)
-				e1:SetType(EFFECT_TYPE_SINGLE)
-				e1:SetCode(EFFECT_DISABLE)
-				e1:SetReset(RESET_EVENT+0x1fe0000)
-				tc:RegisterEffect(e1)
-				local e2=Effect.CreateEffect(c)
-				e2:SetType(EFFECT_TYPE_SINGLE)
-				e2:SetCode(EFFECT_DISABLE_EFFECT)
-				e2:SetReset(RESET_EVENT+0x1fe0000)
-				tc:RegisterEffect(e2)
-				tc=g1:GetNext()
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+		if Duel.SelectYesNo(tp,aux.Stringid(4128,2)) and #g>0 then
+		Duel.BreakEffect()
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		local g1=Duel.SelectMatchingCard(tp,c4128.tgfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+		if g1:IsExists(Card.IsHasEffect,1,nil,EFFECT_NECRO_VALLEY) then return end
+		Duel.SpecialSummon(g1,0,tp,tp,true,false,POS_FACEUP)
+		local tc=g1:GetFirst()
+		while tc do
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_DISABLE)
+			e1:SetReset(RESET_EVENT+0x1fe0000)
+			tc:RegisterEffect(e1)
+			local e2=Effect.CreateEffect(c)
+			e2:SetType(EFFECT_TYPE_SINGLE)
+			e2:SetCode(EFFECT_DISABLE_EFFECT)
+			e2:SetReset(RESET_EVENT+0x1fe0000)
+			tc:RegisterEffect(e2)
+			tc=g1:GetNext()
 			end
 		end
 	end

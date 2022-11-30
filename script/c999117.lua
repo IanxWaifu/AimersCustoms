@@ -14,8 +14,8 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
 	e1:SetRange(LOCATION_FZONE)
-	e1:SetTargetRange(LOCATION_MZONE,0)
-	e1:SetTarget(function(e,c) return c:IsRace(RACE_DRAGON) and c:IsFaceup() and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e) end)
+	e1:SetTargetRange(LOCATION_MZONE+LOCATION_PZONE,0)
+	e1:SetTarget(function(e,c) return c:IsRace(RACE_DRAGON) and c:IsFaceup() and c:IsOriginalType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e) end)
 	e1:SetValue(s.matval)
 	e1:SetLabelObject({s.extrafil_replacement})
 	c:RegisterEffect(e1)
@@ -54,14 +54,14 @@ function s.matval(e,c)
 	return c and c:IsRace(RACE_DRAGON) and c:IsControler(e:GetHandlerPlayer())
 end
 function s.extrafil_repl_filter(c)
-	return c:IsMonster() and c:IsCanBeFusionMaterial() and c:IsRace(RACE_DRAGON)
+	return c:IsOriginalType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and c:IsRace(RACE_DRAGON)
 end
 function s.extrafil_replacement(e,tp,mg)
-	local g=Duel.GetMatchingGroup(s.extrafil_repl_filter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	local g=Duel.GetMatchingGroup(s.extrafil_repl_filter,tp,LOCATION_MZONE+LOCATION_PZONE,LOCATION_MZONE+LOCATION_PZONE,nil)
 	return g,s.fcheck_replacement
 end
 function s.fcheck_replacement(tp,sg,fc)
-	return sg:FilterCount(Card.IsLocation,nil,LOCATION_MZONE)
+	return sg:FilterCount(Card.IsLocation,nil,LOCATION_MZONE+LOCATION_PZONE)
 end
 
 

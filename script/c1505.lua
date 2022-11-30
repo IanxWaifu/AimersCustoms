@@ -18,7 +18,7 @@ function c1505.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.PayLPCost(tp,1000)
 end	
 function c1505.tgfilter(c)
-	return c:IsType(TYPE_MONSTER) and (c:IsAttribute(ATTRIBUTE_WIND) or c:IsRace(RACE_PSYCHO)) and c:IsAbleToGrave() and c:IsLocation(LOCATION_DECK)
+	return c:IsType(TYPE_MONSTER) and (c:IsAttribute(ATTRIBUTE_WIND) or c:IsRace(RACE_PSYCHIC)) and c:IsAbleToGrave() and c:IsLocation(LOCATION_DECK)
 end
 function c1505.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end

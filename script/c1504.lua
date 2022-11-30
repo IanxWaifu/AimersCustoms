@@ -73,7 +73,7 @@ function c1504.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return pc and pc:IsSetCard(0x5DC)
 end
 function c1504.filter(c)
-	return c:IsRace(RACE_PSYCHO) and c:IsAbleToHand()
+	return c:IsRace(RACE_PSYCHIC) and c:IsAbleToHand()
 end
 function c1504.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

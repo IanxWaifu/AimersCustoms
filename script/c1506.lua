@@ -60,7 +60,7 @@ function c1506.condition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SYNCHRO
 end
 function c1506.filter(c,e,tp)
-	return c:IsRace(RACE_PSYCHO) and c:IsType(TYPE_SYNCHRO) and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsRace(RACE_PSYCHIC) and c:IsType(TYPE_SYNCHRO) and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c1506.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 

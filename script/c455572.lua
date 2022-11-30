@@ -80,9 +80,7 @@ function c455572.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		local tc=g:GetFirst()
 		local og=Group.CreateGroup()
 		while tc do
-			if tc:IsLocation(LOCATION_OVERLAY) then
-				og:AddCard(tc)
-			end
+			og:AddCard(tc)
 			local e1=Effect.CreateEffect(e:GetHandler())
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetCode(EFFECT_TO_GRAVE_REDIRECT)

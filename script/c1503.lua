@@ -44,7 +44,7 @@ function c1503.spcondition(e)
 	return not e:GetHandler():IsLocation(LOCATION_HAND)
 end
 function c1503.filter(c)
-	return c:IsRace(RACE_PSYCHO) and c:IsAbleToRemoveAsCost()
+	return c:IsRace(RACE_PSYCHIC) and c:IsAbleToRemoveAsCost()
 end
 function c1503.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c1503.filter,tp,LOCATION_GRAVE,0,1,nil) end
