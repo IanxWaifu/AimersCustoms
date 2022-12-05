@@ -68,7 +68,10 @@ function s.repval(e,c)
 end
 function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+		if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		tc:RegisterFlagEffect(998932,RESET_EVENT+RESETS_STANDARD,0,0)
+	end
+	Duel.SpecialSummonComplete()
 end
 
 --Banish and Search

@@ -52,8 +52,8 @@ s.listed_series={0x12A7}
 s.listed_names={id}
 --ATK/DEF on Summon
 
-function s.cfilter(c,tp)
-	return c:IsSummonPlayer(tp) and c:IsLocation(LOCATION_MZONE) and (c:GetSummonType()&SUMMON_TYPE_PENDULUM+SUMMON_TYPE_FUSION)~=0 and (c:IsRace(RACE_DRAGON) or c:IsSetCard(0x12A7))
+function s.cfilter(c)
+	return c:IsLocation(LOCATION_MZONE) and (c:GetSummonType()&SUMMON_TYPE_PENDULUM+SUMMON_TYPE_FUSION)~=0 and (c:IsRace(RACE_DRAGON) or c:IsSetCard(0x12A7))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return eg and eg:IsExists(s.cfilter,1,nil,tp) end
@@ -61,8 +61,9 @@ end
 
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	local owner=c:GetOwner()
 	if not c:IsRelateToEffect(e) then return end
-	local dg=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
+	local dg=Duel.GetMatchingGroup(Card.IsFaceup,owner,0,LOCATION_MZONE,nil)
 	if #dg>0 and eg:IsExists(s.cfilter,1,nil,tp)  then
 		local tc=dg:GetFirst()
    		for tc in aux.Next(dg) do

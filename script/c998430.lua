@@ -85,6 +85,15 @@ function s.initial_effect(c)
 	e9:SetCountLimit(1)
 	e9:SetOperation(s.atkop)
 	c:RegisterEffect(e9)
+	--Unaffected
+	local e10=Effect.CreateEffect(c)
+	e10:SetType(EFFECT_TYPE_SINGLE)
+	e10:SetCode(EFFECT_IMMUNE_EFFECT)
+	e10:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e10:SetRange(LOCATION_MZONE)
+	e10:SetCondition(s.imcon)
+	e10:SetValue(s.efilter)
+	c:RegisterEffect(e10)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.CheckPhaseActivity()
@@ -249,4 +258,10 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local e2=e1:Clone()
 	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	c:RegisterEffect(e2)
+end
+
+function s.efilter(e,te,re,rp)
+	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return true end
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	return not g:IsContains(e:GetHandler()) and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
 end

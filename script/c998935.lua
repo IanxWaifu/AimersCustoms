@@ -4,19 +4,48 @@ local s,id=GetID()
 function s.initial_effect(c)
 	--xyz summon
 	c:EnableReviveLimit()
-	--spsummon
+	--Special Summon Proc
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(id,0))
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_NEGATE+EFFECT_FLAG_CANNOT_DISABLE)
+	e0:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e0:SetType(EFFECT_TYPE_QUICK_O)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetRange(LOCATION_EXTRA)
+	e0:SetCountLimit(1,id)
+	e0:SetCondition(s.xyzconEP)
+	e0:SetOperation(s.xyzopEP)
+	e0:SetValue(SUMMON_TYPE_XYZ)
+	c:RegisterEffect(e0)
+	--Unaffected
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_CANNOT_NEGATE+EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e1:SetType(EFFECT_TYPE_QUICK_O)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetRange(LOCATION_EXTRA)
-	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.xyzconEP)
-	e1:SetOperation(s.xyzopEP)
-	e1:SetValue(SUMMON_TYPE_XYZ)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_IMMUNE_EFFECT)
+	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e1:SetRange(LOCATION_MZONE)
+	e1:SetCondition(s.imcon)
+	e1:SetValue(s.efilter)
 	c:RegisterEffect(e1)
+	--remove material
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e2:SetCode(EVENT_PHASE+PHASE_END)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1)
+	e2:SetCondition(s.matcon)
+	e2:SetOperation(s.matop)
+	c:RegisterEffect(e2)
+	--To Extra
+	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+	e3:SetCode(EVENT_PHASE+PHASE_END)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCountLimit(1)
+	e3:SetCondition(s.tdcon)
+	e3:SetOperation(s.tdop)
+	c:RegisterEffect(e3)
 	aux.GlobalCheck(s,function()
 		local ge1=Effect.CreateEffect(c)
 		ge1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
@@ -78,4 +107,34 @@ function s.xyzopEP(e,tp,eg,ep,ev,re,r,rp,c,og)
     Duel.SpecialSummon(c,SUMMON_TYPE_XYZ,tp,tp,true,false,POS_FACEUP)
     c:CompleteProcedure()
     Duel.ShuffleHand(tp)
+end
+
+--Immune Eff
+function s.imcon(e)
+	return e:GetHandler():GetOverlayCount()>0
+end
+function s.efilter(e,te,re,rp)
+	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return true end
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	return not g:IsContains(e:GetHandler()) and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
+end
+
+--Remove Mat
+function s.matcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetTurnPlayer()~=tp
+end
+function s.matop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:GetOverlayCount()>0 then
+		c:RemoveOverlayCard(tp,1,1,REASON_EFFECT)
+	end
+end
+
+--To Extra
+function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetOverlayCount()==0
+end
+function s.tdop(e,tp,eg,ep,ev,re,r,rp)
+	if not e:GetHandler():GetOverlayCount()==0 then return end 
+	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_EFFECT)
 end

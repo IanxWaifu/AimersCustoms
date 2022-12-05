@@ -14,7 +14,6 @@ function s.initial_effect(c)
 	-- Set self
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetCategory(CATEGORY_TOHAND)
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_PHASE+PHASE_END)
 	e2:SetRange(LOCATION_GRAVE)
@@ -72,18 +71,20 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetTarget(s.destg)
 		e1:SetOperation(s.desop)
 		Duel.RegisterEffect(e1,tp)
+		e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESET_TOFIELD,0,1)
 	end
 end
 
 --Target and Destroy
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	return tc:IsPreviousPosition(POS_FACEUP)
+	return tc:IsPreviousPosition(POS_FACEUP) and e:GetHandler():GetFlagEffect(id+1)>0
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() end
 	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+	e:GetHandler():ResetFlagEffect(id+1)
 	if not Duel.SelectYesNo(tp,aux.Stringid(id,1)) then return false end
 	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)

@@ -67,7 +67,8 @@ function s.initial_effect(c)
 	e5:SetOperation(s.desop)
 	c:RegisterEffect(e5)
 end
-
+s.listed_series={0x12A7}
+s.listed_names={id}
 --Place to opponent's Pendulum Zone
 function s.pccost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

@@ -48,29 +48,23 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=g:GetFirst()
 	if not tc then return end
 	if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		--leave replace
 		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(id,1))
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CANNOT_TO_HAND)
-		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-		e1:SetValue(s.indval)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1)
-		local e2=e1:Clone()
-		e2:SetCode(EFFECT_CANNOT_TO_DECK)
-		tc:RegisterEffect(e2)
-		local e3=e1:Clone()
-		e3:SetCode(EFFECT_CANNOT_REMOVE)
-		tc:RegisterEffect(e3)
-		local e4=e1:Clone()
-		e4:SetCode(EFFECT_CANNOT_TO_GRAVE)
-		tc:RegisterEffect(e4)
+		e1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)
+		e1:SetRange(LOCATION_MZONE)
+		e1:SetProperty(EFFECT_FLAG_DAMAGE_STEP)
+		e1:SetCode(EFFECT_SEND_REPLACE)
+		e1:SetTarget(s.reptg)
+		e1:SetValue(1)
+		c:RegisterEffect(e1)
 	end
 	Duel.SpecialSummonComplete()
 end
 
-function s.indval(e,re,rp)
-	return re:IsActiveType(TYPE_MONSTER)
+function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return (r&REASON_EFFECT)~=0 and re and re:IsActiveType(TYPE_MONSTER) end
+	return true
 end
 
 

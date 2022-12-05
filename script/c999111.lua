@@ -48,11 +48,12 @@ s.listed_series={0x12A7}
 s.listed_names={id}
 --ATK/DEF on Summon
 
-function s.cfilter(c,tp)
-	return c:IsSummonPlayer(tp) and c:IsLocation(LOCATION_MZONE) and (c:GetSummonType()&SUMMON_TYPE_PENDULUM+SUMMON_TYPE_FUSION)~=0 and (c:IsRace(RACE_DRAGON) or c:IsSetCard(0x12A7))
+function s.cfilter(c,e,owner)
+	local owner=e:GetHandler():GetOwner()
+	return c:IsSummonPlayer(owner) and c:IsLocation(LOCATION_MZONE) and (c:GetSummonType()&SUMMON_TYPE_PENDULUM+SUMMON_TYPE_FUSION)~=0 and (c:IsRace(RACE_DRAGON) or c:IsSetCard(0x12A7))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=eg:Filter(s.cfilter,nil,tp)
+	local g=eg:Filter(s.cfilter,nil,e,owner)
 	local ct=#g
 	if chk==0 then return ct>0 end
 	Duel.SetTargetCard(eg)
@@ -61,7 +62,7 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
-	local g=eg:Filter(s.cfilter,nil,tp):Filter(Card.IsRelateToEffect,nil,e)
+	local g=eg:Filter(s.cfilter,nil,e,owner):Filter(Card.IsRelateToEffect,nil,e)
 	if #g>0 then
 		local tc=g:GetFirst()
    		for tc in aux.Next(g) do
@@ -116,13 +117,13 @@ function s.pcfilter(c)
 end
 function s.pctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return (Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1))
-		and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
+		and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_EXTRA,0,1,nil) end
 end
 function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_DECK+LOCATION_GRAVE+LOCATION_EXTRA,0,1,1,nil)
 	if #g>0 then
 		Duel.MoveToField(g:GetFirst(),tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end

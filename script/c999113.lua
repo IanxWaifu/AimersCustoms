@@ -3,17 +3,22 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	Pendulum.AddProcedure(c)
-	--(The turn they were special summoned, your Xyz monsters)
-	--Cannot be targeted by opponent's card effects
-	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetType(EFFECT_TYPE_FIELD)
+	--Cannot be destroyed by opponent's card effects
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(id,0))
+	e0:SetType(EFFECT_TYPE_FIELD)
+	e0:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+	e0:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+	e0:SetRange(LOCATION_PZONE)
+	e0:SetTargetRange(LOCATION_MZONE,0)
+	e0:SetTarget(s.target)
+	e0:SetValue(s.indval)
+	c:RegisterEffect(e0)
+	--Cannot by your effects
+	local e1=e0:Clone()
 	e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
-	e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
-	e1:SetRange(LOCATION_PZONE)
-	e1:SetTargetRange(LOCATION_MZONE,0)
-	e1:SetTarget(s.target)
-	e1:SetValue(s.indval)
+	e1:SetTargetRange(0,LOCATION_MZONE)
+	e1:SetValue(s.tgoval)
 	c:RegisterEffect(e1)
 	--change race
 	local e2=Effect.CreateEffect(c)
@@ -57,7 +62,9 @@ end
 function s.indval(e,re,rp)
 	return rp==1-e:GetHandlerPlayer()
 end
-
+function s.tgoval(e,re,rp)
+	return rp~=1-e:GetHandlerPlayer()
+end
 --Change Race
 function s.rcfilter(c)
 	return c:IsFaceup() and c:GetSummonType()==SUMMON_TYPE_PENDULUM and not c:IsRace(RACE_DRAGON)
