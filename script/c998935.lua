@@ -28,17 +28,17 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 	--remove material
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,0))
+	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e2:SetCode(EVENT_PHASE+PHASE_END)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1)
 	e2:SetCondition(s.matcon)
 	e2:SetOperation(s.matop)
-	c:RegisterEffect(e2)
+	c:RegisterEffect(e2,false,REGISTER_FLAG_DETACH_XMAT)
 	--To Extra
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e3:SetCode(EVENT_PHASE+PHASE_END)
 	e3:SetRange(LOCATION_MZONE)
@@ -46,6 +46,37 @@ function s.initial_effect(c)
 	e3:SetCondition(s.tdcon)
 	e3:SetOperation(s.tdop)
 	c:RegisterEffect(e3)
+	--Banish
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,3))
+	e4:SetCategory(CATEGORY_REMOVE)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e4:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
+	e4:SetCountLimit(1,{id,1})
+	e4:SetTarget(s.rmtg)
+	e4:SetOperation(s.rmop)
+	c:RegisterEffect(e4)
+	--Remove Attacking
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,0))
+	e5:SetCategory(CATEGORY_REMOVE)
+	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_F)
+	e5:SetCode(EVENT_BATTLE_START)
+	e5:SetTarget(s.rmtg2)
+	e5:SetOperation(s.rmop2)
+	c:RegisterEffect(e5)
+	--Search
+	local e6=Effect.CreateEffect(c)
+	e6:SetDescription(aux.Stringid(id,1))
+	e6:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e6:SetType(EFFECT_TYPE_IGNITION)
+	e6:SetCountLimit(1,{id,2})
+	e6:SetRange(LOCATION_MZONE)
+	e6:SetCost(s.thcost)
+	e6:SetTarget(s.thtg)
+	e6:SetOperation(s.thop)
+	c:RegisterEffect(e6,false,REGISTER_FLAG_DETACH_XMAT)
 	aux.GlobalCheck(s,function()
 		local ge1=Effect.CreateEffect(c)
 		ge1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
@@ -113,10 +144,11 @@ end
 function s.imcon(e)
 	return e:GetHandler():GetOverlayCount()>0
 end
-function s.efilter(e,te,re,rp)
+function s.efilter(e,re,rp)
+	if not re:IsActiveType(TYPE_SPELL+TYPE_TRAP+TYPE_MONSTER) then return false end
 	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return true end
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	return not g:IsContains(e:GetHandler()) and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
+	return (not g:IsContains(e:GetHandler()))
 end
 
 --Remove Mat
@@ -137,4 +169,54 @@ end
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():GetOverlayCount()==0 then return end 
 	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_EFFECT)
+end
+
+--Banish
+function s.rmfilter(c)
+	return c:IsAbleToRemove()
+end
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_MZONE+LOCATION_GRAVE)
+end
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.rmfilter),tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,1,2,nil)
+	if #g>0 then
+		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+	end
+end
+
+--Opponents Battling Monster
+function s.rmtg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	local tc=e:GetHandler():GetBattleTarget()
+	if chk==0 then return tc and tc:IsControler(1-tp) and tc:IsAbleToRemove(tp) end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,tc,1,0,0)
+end
+function s.rmop2(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetHandler():GetBattleTarget()
+	if tc and tc:IsRelateToBattle() then
+		Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)
+	end
+end
+
+--Search
+function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_COST) end
+	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
+end
+function s.thfilter(c)
+	return c:IsSetCard(0x1A0) and c:IsAbleToHand()
+end
+function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.ConfirmCards(1-tp,g)
+	end
 end

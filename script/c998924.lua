@@ -48,6 +48,7 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	local sz=Duel.GetLocationCount(tp,LOCATION_SZONE)
 	if ph==PHASE_MAIN1 and Duel.GetTurnPlayer()~=tp and Duel.IsExistingMatchingCard(s.rtfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 		Duel.BreakEffect()
+		Duel.Hint(HINT_CARD,0,id)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
 		local g1=Duel.SelectMatchingCard(tp,s.rtfilter,tp,LOCATION_MZONE,0,1,1,nil)
 		if #g1>0 then
@@ -57,6 +58,7 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if ph==PHASE_MAIN1 and Duel.IsExistingMatchingCard(s.rtfilter,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 		Duel.BreakEffect()
+		Duel.Hint(HINT_CARD,0,id)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local g2=Duel.SelectMatchingCard(tp,s.rtfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if Duel.SendtoHand(g2,nil,REASON_EFFECT)~=0 then
@@ -67,6 +69,7 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if ph==PHASE_MAIN2 and Duel.GetTurnPlayer()~=tp and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.BreakEffect()
+		Duel.Hint(HINT_CARD,0,id)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 		local g3=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if #g3>0 then
@@ -75,6 +78,7 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	end
 		if ph==PHASE_MAIN2 and Duel.IsExistingMatchingCard(s.tffilter3,tp,LOCATION_GRAVE,0,1,nil,e,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
 		Duel.BreakEffect()
+		Duel.Hint(HINT_CARD,0,id)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 		if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)==0 then
 		local g4=Duel.SelectMatchingCard(tp,s.tffilter1,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
