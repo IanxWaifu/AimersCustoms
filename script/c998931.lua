@@ -58,14 +58,17 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
     local code=g:GetFirst():GetCode()
     local tc=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil,code)
     local sg=tc:Select(tp,1,1,nil):GetFirst()
-    local mt=Duel.GetMetatable(sg:GetCode())
-    local codes = mt.ordinal_scale
-    local tc2=Duel.GetMatchingGroup(s.codfilter,tp,LOCATION_DECK,0,nil,codes)
-    if Duel.SendtoHand(sg,nil,REASON_EFFECT)~=0 and #tc2>0 then 
+    if Duel.SendtoHand(sg,nil,REASON_EFFECT)~=0  then 
+    	if not sg:IsCode(998920,998921,998922,998923) then return end
+	    local mt=Duel.GetMetatable(sg:GetCode())
+	    local codes = mt.ordinal_scale
+	    local tc2=Duel.GetMatchingGroup(s.codfilter,tp,LOCATION_DECK,0,nil,codes)
+	    if #tc2>0 then
         local bg=tc2:Select(tp,1,1,nil)
         local dg2=bg:GetFirst()
         Duel.BreakEffect()
         Duel.SendtoGrave(dg2,REASON_EFFECT)
+       end
     end
 end
 

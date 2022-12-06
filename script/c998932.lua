@@ -39,17 +39,19 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
 	local tg=g:GetFirst()
 	if Duel.SpecialSummonStep(tg,0,tp,tp,false,false,POS_FACEUP) then
-		if not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x1A0),tp,LOCATION_MZONE,0,1,nil) then return end
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+		e1:SetDescription(aux.Stringid(id,1))
+		e1:SetTargetRange(1,0)
+		e1:SetTarget(s.splimit)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
+		if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x1A0),tp,LOCATION_MZONE,0,1,nil) then
 		tg:RegisterFlagEffect(998932,RESET_EVENT+RESETS_STANDARD,0,0)
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_FIELD)
-			e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
-			e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
-			e1:SetDescription(aux.Stringid(id,1))
-			e1:SetTargetRange(1,0)
-			e1:SetTarget(s.splimit)
-			e1:SetReset(RESET_PHASE+PHASE_END)
-			Duel.RegisterEffect(e1,tp)
+	end Duel.SpecialSummonComplete()
+	else return
 	end
 	Duel.SpecialSummonComplete()
 end
