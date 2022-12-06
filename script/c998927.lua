@@ -49,6 +49,7 @@ end
 
 s.listed_series={0x1A0}
 s.listed_names={id}
+
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	local p1=false

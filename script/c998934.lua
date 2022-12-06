@@ -40,6 +40,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
 		if not tc:IsRelateToEffect(e) and not tc:IsFaceup() then return end
 			Duel.BreakEffect()
+			local mt = tc:GetMetatable()
 			--effect gain
 			local e1=Effect.CreateEffect(tc)
 			e1:SetDescription(aux.Stringid(id,1))
@@ -50,6 +51,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetProperty(EFFECT_FLAG_DELAY)
 			e1:SetRange(LOCATION_MZONE)
 			e1:SetCost(s.announcecost)
+			e1:SetLabelObject(mt.ordinal_scale)
 			e1:SetTarget(s.sptg2)
 			e1:SetOperation(s.spop2)
 			e1:SetReset(RESET_EVENT+0x1fe0000)
@@ -64,19 +66,21 @@ function s.announcecost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 
-function s.tablefilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c.ordinal_scale and c:IsCode(table.unpack(c.ordinal_scale))
+function s.tablefilter(c,e,tp,codes)
+	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and codes and c:IsCode(table.unpack(codes))
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
+	local codes = e:GetLabelObject()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>-1
-		and Duel.IsExistingMatchingCard(s.tablefilter,tp,LOCATION_DECK,0,1,nil,e,tp) end
+		and Duel.IsExistingMatchingCard(s.tablefilter,tp,LOCATION_DECK,0,1,nil,e,tp,codes) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_DECK)
 end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	local codes = e:GetLabelObject()
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,s.tablefilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
+	local g=Duel.SelectMatchingCard(tp,s.tablefilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,codes)
 	local tg=g:GetFirst()
 	if Duel.SpecialSummonStep(tg,0,tp,tp,false,false,POS_FACEUP) then
 		tg:RegisterFlagEffect(998932,RESET_EVENT+RESETS_STANDARD,0,0)
