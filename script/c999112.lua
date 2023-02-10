@@ -75,6 +75,9 @@ function s.rcop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetValue(RACE_DRAGON)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)
+		if c:IsRelateToEffect(e) then
+			Duel.Destroy(c,REASON_EFFECT)
+		end
 	end
 end
 

@@ -66,10 +66,11 @@ end
 
 
 function s.efcon(e,tp,eg,ep,ev,re,r,rp)
-	return r==REASON_XYZ
+	local c=e:GetHandler()
+	return r==REASON_XYZ and c:GetReasonCard():IsSetCard(0x12A9)
 end
 function s.thfilter(c)
-	return --[[c:IsSetCard(0x12A9) and --]]c:IsSpellTrap() and c:IsAbleToHand()
+	return c:IsSetCard(0x12A9) and c:IsSpellTrap() and c:IsAbleToHand()
 end
 function s.efop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -99,7 +100,7 @@ function s.matop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local sc=e:GetLabelObject()
 	sc:ResetFlagEffect(id)
-	if not Duel.SelectYesNo(tp,aux.Stringid(id,3)) then return false end
+	if not Duel.SelectYesNo(tp,aux.Stringid(id,2)) then return false end
 	Duel.Hint(HINT_CARD,0,id)
 	local g=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
 	if #g==0 then return end

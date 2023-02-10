@@ -91,7 +91,6 @@ function s.initial_effect(c)
 	e10:SetCode(EFFECT_IMMUNE_EFFECT)
 	e10:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
 	e10:SetRange(LOCATION_MZONE)
-	e10:SetCondition(s.imcon)
 	e10:SetValue(s.efilter)
 	c:RegisterEffect(e10)
 end

@@ -5,7 +5,7 @@ function s.initial_effect(c)
 	--Special summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_DAMAGE)
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetCountLimit(1,id)
 	e1:SetRange(LOCATION_MZONE)
@@ -39,28 +39,24 @@ function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x12A8) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local g=Duel.GetMatchingGroup(Card.IsAbleToGrave,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and #g>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,nil,e,tp) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,nil,e,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_HAND)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,0,tp,1)
+	Duel.SetOperationInfo(0,CATEGORY_DAMAGE,0,0,tp,500)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.GetMatchingGroup(Card.IsAbleToGrave,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil)
-	local g2=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,e,tp)
-	if #g>0 and #g2>0 and Duel.SpecialSummon(g2,0,tp,tp,false,false,POS_FACEUP)>0 then
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,e,tp)
+	if #g>0 then
+	 	Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-		local dg=g:Select(tp,1,1,nil)
-		Duel.HintSelection(dg)
-		Duel.SendtoGrave(dg,REASON_EFFECT)
+		Duel.Damage(tp,500,REASON_EFFECT)
 	end
 end
 
 function s.efcon(e,tp,eg,ep,ev,re,r,rp)
-	return r==REASON_XYZ
+	local c=e:GetHandler()
+	return r==REASON_XYZ and c:GetReasonCard():IsSetCard(0x12A9)
 end
 function s.xyzfilter(c)
 	return c:IsFaceup() and c:IsType(TYPE_XYZ)

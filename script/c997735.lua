@@ -1,4 +1,4 @@
---Divine-Salvation
+--Divine-Corruption
 local s,id=GetID()
 function s.initial_effect(c)
 	--Spell/Trap Act
@@ -25,9 +25,12 @@ function s.initial_effect(c)
 	e2:SetOperation(s.activate2)
 	c:RegisterEffect(e2)
 end
+s.listed_names={id}
+s.listed_series={0x12D9,0x12A8}
+
 --Spell/Trap Act
 function s.cfilter(c)
-	return c:IsType(TYPE_XYZ) and c:IsSetCard(0x12D9)
+	return c:IsType(TYPE_XYZ) and (c:IsSetCard(0x12A8) or c:IsSetCard(0x12D9))
 		and not c:IsStatus(STATUS_BATTLE_DESTROYED)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -71,7 +74,7 @@ end
 
 
 function s.xyzfilter(c)
-    return c:IsType(TYPE_XYZ) and c:IsSetCard(0x12D9) and c:IsFaceup()
+    return c:IsType(TYPE_XYZ) and c:IsFaceup()
 end
 function s.cost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local dg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_MZONE,0,nil)

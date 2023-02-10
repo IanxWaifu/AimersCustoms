@@ -45,10 +45,10 @@ s.listed_series={0x12A8,0x12A9}
 
 --search
 function s.sendfilter(c)
-	return --[[c:IsSetCard(0x12A9) and --]]c:IsAbleToGraveAsCost()
+	return (c:IsSetCard(0x12A8) or c:IsSetCard(0x12A9)) and c:IsAbleToGraveAsCost()
 end
 function s.cfilter(c)
-	return --[[c:IsSetCard(0x12A9) and --]]c:IsLocation(LOCATION_GRAVE)
+	return (c:IsSetCard(0x12A8) or c:IsSetCard(0x12A9)) and c:IsLocation(LOCATION_GRAVE)
 end
 function s.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.sendfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,nil) end
@@ -73,13 +73,14 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.efcon(e,tp,eg,ep,ev,re,r,rp)
-	return r==REASON_XYZ
+	local c=e:GetHandler()
+	return r==REASON_XYZ and c:GetReasonCard():IsSetCard(0x12A9)
 end
 function s.efop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local rc=c:GetReasonCard()
 	local e1=Effect.CreateEffect(rc)
-	e1:SetDescription(aux.Stringid(id,1))
+	e1:SetDescription(aux.Stringid(id,2))
 	e1:SetCategory(CATEGORY_NEGATE)
 	e1:SetType(EFFECT_TYPE_QUICK_F)
 	e1:SetCode(EVENT_CHAINING)

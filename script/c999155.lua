@@ -22,7 +22,6 @@ function s.initial_effect(c)
 	--Attach self
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
-	e4:SetCategory(CATEGORY_EQUIP)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
 	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e4:SetCode(EVENT_FREE_CHAIN)
@@ -75,7 +74,7 @@ end
 function s.equipop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	local c=e:GetHandler()
-	if not tc or not tc:IsRelateToEffect(e) or tc:GetOverlayCount()==0 or not c:IsRelateToEffect(e) then return end
+	if not tc or not tc:IsRelateToEffect(e) or tc:GetEquipCount()==0 or not c:IsRelateToEffect(e) then return end
 	local eqg=tc:GetEquipGroup()
 	local dg=eqg:Select(tp,1,1,nil)
 	local tg=dg:GetFirst()

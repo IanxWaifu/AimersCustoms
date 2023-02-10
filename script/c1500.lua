@@ -102,7 +102,7 @@ function c1500.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(g,nil,REASON_COST)
 end
 function c1500.lvfilter(c)
-	return c:IsFaceup() and c:IsRace(RACE_PSYCHO) and c:IsLevelAbove(1)
+	return c:IsFaceup() and c:IsRace(RACE_PSYCHIC) and c:IsLevelAbove(1)
 end
 function c1500.lvtarget(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and c1500.lvfilter(chkc) end

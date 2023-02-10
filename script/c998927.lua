@@ -223,7 +223,7 @@ function s.tgcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,1)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local cg=Duel.SelectMatchingCard(tp,s.tgcostfilter,tp,LOCATION_HANDLOCATION_ONFIELD,0,1,1,nil)
+	local cg=Duel.SelectMatchingCard(tp,s.tgcostfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,1,nil)
 	Duel.SendtoGrave(cg,REASON_COST)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)

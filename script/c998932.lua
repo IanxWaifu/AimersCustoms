@@ -50,8 +50,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.RegisterEffect(e1,tp)
 		if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x1A0),tp,LOCATION_MZONE,0,1,nil) then
 		tg:RegisterFlagEffect(998932,RESET_EVENT+RESETS_STANDARD,0,0)
-	end Duel.SpecialSummonComplete()
-	else return
+		end Duel.SpecialSummonComplete()
+		else return
 	end
 	Duel.SpecialSummonComplete()
 end

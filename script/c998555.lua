@@ -168,10 +168,10 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 function s.negfilter1(c,e)
-	return c:IsType(TYPE_TRAP) and aux.disfilter1(c)
+	return c:IsType(TYPE_TRAP) and c:IsNegatableMonster()
 end
 function s.negfilter2(c,e)
-	return c:IsType(TYPE_SPELL) and aux.disfilter1(c)
+	return c:IsType(TYPE_SPELL) and c:IsNegatableMonster()
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

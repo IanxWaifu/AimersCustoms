@@ -85,7 +85,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
     Duel.RegisterEffect(e4,tp)
 end
 function s.hcondition(e,tp,eg,ep,ev,re,r,rp)
-    return eg:IsExists(aux.FilterFaceupFunction(Card.IsSetCard,0x12EA),1,nil)
+    return eg:IsExists(aux.FaceupFilter(Card.IsSetCard,0x12EA),1,nil)
 end
 function s.hcondition2(e,tp,eg,ep,ev,re,r,rp)
     return ep~=tp and eg:GetFirst():IsSetCard(0x12EA)
