@@ -18,11 +18,31 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCountLimit(1,id)
+	e2:SetCountLimit(1,{id,1})
 	e2:SetCondition(s.actcon)
 	e2:SetTarget(s.acttg)
 	e2:SetOperation(s.actop)
 	c:RegisterEffect(e2)
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_FIELD)
+	e4:SetCode(EVENT_CHAIN_SOLVED)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetRange(LOCATION_GRAVE)
+	e4:SetCondition(s.condition)
+	e4:SetOperation(s.operation)
+	c:RegisterEffect(e4)
+
+--[[	local e3=Effect.CreateEffect(c)
+	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e3:SetCode(EVENT_CHAINING)
+	e3:SetRange(LOCATION_GRAVE)
+	e3:SetCountLimit(1,{id,2})
+	e3:SetCost(aux.bfgcost)
+	e3:SetCondition(s.condition)
+	e3:SetTarget(s.target)
+	e3:SetOperation(s.operation)
+	c:RegisterEffect(e3)--]]
 end
 --Return to hand and Add Temporum
 function s.filter(c)
@@ -147,6 +167,38 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 				etc:ReleaseEffectRelation(te)
 				etc=g:GetNext()
 			end
+		end
+	end
+end
+
+
+--Effect Resolve Negate
+function s.cdfilter(c,tp)
+	return c:IsOnField() and c:IsControler(tp) and c:IsSetCard(0x19f) and c:IsMonster() and c:IsType(TYPE_FUSION)
+end
+function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	local category=re:GetCategory()
+	local ex,tg,tc=Duel.GetOperationInfo(ev,category)
+	if rp==tp then return false end
+	if category==CATEGORY_DESTROY or category==CATEGORY_RELEASE or category==CATEGORY_TOGRAVE or category==CATEGORY_REMOVE or category==CATEGORY_TODECK or category==CATEGORY_TOHAND then return true end
+	return ex and tg~=nil and tc+tg:FilterCount(s.cdfilter,nil,tp)-#tg>0 and e:GetHandler():IsAbleToRemove()
+end
+
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if Duel.SelectYesNo(tp,aux.Stringid(id,2)) and re:GetHandler() and ((re:GetHandler():IsFaceup() and not re:GetHandler():IsDisabled()) or re:GetHandler():IsType(TYPE_TRAPMONSTER)) then
+		if Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)>0 then 
+		Duel.NegateEffect(ev)
+		local e8=Effect.CreateEffect(e:GetHandler())
+		e8:SetType(EFFECT_TYPE_SINGLE)
+		e8:SetCode(EFFECT_DISABLE)
+		e8:SetReset(RESET_EVENT+RESETS_STANDARD)
+		re:GetHandler():RegisterEffect(e8,true)
+		local e9=Effect.CreateEffect(e:GetHandler())
+		e9:SetType(EFFECT_TYPE_SINGLE)
+		e9:SetCode(EFFECT_DISABLE_EFFECT)
+		e9:SetReset(RESET_EVENT+RESETS_STANDARD)
+		re:GetHandler():RegisterEffect(e9,true)
 		end
 	end
 end

@@ -18,7 +18,7 @@ function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	return (re:IsActiveType(TYPE_MONSTER) or re:IsHasType(EFFECT_TYPE_ACTIVATE))
 end
 function s.cfilter(c,tp)
-	return c:IsAbleToRemoveAsCost() and c:IsFaceup() and (c:IsSetCard(0xFA0) or c:IsSetCard(0x190))
+	return c:IsAbleToRemoveAsCost() and c:IsFaceup() and (c:IsSetCard(0xFA0) or c:IsSetCard(0xFB0))
 		and Duel.IsExistingTarget(s.filter,tp,0,LOCATION_ONFIELD,1,c) and not c:IsCode(id)
 end
 function s.filter(c)

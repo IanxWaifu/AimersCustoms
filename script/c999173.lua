@@ -12,7 +12,6 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_CARD_TARGET)
-	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCountLimit(1,id)
 	e1:SetCondition(s.spcon)
 	e1:SetTarget(s.sptg)
@@ -31,16 +30,6 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--dont need to detach
 
-	--treated as no xyz material
-
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_FIELD)
-	e5:SetCode(id)
-	e5:SetRange(LOCATION_MZONE)
-	e5:SetTargetRange(LOCATION_MZONE,0)
-	e5:SetTarget(s.dttg)
-	e5:SetValue(s.regop)
-	c:RegisterEffect(e5)
 end
 	--Link material of a non-link "Girls'&'Arms" monster
 function s.matfilter(c,lc,sumtype,tp)
@@ -90,10 +79,16 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 end
 
 --Dont have to detach
-function s.dttg(e,c)
-	return e:GetHandler():GetLinkedGroup():IsContains(c) --[[and e:GetHandler():IsSetCard(0x12A9) and e:GetHandler():IsType(TYPE_XYZ)--]]
+
+function s.regtg(e,c)
+	local oc=e:GetHandler()
+	local tc=oc:GetLinkedGroup():IsContains(c)
+	e:SetLabelObject(tc)
+	return oc:GetLinkedGroup():IsContains(c) and c:IsType(TYPE_XYZ) and c:IsFaceup()
 end
+
+--Effect Gain - Target Destruction
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
-	local tg=e:GetHandler():GetLinkedGroup():IsContains(c)
-	return tg:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+	local tc=e:GetLabelObject()
+	tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 end

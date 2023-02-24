@@ -52,7 +52,7 @@ function c1553080.initial_effect(c)
 	c:RegisterEffect(e6)
 end
 function c1553080.filter(c,e,tp)
-	return (c:IsSetCard(0xFA0) and c:IsType(TYPE_MONSTER)) or (c:IsSetCard(0x190) and c:IsType(TYPE_MONSTER)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return (c:IsSetCard(0xFA0) and c:IsType(TYPE_MONSTER)) or (c:IsSetCard(0xFB0) and c:IsType(TYPE_MONSTER)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c1553080.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:GetLocation()==LOCATION_GRAVE and chkc:GetControler()==tp
@@ -95,7 +95,7 @@ function c1553080.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 end
 function c1553080.filter3(c,e,tp)
-	return (c:IsSetCard(0xFA0) and c:IsType(TYPE_MONSTER)) or (c:IsSetCard(0x190) and c:IsType(TYPE_MONSTER)) and c:IsFaceup()
+	return (c:IsSetCard(0xFA0) and c:IsType(TYPE_MONSTER)) or (c:IsSetCard(0xFB0) and c:IsType(TYPE_MONSTER)) and c:IsFaceup()
 end
 function c1553080.atktg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsFaceup() end

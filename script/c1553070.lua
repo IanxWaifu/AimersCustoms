@@ -40,5 +40,5 @@ function c1553070.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e1,tp)
 end
 function c1553070.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return not c:IsSetCard(0x190) and not c:IsSetCard(0xFA0) 
+	return not c:IsSetCard(0xFB0) and not c:IsSetCard(0xFA0) 
 end

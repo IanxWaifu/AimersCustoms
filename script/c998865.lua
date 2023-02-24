@@ -28,6 +28,7 @@ function s.initial_effect(c)
 	e3:SetOperation(s.addop)
 	c:RegisterEffect(e3)
 end
+s.fusionlisted={998864}
 function s.thfilter(c)
 	return c:IsSetCard(0x19f) and c:IsType(TYPE_SPELL) and not c:IsCode(id) and c:IsAbleToHand()
 end

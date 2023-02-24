@@ -92,7 +92,7 @@ function s.aclimit(e,re,tp)
 end
 
 function s.desfilter(c)
-	return (c:IsSetCard(0x190) or c:IsSetCard(0xFA0))
+	return (c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0))
 end
 function s.remfilter(c)
 	return c:IsAbleToRemove() and (c:IsLocation(LOCATION_GRAVE+LOCATION_ONFIELD+LOCATION_HAND) or (c:IsLocation(LOCATION_EXTRA) and c:IsFaceup()))
@@ -121,16 +121,16 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.cfilter(c,tp)
-	return c:IsSetCard(0xFA0) or c:IsSetCard(0x190)
+	return c:IsSetCard(0xFA0) or c:IsSetCard(0xFB0)
 end
 function s.confilter1(c)
-	return c:IsFaceup() and c:IsSetCard(0x190) and c:IsType(TYPE_SYNCHRO)
+	return c:IsFaceup() and c:IsSetCard(0xFB0) and c:IsType(TYPE_SYNCHRO)
 end
 function s.confilter2(c)
-	return c:IsFaceup() and c:IsSetCard(0x190) and c:IsType(TYPE_XYZ)
+	return c:IsFaceup() and c:IsSetCard(0xFB0) and c:IsType(TYPE_XYZ)
 end
 function s.confilter3(c)
-	return c:IsFaceup() and c:IsSetCard(0x190) and c:IsType(TYPE_LINK)
+	return c:IsFaceup() and c:IsSetCard(0xFB0) and c:IsType(TYPE_LINK)
 end
 function s.spcon1(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp) and Duel.IsExistingMatchingCard(s.confilter1,tp,LOCATION_MZONE,0,1,nil)
@@ -187,12 +187,12 @@ function s.spop1(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.matlimit(e,c)
 	if not c then return false end
-	return not c:IsSetCard(0x190)
+	return not c:IsSetCard(0xFB0)
 end
 
 
 function s.setfilter(c)
-	return c:IsSetCard(0x190) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
+	return c:IsSetCard(0xFB0) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE,0,1,nil) end

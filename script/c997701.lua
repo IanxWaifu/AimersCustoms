@@ -116,7 +116,7 @@ function s.discon2(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	e:SetLabelObject(tc)
-	return tc and (tc:GetReason()&0x40)==0x40 and re:GetOwner():IsType(TYPE_SPELL) and c:GetOverlayGroup():GetClassCount(Card.GetAttribute)>=4
+	return tc and (tc:GetReason()&0x40)==0x40 and c:GetOverlayGroup():GetClassCount(Card.GetAttribute)>=4 and re:GetOwner():IsSetCard(0x12D9) and re:GetOwner():IsType(TYPE_FUSION+TYPE_LINK+TYPE_XYZ)
 end
 
 function s.disgy2(e,tp,eg,ep,ev,re,r,rp)

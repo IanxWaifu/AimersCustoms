@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.matfilter(c)
-	return c:IsSetCard(0x190) or c:IsSetCard(0xFA0)
+	return c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0)
 end
 function s.tdfilter(c)
 	return (c:IsSetCard(0xFA0) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()) and ((c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()) or (c:IsLocation(LOCATION_GRAVE)))
@@ -63,7 +63,7 @@ end
 		
 		
 function s.cfilter(c,tp)
-	return (c:IsPreviousSetCard(0x190) or c:IsPreviousSetCard(0xFA0)) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousControler(tp)
+	return (c:IsPreviousSetCard(0xFB0) or c:IsPreviousSetCard(0xFA0)) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsPreviousControler(tp)
 end
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp)

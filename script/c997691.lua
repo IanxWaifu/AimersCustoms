@@ -130,6 +130,6 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 			e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
 			e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_BATTLE)
 			tc:RegisterEffect(e3)
+		end
 	end
-end
 end

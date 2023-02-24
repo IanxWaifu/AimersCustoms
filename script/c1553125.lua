@@ -34,7 +34,7 @@ function c1553125.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function c1553125.matfilter(c)
-	return c:IsSetCard(0x190) or c:IsSetCard(0xFA0)
+	return c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0)
 end
 function c1553125.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_LINK)==SUMMON_TYPE_LINK

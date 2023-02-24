@@ -29,9 +29,9 @@ function s.initial_effect(c)
 	e2:SetHintTiming(0,TIMING_BATTLE_START)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x190}
+s.listed_series={0xFB0}
 function s.matfilter(c)
-	return c:IsSetCard(0x190) or c:IsSetCard(0xFA0)
+	return c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0)
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0xFA0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -61,11 +61,11 @@ function s.filter1(c,e,tp,lg)
 	local rank=c:GetRank()
 	local att=c:GetAttribute()
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.FromCards(c),tp,nil,nil,REASON_XYZ)
-	return (#pg<=0 or (#pg==1 and pg:IsContains(c))) and c:IsFaceup() and c:IsSetCard(0x190) and e:GetHandler():GetLinkedGroup():IsContains(c)
+	return (#pg<=0 or (#pg==1 and pg:IsContains(c))) and c:IsFaceup() and c:IsSetCard(0xFB0) and e:GetHandler():GetLinkedGroup():IsContains(c)
 		and Duel.IsExistingMatchingCard(s.filter2,tp,LOCATION_EXTRA,0,1,nil,e,tp,c,rank+1,att,pg)
 end
 function s.filter2(c,e,tp,mc,rank,att,pg)
-	return mc:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and c:IsType(TYPE_XYZ) and c:IsSetCard(0x190) and c:IsRank(rank) and c:IsAttribute(att) and mc:IsCanBeXyzMaterial(c,tp)
+	return mc:IsType(TYPE_XYZ,c,SUMMON_TYPE_XYZ,tp) and c:IsType(TYPE_XYZ) and c:IsSetCard(0xFB0) and c:IsRank(rank) and c:IsAttribute(att) and mc:IsCanBeXyzMaterial(c,tp)
 		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

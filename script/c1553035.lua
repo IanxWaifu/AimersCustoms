@@ -81,7 +81,7 @@ function c1553035.negop(e,tp,eg,ep,ev,re,r,rp)
 	e:GetHandler():RegisterFlagEffect(1553035,RESET_EVENT+RESETS_STANDARD,0,1)
 end
 function c1553035.filter(c)
-	return c:IsFaceup() and (c:IsSetCard(0xFA0) or c:IsSetCard(0x190))
+	return c:IsFaceup() and (c:IsSetCard(0xFA0) or c:IsSetCard(0xFB0))
 end
 function c1553035.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return false end

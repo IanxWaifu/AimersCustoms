@@ -21,9 +21,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	Duel.AddCustomActivityCounter(id,ACTIVITY_CHAIN,s.chainfilter)
 end
-s.listed_series={0x190}
+s.listed_series={0xFB0}
 function s.chainfilter(re,tp,cid)
-	return not (re:IsActiveType(TYPE_MONSTER) and not (re:GetHandler():IsSetCard(0xFA0) or re:GetHandler():IsSetCard(0x190)))
+	return not (re:IsActiveType(TYPE_MONSTER) and not (re:GetHandler():IsSetCard(0xFA0) or re:GetHandler():IsSetCard(0xFB0)))
 end
 function s.filter1(c)
 	return c:IsSetCard(0xFA0) and c:IsType(TYPE_PENDULUM) and c:IsAbleToHand() and c:GetLevel()==4
@@ -83,7 +83,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.aclimit0(e,re,tp)
-	return re:IsActiveType(TYPE_MONSTER) and (not re:GetHandler():IsSetCard(0xFA0) or not re:GetHandler():IsSetCard(0x190))
+	return re:IsActiveType(TYPE_MONSTER) and (not re:GetHandler():IsSetCard(0xFA0) or not re:GetHandler():IsSetCard(0xFB0))
 end
 function s.sumlimit(e,c)
 	return c:IsCode(e:GetLabel())

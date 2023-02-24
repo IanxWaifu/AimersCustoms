@@ -109,10 +109,10 @@ function s.posop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.xyzcon(e)
-	return e:GetHandler():IsSetCard(0x190)
+	return e:GetHandler():IsSetCard(0xFB0)
 end
 function s.atktg(e,c)
-	return c:IsSetCard(0x190)
+	return c:IsSetCard(0xFB0)
 end
 function s.spfilter(c,e,tp)
 	return (c:IsCode(1553085) or c:IsCode(1553090)) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false)

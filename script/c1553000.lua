@@ -39,7 +39,7 @@ function c1553000.sumop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function c1553000.thfilter(c)
-	return c:IsSetCard(0x190) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
+	return c:IsSetCard(0xFB0) and c:IsType(TYPE_SPELL) and c:IsAbleToHand()
 end
 function c1553000.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c1553000.thfilter,tp,LOCATION_DECK,0,1,nil) end

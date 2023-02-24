@@ -57,7 +57,8 @@ function s.initial_effect(c)
 	e5:SetOperation(s.regop2)
 	c:RegisterEffect(e5)
 end
-
+s.listed_names={id,998866}
+s.material_setcode={0x19f}
 function s.fil1(c,fc,sub1,sub2)
 	return c:IsSummonCode(fc,SUMMON_TYPE_FUSION,fc:GetControler(),998866) or (sub1 and c:CheckFusionSubstitute(fc)) or (sub2 and c:IsHasEffect(511002961))
 end
@@ -126,7 +127,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		tc=g:Select(tp,1,1,nil)
 	else
-		tc=g:GetFirst()
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+		tc=g:Select(tp,1,1,nil):GetFirst()
 	end
 	if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE)~=0 then 
 		local c=e:GetHandler()

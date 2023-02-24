@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	e3:SetOperation(s.spop2)
 	c:RegisterEffect(e3)
 end
-
+s.fusionlisted={998869}
 function s.filter(c,e,tp)
 	return c:IsSetCard(0x19f) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 	and (c:IsLocation(LOCATION_GRAVE+LOCATION_HAND) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()))

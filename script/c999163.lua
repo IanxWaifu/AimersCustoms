@@ -61,7 +61,7 @@ s.listed_series={0x12A8,0x12A9}
 
 --Search
 function s.filter(c)
-	return c:IsSetCard(0x12A9) and c:IsAbleToHand() and not c:IsCode(id)
+	return (c:IsSetCard(0x12A9) or c:IsSetCard(0x12A8)) and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end

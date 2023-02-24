@@ -26,6 +26,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.drop)
 	c:RegisterEffect(e2)
 end
+s.fusionlisted={998868}
 function s.spcostfilter(c,tp)
 	return c:IsSetCard(0x19f) and not c:IsPublic() and c:IsAbleToRemove() 
 	and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil,c:GetCode())

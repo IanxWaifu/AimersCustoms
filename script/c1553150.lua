@@ -28,10 +28,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 function s.cfilter(c,tp)
-	return c:IsControler(tp) and c:IsSetCard(0x190)
+	return c:IsControler(tp) and c:IsSetCard(0xFB0)
 end
 function s.lamfilter(c)
-	return c:IsSetCard(0x190) and c:IsType(TYPE_LINK)
+	return c:IsSetCard(0xFB0) and c:IsType(TYPE_LINK)
 end
 function s.spzone(g,p)
 	local zone=0
@@ -43,7 +43,7 @@ end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()
 	local zone=s.spzone(Duel.GetMatchingGroup(s.lamfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil),tp)
-	return tc:IsControler(tp) and tc:IsSetCard(0x190) and tc:IsSummonType(SUMMON_TYPE_LINK)
+	return tc:IsControler(tp) and tc:IsSetCard(0xFB0) and tc:IsSummonType(SUMMON_TYPE_LINK)
 	and zone~=0 and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,tp,zone)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -66,10 +66,10 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=re:GetHandler()
-	return re:IsActiveType(TYPE_MONSTER) and re:GetOwner():IsSetCard(0x190)
+	return re:IsActiveType(TYPE_MONSTER) and re:GetOwner():IsSetCard(0xFB0)
 end
 function s.tdfilter(c)
-	return c:IsSetCard(0x190) and c:IsAbleToDeck() and ((c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()) or (c:IsLocation(LOCATION_GRAVE)))
+	return c:IsSetCard(0xFB0) and c:IsAbleToDeck() and ((c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()) or (c:IsLocation(LOCATION_GRAVE)))
 end
 function s.desfilter(c)
 	return c:IsDestructable()

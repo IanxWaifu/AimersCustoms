@@ -66,7 +66,8 @@ function s.initial_effect(c)
 	e4:SetOperation(s.spop)
 	c:RegisterEffect(e4)
 end
-
+s.listed_names={id,998862}
+s.material_setcode={0x19f}
 function s.fil1(c,fc,sub1,sub2)
 	return c:IsSummonCode(fc,SUMMON_TYPE_FUSION,fc:GetControler(),998862) or (sub1 and c:CheckFusionSubstitute(fc)) or (sub2 and c:IsHasEffect(511002961))
 end

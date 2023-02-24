@@ -25,7 +25,7 @@ function c1553020.operation(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.Draw(tp,1,REASON_EFFECT)==0 then return end
 	local tc=Duel.GetOperatedGroup():GetFirst()
 	Duel.ConfirmCards(1-tp,tc)
-	if tc:IsSetCard(0x190) and tc:IsType(TYPE_SPELL+TYPE_TRAP) then
+	if tc:IsSetCard(0xFB0) and tc:IsType(TYPE_SPELL+TYPE_TRAP) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
 		local dg=Duel.SelectMatchingCard(tp,Card.IsAbleToDeck,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 		Duel.SendtoDeck(dg,nil,2,REASON_EFFECT)

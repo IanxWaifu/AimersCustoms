@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.chtg)
 	e2:SetOperation(s.chop)
 	c:RegisterEffect(e2)
---[[	--Remove Special Summon
+	--Remove Special Summon
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_REMOVE+CATEGORY_SPECIAL_SUMMON)
@@ -36,7 +36,7 @@ function s.initial_effect(c)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
-	c:RegisterEffect(e3)--]]
+	c:RegisterEffect(e3)
 end
 function s.thfilter(c)
 	return c:IsSetCard(0x19f) and c:IsAbleToHand() and not c:IsCode(id) 
@@ -80,8 +80,8 @@ function s.chop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SendtoDeck(sg,nil,2,REASON_EFFECT)
 end
 
-function s.spcon()
-	return Duel.IsMainPhase()
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)<Duel.GetFieldGroupCount(tp,0,LOCATION_MZONE) and Duel.IsMainPhase() and Duel.GetTurnPlayer()~=tp
 end
 function s.rmfilter(c,e,tp)
 	return c:IsType(TYPE_FUSION) and c:IsAbleToRemove() and c:IsSetCard(0x19f)

@@ -58,7 +58,8 @@ function s.initial_effect(c)
 	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
 end
-
+s.listed_names={id,998863}
+s.material_setcode={0x19f}
 function s.fil1(c,fc,sub1,sub2)
 	return c:IsSummonCode(fc,SUMMON_TYPE_FUSION,fc:GetControler(),998863) or (sub1 and c:CheckFusionSubstitute(fc)) or (sub2 and c:IsHasEffect(511002961))
 end
@@ -110,7 +111,7 @@ end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetDecktopGroup(tp,1)
 	local tc=g:GetFirst()
-	local g2=Duel.GetMatchingGroup(aux.FilterFaceupFunction(Card.IsSetCard,0x19f),tp,LOCATION_MZONE,0,nil)
+	local g2=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsSetCard,0x19f),tp,LOCATION_MZONE,0,nil)
 	if Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)==1 and g2 then
 	local tc2=g2:GetFirst()
 	for tc2 in aux.Next(g2) do

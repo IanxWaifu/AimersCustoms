@@ -14,13 +14,13 @@ function c1553075.filter(c,e,tp)
 	return c:IsSetCard(0xFA0) and c:IsCanBeEffectTarget(e) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function c1553075.xyzfilter(c,mg)
-	return c:IsXyzSummonable(mg,2,2) and c:IsSetCard(0x190)
+	return c:IsXyzSummonable(mg,2,2) and c:IsSetCard(0xFB0)
 end
 function c1553075.mfilter1(c,mg,exg)
 	return mg:IsExists(c1553075.mfilter2,1,c,c,exg)
 end
 function c1553075.xyzfilter2(c,mg)
-	return c:IsXyzSummonable(mg,2,2) and c:IsSetCard(0x190)
+	return c:IsXyzSummonable(mg,2,2) and c:IsSetCard(0xFB0)
 end
 function c1553075.mfilter2(c,mc,exg)
 	return exg:IsExists(c1553075.xyzfilter2,1,nil,Group.FromCards(c,mc))

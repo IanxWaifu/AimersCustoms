@@ -31,7 +31,7 @@ function s.initial_effect(c)
 end
 s.listed_series={0xFA0}
 function s.counterfilter(c)
-	return c:IsSetCard(0xFA0) or c:IsSetCard(0x190)
+	return c:IsSetCard(0xFA0) or c:IsSetCard(0xFB0)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local tg=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS)
@@ -59,7 +59,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RegisterEffect(e2,tp)
 end
 function s.splimit(e,c)
-	return not c:IsSetCard(0xFA0) and not c:IsSetCard(0x190)
+	return not c:IsSetCard(0xFA0) and not c:IsSetCard(0xFB0)
 end
 function s.tgfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0xFA0) and c:IsAbleToGrave()

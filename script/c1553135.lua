@@ -96,7 +96,7 @@ function s.penop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
-	return e and e:GetHandler():IsSetCard(0xFA0) or e:GetHandler():IsSetCard(0x190)
+	return e and e:GetHandler():IsSetCard(0xFA0) or e:GetHandler():IsSetCard(0xFB0)
 end
 function s.rmfilter(c)
 	return c:IsSetCard(0xFA0) and c:IsType(TYPE_PENDULUM) and c:GetLevel()==5 and c:IsAbleToHand()

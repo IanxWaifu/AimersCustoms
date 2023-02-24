@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.cfilter(c,tp)
-	return ((c:IsLocation(LOCATION_ONFIELD) and c:IsFaceup()) or c:IsLocation(LOCATION_GRAVE)) and ((c:IsSetCard(0xFA0) or c:IsSetCard(0x190)) and c:IsAbleToRemoveAsCost() and not c:IsCode(id)) 
+	return ((c:IsLocation(LOCATION_ONFIELD) and c:IsFaceup()) or c:IsLocation(LOCATION_GRAVE)) and ((c:IsSetCard(0xFA0) or c:IsSetCard(0xFB0)) and c:IsAbleToRemoveAsCost() and not c:IsCode(id)) 
 end
 function s.filter(c)
 	return c:IsFaceup() and (c:IsType(TYPE_EFFECT) or (c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToRemove()))

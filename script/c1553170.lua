@@ -30,15 +30,15 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop2)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x190}
+s.listed_series={0xFB0}
 function s.matfilter(c)
-	return c:IsSetCard(0x190) or c:IsSetCard(0xFA0)
+	return c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
 end
 function s.spfilter(c,e,tp,zone)
-	return c:IsSetCard(0x190) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,tp,zone)
+	return c:IsSetCard(0xFB0) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP,tp,zone)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
@@ -90,7 +90,7 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
 end
 function s.cfilter(c,tp)
-	return (c:IsPreviousSetCard(0x190) or c:IsPreviousSetCard(0xFA0))
+	return (c:IsPreviousSetCard(0xFB0) or c:IsPreviousSetCard(0xFA0))
 		and c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spcon2(e,tp,eg,ep,ev,re,r,rp)
@@ -105,7 +105,7 @@ function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_REMOVED)
 end
 function s.filter(c)
-	return c:IsSetCard(0x190) and c:IsType(TYPE_TRAP+TYPE_SPELL) and c:IsSSetable()
+	return c:IsSetCard(0xFB0) and c:IsType(TYPE_TRAP+TYPE_SPELL) and c:IsSSetable()
 end
 function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 or not e:GetHandler():IsRelateToEffect(e) then return end

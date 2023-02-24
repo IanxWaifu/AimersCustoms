@@ -41,7 +41,7 @@ function c1553215.splimit(e,c,sump,sumtype,sumpos,targetp)
 	return not c:IsSetCard(0xFA0) and bit.band(sumtype,SUMMON_TYPE_PENDULUM)==SUMMON_TYPE_PENDULUM
 end
 function c1553215.spfilter(c,e,tp)
-	return c:IsSetCard(0x190) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(1553215)
+	return c:IsSetCard(0xFB0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(1553215)
 end
 function c1553215.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE) and c1553215.spfilter(chkc,e,tp) end
@@ -52,7 +52,7 @@ function c1553215.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,0,0)
 end
 function c1553215.tdfilter(c)
-	return c:IsSetCard(0x190) and c:IsAbleToDeck()
+	return c:IsSetCard(0xFB0) and c:IsAbleToDeck()
 end
 function c1553215.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
@@ -74,7 +74,7 @@ function c1553215.condition(e,tp,eg,ep,ev,re,r,rp)
 	return rc and (rc:IsSetCard(0xFA0)) or (e:GetHandler():GetSummonType()==SUMMON_TYPE_PENDULUM)
 end
 function c1553215.spfilter2(c,e,tp)
-	return (c:IsSetCard(0x190) or c:IsSetCard(0xFA0)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(1553215)
+	return (c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsCode(1553215)
 end
 function c1553215.sptg2(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_GRAVE+LOCATION_REMOVED) and c1553215.spfilter2(chkc,e,tp) end

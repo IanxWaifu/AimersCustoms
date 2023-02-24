@@ -42,9 +42,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 
 end
-s.listed_series={0x190}
+s.listed_series={0xFB0}
 function s.matfilter(c)
-	return c:IsSetCard(0x190) or c:IsSetCard(0xFA0)
+	return c:IsSetCard(0xFB0) or c:IsSetCard(0xFA0)
 end
 function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsAbleToEnterBP() end

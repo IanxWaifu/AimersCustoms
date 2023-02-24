@@ -21,6 +21,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.matop)
 	c:RegisterEffect(e2)
 end
+s.fusionlisted={998870}
 function s.thfilter(c)
 	return c:IsSetCard(0x19f) and c:IsType(TYPE_MONSTER) and not c:IsCode(id) and c:IsAbleToHand()
 end
