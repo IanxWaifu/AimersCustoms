@@ -49,6 +49,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
 		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+		e1:SetCondition(s.spcon)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tg:RegisterEffect(e1)
 		local e2=e1:Clone()
@@ -60,7 +61,7 @@ function s.cfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x19f) and c:IsType(TYPE_FUSION)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(s.cfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,2,nil)
 end
 
 function s.tpfilter(c)

@@ -34,7 +34,7 @@ function s.initial_effect(c)
 end
 --Cannot SPSummon from Extra, except "Revelatia"
 function s.counterfilter(c)
-	return not c:IsSummonLocation(LOCATION_EXTRA) and c:IsSetCard(0x19f)
+	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x19f)
 end
 --Cannot Extra Deck SP
 function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
