@@ -29,9 +29,15 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop2)
 	c:RegisterEffect(e2)
 	--dont need to detach
-
+	local e3=Effect.CreateEffect(c)
+	e3:SetType(EFFECT_TYPE_FIELD)
+	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e3:SetCode(id)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetTargetRange(1,0)
+	c:RegisterEffect(e3)
 end
-	--Link material of a non-link "Girls'&'Arms" monster
+	--Link material
 function s.matfilter(c,lc,sumtype,tp)
 	return c:IsSetCard(0x12A9,lc,sumtype,tp) and c:IsType(TYPE_XYZ,lc,sumtype,tp)
 end
@@ -74,7 +80,7 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter2,tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
 	if #g>0 then
-	 	Duel.SpecialSummon(g,0,tp,1-tp,false,false,POS_FACEUP_DEFENSE)
+	 	Duel.SpecialSummon(g,0,tp,1-tp,false,false,POS_FACEUP_ATTACK)
 	end
 end
 

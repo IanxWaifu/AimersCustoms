@@ -60,7 +60,7 @@ end
 
 --Pend Place
 function s.penfilter(c)
-	return c:IsOriginalType(TYPE_PENDULUM) and c:IsOriginalType(TYPE_MONSTER) and not c:IsForbidden()
+	return c:IsOriginalType(TYPE_PENDULUM) and c:IsOriginalType(TYPE_MONSTER) and not c:IsForbidden() and c:IsSetCard(0x12A7)
 end
 function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetFieldGroupCount(tp,LOCATION_PZONE,0)>0

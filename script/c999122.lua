@@ -1,4 +1,4 @@
---Wizardrake Ghorgias, Prince of the Evil Eyed
+--Wizardrake Ghorgias, The Drakian Prince
 --Scripted by IanxWaifu
 local s,id=GetID()
 function s.initial_effect(c)
@@ -116,7 +116,7 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=e:GetLabelObject()
 	if not g then return end
-	Duel.SendtoGrave(g,REASON_COST)
+	Duel.Destroy(g,REASON_COST)
 end
 
 
@@ -144,7 +144,7 @@ end
 
 --Search
 function s.thfilter(c)
-	return (c:IsSetCard(0x12A7) or c:IsSetCard(0x129)) and c:IsSpell() and c:IsAbleToHand()
+	return c:IsSetCard(0x12A7) and c:IsSpell() and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end

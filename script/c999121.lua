@@ -68,40 +68,41 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		e1:SetLabelObject(tc)
 		e1:SetCondition(s.descon)
-		e1:SetTarget(s.destg)
 		e1:SetOperation(s.desop)
 		Duel.RegisterEffect(e1,tp)
-		e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESET_TOFIELD,0,1)
+		e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESET_TOFIELD|RESET_TURN_SET,0,1)
 	end
 end
 
 --Target and Destroy
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	return tc:IsPreviousPosition(POS_FACEUP) and e:GetHandler():GetFlagEffect(id+1)>0
+	return tc:IsPreviousLocation(LOCATION_ONFIELD) and e:GetHandler():GetFlagEffect(id+1)>0 and tc:GetPreviousControler()==1-tp
 end
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() end
-	if chk==0 then return Duel.IsExistingTarget(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	e:GetHandler():ResetFlagEffect(id+1)
-	if not Duel.SelectYesNo(tp,aux.Stringid(id,1)) then return false end
-	local g=Duel.SelectTarget(tp,aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g,1,0,0)
+
+
+function s.desfilter(c,e)
+	return c:IsDestructable(e)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc then
-		Duel.Destroy(tc,REASON_EFFECT)
+	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e)
+	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) and e:GetHandler():GetFlagEffect(id+1)>0 then
+		Duel.BreakEffect()
+		Duel.Hint(HINT_CARD,0,id)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
+		local dg=g:Select(tp,1,1,nil)
+		Duel.HintSelection(dg)
+		Duel.Destroy(dg,REASON_EFFECT)
 	end
 end
+
 
 --Set self
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetFlagEffect(tp,id)>0
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-   if chk==0 then return e:GetHandler():IsSSetable() end
+   if chk==0 then return e:GetHandler():IsSSetable() and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 end
    Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,e:GetHandler(),1,0,0)
 end
 function s.setop(e,tp,eg,ep,ev,re,r,rp)

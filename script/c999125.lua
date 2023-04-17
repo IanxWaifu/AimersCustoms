@@ -40,7 +40,7 @@ s.listed_names={id}
 
 
 function s.cfilter(c)
-	return c:IsSetCard(0x12A7) and c:IsFaceup()
+	return c:IsSetCard(0x12A7) and c:IsFaceup() and c:IsOringalType(TYPE_MONSTER)
 end
 
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)

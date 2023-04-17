@@ -25,7 +25,7 @@ s.listed_names={id}
 
 --Sp Summon Checks
 function s.counterfilter(c)
-	return ((c:IsType(TYPE_FUSION)) or (c:IsSetCard(0x12A7)) or (c:IsType(TYPE_PENDULUM)))
+	return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsType(TYPE_FUSION) or c:IsSetCard(0x12A7) or c:IsType(TYPE_PENDULUM)
 end
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
@@ -47,9 +47,6 @@ end
 --Material Filters
 function s.dragfilter(c)
 	return c:IsRace(RACE_DRAGON) or c:IsSetCard(0x12A7)
-end
-function s.matfil(c,e,tp,chk)
-	return c:IsDestructable(e) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
 end
 function s.fexfilter(c,e)
 	return c:IsDestructable(e) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)

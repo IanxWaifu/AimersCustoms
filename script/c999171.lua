@@ -192,7 +192,7 @@ end
 
 --Set to Field
 function s.dcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetOverlayCount()==0 or (e:GetHandler():GetFlagEffect(999161)>0 or e:GetHandler():GetFlagEffect(999173)>0)
+	return e:GetHandler():GetOverlayCount()==0 or (e:GetHandler():GetFlagEffect(999161)>0 or Duel.IsPlayerAffectedByEffect(tp,999173))
 end
 function s.tgfilter(c,tc)
 	return c:IsType(TYPE_EQUIP) and c:IsSpell() and c:IsAbleToGraveAsCost() and c:GetEquipTarget()==tc and c:IsSetCard(0x12A8)

@@ -116,7 +116,7 @@ end
 
 --Send Equip
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetOverlayCount()==0 or (e:GetHandler():GetFlagEffect(999161)>0 or e:GetHandler():GetFlagEffect(999173)>0)
+	return e:GetHandler():GetOverlayCount()==0 or (e:GetHandler():GetFlagEffect(999161)>0 or Duel.IsPlayerAffectedByEffect(tp,999173))
 end
 function s.atkfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x12A8)
@@ -128,33 +128,27 @@ function s.atkcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 
-function s.ovfilter(c)
-	return c:IsSetCard(0x12A8) 
-end
+
 function s.checkfilter(c)
 	return c:IsSetCard(0x12A8) and c:IsType(TYPE_EQUIP)
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ov=Duel.GetMatchingGroup(s.ovfilter,tp,LOCATION_MZONE,0,nil)
+	local ov=Duel.GetOverlayGroupCount(tp,LOCATION_MZONE,0)
 	local ct=Duel.GetMatchingGroupCount(s.checkfilter,tp,LOCATION_SZONE,0,nil)
-	local tc=ov:GetFirst():GetOverlayCount()
-	local ct2=tc+ct
-	if chk==0 then return ct2>1 and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
+	local count=ov+ct
+	if chk==0 then return count>1 and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
 end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local mg=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
-	local ov=Duel.GetMatchingGroup(s.ovfilter,tp,LOCATION_MZONE,0,nil)
+	local ov=Duel.GetOverlayGroupCount(tp,LOCATION_MZONE,0)
 	local ct=Duel.GetMatchingGroupCount(s.checkfilter,tp,LOCATION_SZONE,0,nil)
-	local tc=ov:GetFirst():GetOverlayCount()
-	local ct2=tc+ct
-	local count=Duel.GetOverlayCount(c:GetControler(),1,0)
-	local count2=count+ct
+	local count=ov+ct
 	for mc in aux.Next(mg) do
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)
-		e1:SetValue(count2*-200)
+		e1:SetValue(count*-200)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		mc:RegisterEffect(e1)
 		local e2=e1:Clone()

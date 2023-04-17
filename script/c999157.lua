@@ -75,7 +75,7 @@ end
 
 --Send Equip
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetOverlayCount()==0 or (e:GetHandler():GetFlagEffect(999161)>0 or e:GetHandler():GetFlagEffect(999173)>0)
+	return e:GetHandler():GetOverlayCount()==0 or (e:GetHandler():GetFlagEffect(999161)>0 or Duel.IsPlayerAffectedByEffect(tp,999173))
 end
 function s.atkfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x12A8)
