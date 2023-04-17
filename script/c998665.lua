@@ -38,7 +38,7 @@ function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
-   local sg=Duel.SelectMatchingCard(tp,s.actfilter2,tp,LOCATION_DECK,0,1,1,nil,cd,tp)
+   local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_DECK,0,1,1,nil,cd,tp)
    local tc=sg:GetFirst()
    local te=tc:GetActivateEffect()
    if not te then return end

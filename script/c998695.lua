@@ -109,6 +109,7 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 	local opt=0
 	if #g1>0 and #g2>0 then
 		opt=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+		opt+1
 	elseif #g1>0 then opt=1
 	elseif #g2>0 then opt=2
 	end
