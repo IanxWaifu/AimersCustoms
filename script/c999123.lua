@@ -54,7 +54,7 @@ function s.lcheck(g,lc,sumtype,tp)
 	return g:IsExists(Card.IsSetCard,1,nil,0x12A7,lc,sumtype,tp)
 end
 
---Plate to opponent's Pendulum Zone
+--Place to opponent's Pendulum Zone
 function s.pccon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_LINK)
 end
@@ -70,7 +70,7 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.pcfilter,tp,LOCATION_DECK,0,1,1,nil)
 	if #g>0 then
 		local tc=g:GetFirst()
-		Duel.MoveToField(tc,1-tp,1-tp,LOCATION_PZONE,POS_FACEUP,true)
+		Duel.MoveToField(tc,tp,1-tp,LOCATION_PZONE,POS_FACEUP,true)
 	end
 end
 
@@ -111,7 +111,7 @@ function s.rccon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.GetCurrentPhase()&PHASE_MAIN1+PHASE_MAIN2>0
 end
 function s.rcfilter(c)
-	return c:IsSetCard(0x12A7) and c:IsFaceup() and not c:IsRace(RACE_DRAGON)
+	return c:IsSetCard(0x12A7) and c:IsFaceup() and not c:IsRace(RACE_DRAGON) and c:IsOriginalType(TYPE_MONSTER)
 end
 function s.rctg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and s.rcfilter(chkc) end

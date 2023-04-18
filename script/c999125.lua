@@ -40,7 +40,7 @@ s.listed_names={id}
 
 
 function s.cfilter(c)
-	return c:IsSetCard(0x12A7) and c:IsFaceup() and c:IsOringalType(TYPE_MONSTER)
+	return c:IsSetCard(0x12A7) and c:IsFaceup() and c:IsOriginalType(TYPE_MONSTER)
 end
 
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
@@ -102,6 +102,7 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 			local tc=sg:GetFirst()
 			if not tc or tc:IsDisabled() then return end
 				for tc in aux.Next(sg) do
+				Duel.NegateEffect(ev)
 				Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 				local e1=Effect.CreateEffect(c)
 				e1:SetType(EFFECT_TYPE_SINGLE)

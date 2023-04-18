@@ -14,8 +14,8 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_EXTRA_FUSION_MATERIAL)
 	e1:SetRange(LOCATION_FZONE)
-	e1:SetTargetRange(LOCATION_MZONE+LOCATION_PZONE,0)
-	e1:SetTarget(function(e,c) return c:IsRace(RACE_DRAGON) and c:IsFaceup() and c:IsOriginalType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e) end)
+	e1:SetTargetRange(LOCATION_PZONE+LOCATION_MZONE,LOCATION_PZONE+LOCATION_MZONE)
+	e1:SetTarget(function(e,c) return c:IsRace(RACE_DRAGON) and not c:IsImmuneToEffect(e) end)
 	e1:SetValue(s.matval)
 	e1:SetLabelObject({s.extrafil_replacement})
 	c:RegisterEffect(e1)
@@ -34,7 +34,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_FZONE)
 	e3:SetCountLimit(1,{id,0})
 	c:RegisterEffect(e3)
-	--search
+--[[	--search
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,3))
 	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
@@ -44,20 +44,20 @@ function s.initial_effect(c)
 	e4:SetCountLimit(1,{id,1})
 	e4:SetTarget(s.thtg)
 	e4:SetOperation(s.thop)
-	c:RegisterEffect(e4)
+	c:RegisterEffect(e4)--]]
 end
 s.listed_series={0x12A7}
 s.listed_names={id}
 
 --Material Replacement
 function s.matval(e,c)
-	return c and c:IsRace(RACE_DRAGON) and c:IsControler(e:GetHandlerPlayer())
+	return c and (c:IsRace(RACE_DRAGON) or c:IsSetCard(0x12A7))  and c:IsControler(e:GetHandlerPlayer())
 end
-function s.extrafil_repl_filter(c)
-	return c:IsOriginalType(TYPE_MONSTER) and c:IsCanBeFusionMaterial() and c:IsRace(RACE_DRAGON)
+function s.extrafil_repl_filter(c,e)
+	return c:IsOriginalType(TYPE_MONSTER) and c:IsRace(RACE_DRAGON) and not c:IsImmuneToEffect(e)
 end
 function s.extrafil_replacement(e,tp,mg)
-	local g=Duel.GetMatchingGroup(s.extrafil_repl_filter,tp,LOCATION_MZONE+LOCATION_PZONE,LOCATION_MZONE+LOCATION_PZONE,nil)
+	local g=Duel.GetMatchingGroup(s.extrafil_repl_filter,tp,LOCATION_MZONE+LOCATION_PZONE,LOCATION_MZONE+LOCATION_PZONE,nil,e)
 	return g,s.fcheck_replacement
 end
 function s.fcheck_replacement(tp,sg,fc)
@@ -125,20 +125,23 @@ function s.matfil(c,e,tp,chk)
 	return not c:IsImmuneToEffect(e) and c:IsCanBeFusionMaterial()
 end
 function s.fexfilter(c,e)
-	return ((c:IsLocation(LOCATION_PZONE) and c:IsDestructable() and c:IsSetCard(0x12A7)) or (c:IsLocation(LOCATION_MZONE))) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
+	return ((c:IsLocation(LOCATION_PZONE) and c:IsDestructable(e) and c:IsSetCard(0x12A7) and c:IsOriginalType(TYPE_PENDULUM)) or (c:IsLocation(LOCATION_MZONE))) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
 end
 function s.Envfilter(c,e,tp)
-	return (c:IsLocation(LOCATION_MZONE) and c:GetControler()==tp) or (c:IsLocation(LOCATION_PZONE) and c:IsSetCard(0x12A7) and c:GetControler()==tp and c:IsDestructable(e)) or (c:IsLocation(LOCATION_PZONE+LOCATION_MZONE) and c:IsRace(RACE_DRAGON)) and not c:IsImmuneToEffect(e) and c:IsCanBeFusionMaterial()
+	return (c:IsLocation(LOCATION_MZONE) and c:GetControler()==tp) or (c:IsLocation(LOCATION_PZONE) and c:IsSetCard(0x12A7) and c:GetControler()==tp and c:IsDestructable(e) and c:IsOriginalType(TYPE_PENDULUM)) or (c:IsLocation(LOCATION_PZONE+LOCATION_MZONE) and c:IsRace(RACE_DRAGON)) and not c:IsImmuneToEffect(e) and c:IsCanBeFusionMaterial()
+end
+function s.checkmat(tp,sg,fc)
+	return fc:IsRace(RACE_DRAGON)
 end
 function s.extrafilter(e,tp,mg)
-	if Duel.IsEnvironment(999117,tp) then
+	if Duel.IsEnvironment(999117,tp) and s.checkmat then
 		local sg=Duel.GetMatchingGroup(s.Envfilter,tp,LOCATION_PZONE+LOCATION_MZONE,LOCATION_PZONE+LOCATION_MZONE,nil,e,tp)
 		if sg and #sg>0 then
 			return sg,s.fcheck
 		end
 	end
 	local sg=Duel.GetMatchingGroup(s.fexfilter,tp,LOCATION_PZONE+LOCATION_MZONE,0,nil,e)
-	if #sg>0 and not Duel.IsEnvironment(999117,tp) then
+	if #sg>0 and not (Duel.IsEnvironment(999117,tp) or not s.checkmat) then
 		return sg,s.fcheck
 	end
 end

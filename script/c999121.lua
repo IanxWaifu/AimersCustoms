@@ -57,7 +57,7 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.CheckLocation(1-tp,LOCATION_PZONE,0) and not Duel.CheckLocation(1-tp,LOCATION_PZONE,1) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 	local g=Duel.SelectMatchingCard(tp,s.pcfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 and Duel.MoveToField(g:GetFirst(),1-tp,1-tp,LOCATION_PZONE,POS_FACEUP,true) then
+	if #g>0 and Duel.MoveToField(g:GetFirst(),tp,1-tp,LOCATION_PZONE,POS_FACEUP,true) then
 		--Apply Continuous
 		local tc=g:GetFirst()
 		local e1=Effect.CreateEffect(e:GetHandler())
@@ -109,5 +109,14 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
    local c=e:GetHandler()
    if c:IsRelateToEffect(e) and c:IsSSetable() then
       Duel.SSet(tp,c)
+     	--Banish it if it leaves the field
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(3300)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+		e1:SetReset(RESET_EVENT+RESETS_REDIRECT)
+		e1:SetValue(LOCATION_REMOVED)
+		c:RegisterEffect(e1,true)
    end
 end

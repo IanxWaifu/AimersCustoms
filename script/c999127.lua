@@ -23,7 +23,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.destg)
 	e2:SetOperation(s.desop)
 	c:RegisterEffect(e2)
-	--Add to Extra
+--[[	--Add to Extra
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,3))
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
@@ -32,7 +32,7 @@ function s.initial_effect(c)
 	e3:SetCountLimit(1,{id,1})
 	e3:SetTarget(s.sctg)
 	e3:SetOperation(s.scop)
-	c:RegisterEffect(e3)
+	c:RegisterEffect(e3)--]]
 	--Special
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,4))
@@ -68,12 +68,12 @@ end
 
 --Prevent Activation
 function s.chainop(e,tp,eg,ep,ev,re,r,rp)
-	if re:GetHandler():IsRace(RACE_DRAGON) and re:IsActiveType(TYPE_FUSION) and re:GetOwnerPlayer()==tp then
+	if re:GetHandler():IsRace(RACE_DRAGON) and re:IsActiveType(TYPE_FUSION) and re:GetOwnerPlayer()==tp and re:GetHandler()~=e:GetHandler() then
 		Duel.SetChainLimit(s.chainlm)
 	end
 end
 function s.chainlm(e,rp,tp)
-	return tp==rp
+	return tp==rp or not e:IsMonsterEffect()
 end
 
 --Destroy S/T

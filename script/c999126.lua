@@ -5,7 +5,7 @@ function s.initial_effect(c)
 	--Must be properly summoned before reviving
 	c:EnableReviveLimit()
 	--Fusion summon procedure
-	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,0x12A7),s.matfilter)
+	Fusion.AddProcMix(c,true,true,s.matfilter,{s.matfilter2,s.dragmatfilter})
 	--Place 1 pendulum monster from deck into pendulum zone
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -65,9 +65,16 @@ s.listed_names={id}
 
 --Material Filter
 function s.matfilter(c,fc,st,tp)
-	return c:IsSetCard(0x12A7,fc,st,tp) or c:IsRace(RACE_DRAGON,fc,st,tp)
+	return c:IsSetCard(0x12A7,fc,st,tp) and c:IsType(TYPE_PENDULUM)
 end
-
+--Material Filter2
+function s.matfilter2(c,fc,st,tp)
+	return c:IsSetCard(0x12A7,fc,st,tp)
+end
+--Dragon Material Filter
+function s.dragmatfilter(c,fc,st,tp)
+	return c:IsRace(RACE_DRAGON,fc,st,tp)
+end
 --Pendulum Place
 function s.pcfilter(c)
 	return c:IsType(TYPE_PENDULUM) and not c:IsForbidden() and c:IsSetCard(0x12A7) and c:IsFaceup()
