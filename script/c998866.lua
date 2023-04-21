@@ -31,7 +31,7 @@ function s.initial_effect(c)
 end
 s.fusionlisted={998869}
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x19f) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x19f) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsType(TYPE_FUSION)
 	and (c:IsLocation(LOCATION_GRAVE+LOCATION_HAND) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()))
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

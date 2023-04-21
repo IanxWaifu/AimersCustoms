@@ -72,15 +72,15 @@ function c9945520.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetFlagEffect(9945520)==0 end
 	e:GetHandler():RegisterFlagEffect(9945520,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,0)
 end
-function c9945520.filter(c)
+function c9945520.filter(c,tp)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSetCard(0x12D7) and not (c:IsStatus(STATUS_SET_TURN) and c:IsType(TYPE_QUICKPLAY+TYPE_TRAP)) and not c:IsFaceup()
-		and c:CheckActivateEffect(false,false,false)~=nil
+		and c:GetActivateEffect():IsActivatable(tp,true,true)
 end
 function c9945520.actg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c9945520.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c9945520.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,nil,tp) end
 end
 function c9945520.acop(e,tp,eg,ep,ev,re,r,rp)
-	local sg=Duel.SelectMatchingCard(tp,c9945520.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,1,nil)
+	local sg=Duel.SelectMatchingCard(tp,c9945520.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,1,nil,tp)
 	local tc=sg:GetFirst()
 	if tc then
 	Duel.HintSelection(sg)

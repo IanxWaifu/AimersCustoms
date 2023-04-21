@@ -32,7 +32,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.MoveSequence(td,0)
 		Duel.ConfirmDecktop(tp,1)
 		td:ReverseInDeck()
-		if not Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsCode,998395),tp,LOCATION_FZONE,0,1,nil) and
+		if not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,998395),tp,LOCATION_FZONE,0,1,nil) and
 			Duel.IsExistingMatchingCard(s.actfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 			local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.actfilter),tp,LOCATION_DECK+LOCATION_GRAVE,0,1,1,nil,tp)
 			local tc=sg:GetFirst()
@@ -72,7 +72,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 						end
 					end
 					if (tpe&TYPE_FIELD)==TYPE_FIELD then
-						aux.PlayFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
+						Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
 						Duel.DisableShuffleCheck()
 					else Duel.MoveToField(tc,tp,tp,loc,POS_FACEUP,true) end
 					Duel.Hint(HINT_CARD,0,tc:GetCode())
@@ -138,7 +138,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 				end
 			Duel.DisableShuffleCheck()
 		end
-		elseif Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsCode,998395),tp,LOCATION_FZONE,0,1,nil) and
+		elseif Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,998395),tp,LOCATION_FZONE,0,1,nil) and
 		Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_DECK,0,1,nil,e,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local sg2=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)

@@ -55,7 +55,7 @@ function s.cfilter(c,tp)
 	return c:IsSetCard(0x19f)
 end
 function s.chcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.cfilter,1,nil,tp) 
+	return eg:IsExists(s.cfilter,1,nil,tp) and Duel.GetTurnPlayer()==e:GetHandlerPlayer()
 end
 
 --Choose 2

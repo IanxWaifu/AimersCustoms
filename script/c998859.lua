@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	e3:SetTargetRange(LOCATION_MZONE,0)
 	e3:SetTarget(s.val)
 	e3:SetCondition(s.atkcon)
-	e3:SetValue(1000)
+	e3:SetValue(500)
 	c:RegisterEffect(e3)
 end
 s.listed_series={0x19f}

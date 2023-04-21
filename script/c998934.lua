@@ -96,7 +96,7 @@ function s.repfilter(c,e,tp)
 	return c:IsSetCard(0x1A0) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:GetDestination()==LOCATION_HAND and c:IsMonster()
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 end
 --Replace and Reduce
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -123,7 +123,7 @@ function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local dg=g3:Select(tp,1,1,nil)
-			Duel.SpecialSummon(dg,0,tp,tp,false,false,POS_FACEUP)
+			Duel.SpecialSummon(dg,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
 		end
 		return true
 	else return false end

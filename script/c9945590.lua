@@ -133,15 +133,15 @@ end
 
 
 
-function c9945590.filter(c)
+function c9945590.filter(c,tp)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSetCard(0x12D7) and not c:IsFaceup()
-		and c:CheckActivateEffect(false,false,false)~=nil
+		and c:GetActivateEffect():IsActivatable(tp,true,true)
 end
 function c9945590.actg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c9945590.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(c9945590.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,nil,tp) end
 end
 function c9945590.acop(e,tp,eg,ep,ev,re,r,rp)
-	local sg=Duel.SelectMatchingCard(tp,c9945590.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,1,nil)
+	local sg=Duel.SelectMatchingCard(tp,c9945590.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,1,nil,tp)
 	local tc=sg:GetFirst()
 	if tc then
 	Duel.HintSelection(sg)

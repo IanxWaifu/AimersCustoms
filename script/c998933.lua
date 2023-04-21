@@ -42,7 +42,7 @@ function s.chkfilter(c,e,tp)
 	return c:IsFaceup() and c:IsSetCard(0x1A0) and c:IsCanBeEffectTarget(e) and c:GetLevel()==7
 end
 function s.spfilter(c,e,tp,codes)
-	return c:IsSetCard(0x1A0) and c:GetLevel()==7 and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsCode(table.unpack(codes))
+	return c:IsSetCard(0x1A0) and c:GetLevel()==7 and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE) and c:IsCode(table.unpack(codes))
 end
 function s.reptestfilter(c,e,tp)
 	return c:IsSetCard(0x1A0) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsCanBeEffectTarget(e) and c:IsMonster() and c:GetLevel()==7
@@ -68,7 +68,7 @@ function s.repval(e,c)
 end
 function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-		if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		if Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP_DEFENSE) then
 		tc:RegisterFlagEffect(998932,RESET_EVENT+RESETS_STANDARD,0,0)
 	end
 	Duel.SpecialSummonComplete()

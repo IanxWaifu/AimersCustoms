@@ -2,6 +2,18 @@
 --Gotheatrè, Sérénité en Blanche
 local s,id=GetID()
 function s.initial_effect(c)
+	--Activate from Deck Top
+	local e0=Effect.CreateEffect(c)
+	e0:SetDescription(aux.Stringid(id,3))
+	e0:SetType(EFFECT_TYPE_QUICK_O)
+	e0:SetCode(EVENT_FREE_CHAIN)
+	e0:SetRange(LOCATION_DECK)
+	e0:SetCountLimit(1,id)
+	e0:SetHintTiming(0,0x1c1)
+	e0:SetCondition(s.dactcon)
+	e0:SetTarget(s.dacttg)
+	e0:SetOperation(s.dactop)
+	c:RegisterEffect(e0)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -25,6 +37,66 @@ function s.initial_effect(c)
 	e2:SetTarget(s.settg)
 	e2:SetOperation(s.setop)
 	c:RegisterEffect(e2)
+end
+function s.dactcon(e,tp,eg,ep,ev,re,r,rp)
+	local c=Duel.GetFieldCard(tp,LOCATION_DECK,Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)-1)
+	return e:GetHandler():IsFaceup() and e:GetHandler()==c
+end
+function s.dacttg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():GetActivateEffect():IsActivatable(tp,true) end
+end
+function s.dactop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetHandler()
+	if tc and tc:IsFaceup() then
+	local tpe=tc:GetType()
+	local te=tc:GetActivateEffect()
+	local tg=te:GetTarget()
+	local co=te:GetCost()
+	local op=te:GetOperation()
+	e:SetCategory(te:GetCategory())
+	e:SetProperty(te:GetProperty())
+	Duel.ClearTargetCard()
+	if bit.band(tpe,TYPE_FIELD)~=0 and not tc:IsType(TYPE_FIELD) and not tc:IsFacedown() then
+		Duel.DisableShuffleCheck()
+		local fc=Duel.GetFieldCard(1-tp,LOCATION_FZONE,5)
+		if Duel.IsDuelType(DUEL_OBSOLETE_RULING) then
+			if fc then Duel.Destroy(fc,REASON_RULE) end
+			fc=Duel.GetFieldCard(tp,LOCATION_FZONE,5)
+			if fc and Duel.Destroy(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+		else
+			fc=Duel.GetFieldCard(tp,LOCATION_FZONE,5)
+			if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
+		end
+	end
+	Duel.DisableShuffleCheck()
+	Duel.MoveToField(tc,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
+	if tc and tc:IsFacedown() then Duel.ChangePosition(tc,POS_FACEUP) end
+	tc:CreateEffectRelation(te)
+	if bit.band(tpe,TYPE_EQUIP+TYPE_CONTINUOUS+TYPE_FIELD)==0 and not tc:IsHasEffect(EFFECT_REMAIN_FIELD) then
+		tc:CancelToGrave(false) 	
+	end
+	if co then co(te,tp,eg,ep,ev,re,r,rp,1) end
+	if tg then tg(te,tp,eg,ep,ev,re,r,rp,1) end
+	Duel.BreakEffect()
+	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	if g then
+		Duel.DisableShuffleCheck()
+		local etc=g:GetFirst()
+		while etc do
+			etc:CreateEffectRelation(te)
+			etc=g:GetNext()
+		end
+	end
+	if op then op(te,tp,eg,ep,ev,re,r,rp) end
+	tc:ReleaseEffectRelation(te)
+	if etc then	
+		etc=g:GetFirst()
+		while etc do
+			etc:ReleaseEffectRelation(te)
+			etc=g:GetNext()
+			end
+		end
+	end
 end
 function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0x12E5) 

@@ -41,9 +41,10 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.DisableShuffleCheck()
 	if #hg>0 and Duel.SendtoHand(hg,tp,REASON_EFFECT)>0 and hg:GetFirst():IsLocation(LOCATION_HAND) then
 		Duel.ConfirmCards(1-tp,hg)
+		Duel.ShuffleDeck(tp)
+		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 		Duel.ConfirmDecktop(tp,1)
-		Duel.DisableShuffleCheck()
 		local tc=Duel.GetDecktopGroup(tp,1):GetFirst()
 		if tc:IsSetCard(0x12E5) then
 			Duel.DisableShuffleCheck()
