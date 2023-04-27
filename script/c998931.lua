@@ -75,7 +75,7 @@ end
 --Return to hand
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetTurnID()==Duel.GetTurnCount()
+	return c:GetTurnID()==Duel.GetTurnCount() and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,998924),tp,LOCATION_ONFIELD,0,1,nil)
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

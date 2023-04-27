@@ -165,6 +165,7 @@ function s.discon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.SelectYesNo(tp,aux.Stringid(id,2)) then return end
+	Duel.Hint(HINT_CARD,0,id)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
 	local g=Duel.SelectMatchingCard(tp,s.disfilter,tp,LOCATION_ONFIELD+LOCATION_EXTRA,LOCATION_ONFIELD,1,1,nil)
 	if #g>0 and Duel.Destroy(g,REASON_EFFECT)~=0 then

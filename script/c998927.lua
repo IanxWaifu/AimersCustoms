@@ -214,25 +214,23 @@ end
 
 --BFG Draw
 function s.tgcostfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsAbleToGraveAsCost() 
+	return c:IsSetCard(0x1A0) and c:IsAbleToGraveAsCost() and ((c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD)) or c:IsLocation(LOCATION_HAND))
 end
 function s.tgcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		return Duel.IsPlayerCanDraw(tp,1) and aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0)
-			and Duel.IsExistingMatchingCard(s.tgcostfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,nil)
-	end
-	aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,1)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local cg=Duel.SelectMatchingCard(tp,s.tgcostfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,1,nil)
-	Duel.SendtoGrave(cg,REASON_COST)
+	if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) end
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
+	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) and Duel.IsExistingMatchingCard(s.tgcostfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,nil)end
 	Duel.SetTargetPlayer(tp)
 	Duel.SetTargetParam(1)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_ONFIELD+LOCATION_HAND)
 	Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
-	Duel.Draw(p,d,REASON_EFFECT)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local cg=Duel.SelectMatchingCard(tp,s.tgcostfilter,tp,LOCATION_HAND+LOCATION_ONFIELD,0,1,1,nil)
+	Duel.SendtoGrave(cg,REASON_EFFECT)
+	Duel.BreakEffect()
+	Duel.Draw(tp,1,REASON_EFFECT)
 end

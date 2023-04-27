@@ -39,7 +39,7 @@ function s.tffilter2(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable(true) and c:IsSetCard(0x1A0)
 end
 function s.tffilter3(c,e,tp)
-	return (c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)) or (c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable()) and c:IsSetCard(0x1A0)
+	return (c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x1A0)) or (c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable() and c:IsSetCard(0x1A0))
 end
 function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

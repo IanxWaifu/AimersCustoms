@@ -53,8 +53,8 @@ function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		and re:GetHandler():IsSetCard(0x1A0) and eg:IsExists(s.repfilter,1,nil,e,tp) end
 	local g=Duel.GetMatchingGroup(s.reptestfilter,tp,LOCATION_MZONE,0,nil,e,tp)
 	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+		Duel.Hint(HINT_CARD,0,id)
 		local tg=Duel.SelectMatchingCard(tp,s.reptestfilter,tp,LOCATION_MZONE,0,1,1,nil,e,tp)
-		e:GetHandler():SetCardTarget(tg:GetFirst())
 		local mt=Duel.GetMetatable(tg:GetFirst():GetCode())
 		local codes = mt.ordinal_scale
 		local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp,codes)

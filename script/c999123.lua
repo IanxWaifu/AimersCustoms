@@ -91,11 +91,25 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if loc==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,loc,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	local tc=g:GetFirst()
+	if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		--Cannot activate the effects of monsters with the same name
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_FIELD)
+		e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+		e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+		e1:SetTargetRange(1,0)
+		e1:SetValue(s.aclimit)
+		e1:SetLabelObject(tc)
+		e1:SetReset(RESET_PHASE+PHASE_END)
+		Duel.RegisterEffect(e1,tp)
 	end
+	Duel.SpecialSummonComplete()
 end
-
+function s.aclimit(e,re,tp)
+	local tc=e:GetLabelObject()
+	return re:GetHandler():IsCode(tc:GetCode())
+end
 
 --Opponents Destroyed
 function s.dfilter(c,tp)

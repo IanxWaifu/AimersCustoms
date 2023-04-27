@@ -83,7 +83,7 @@ end
 --After Resolve Destroy
 --Flag Effect
 function s.cfilter(c,tp)
-	return c:IsControler(tp) and c:IsSetCard(0x19f) and (c:IsType(TYPE_FUSION) or c:GetPreviousTypeOnField()&TYPE_FUSION==TYPE_FUSION)
+	return c:IsControler(tp) and c:IsSetCard(0x19f) and (c:IsType(TYPE_FUSION) or c:GetPreviousTypeOnField()&TYPE_FUSION==TYPE_FUSION) and c:IsReason(REASON_EFFECT)
 end
 function s.regcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil,tp) and Duel.GetFlagEffect(tp,id)==0 
@@ -92,7 +92,7 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterFlagEffect(tp,id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 end
 function s.descon2(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFlagEffect(tp,id+1)>0 then return false end
+	if Duel.GetFlagEffect(tp,id+1)>0 then return end
 	return Duel.GetFlagEffect(tp,id)>0 
 end
 function s.desfilter(c,e)
@@ -116,11 +116,11 @@ function s.spfilter(c,e,tp)
 	return c:IsControler(tp) and c:IsSetCard(0x19f) and c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and (c:IsLocation(LOCATION_GRAVE) or (c:IsFaceup() and c:IsLocation(LOCATION_REMOVED)))
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	return eg:IsExists(s.spfilter,1,nil,e,tp) 
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return false end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local g=eg:Filter(s.spfilter,nil,e,tp)
 	local tc=nil
 	if #g>1 then

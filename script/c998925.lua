@@ -86,5 +86,6 @@ function s.repval(e,c)
 	return s.repfilter(c,e:GetHandlerPlayer())
 end
 function s.repop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_CARD,0,id)
 	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_EFFECT)
 end

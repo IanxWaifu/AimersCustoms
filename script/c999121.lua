@@ -70,14 +70,14 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetCondition(s.descon)
 		e1:SetOperation(s.desop)
 		Duel.RegisterEffect(e1,tp)
-		e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT+RESET_TOFIELD|RESET_TURN_SET,0,1)
+		g:GetFirst():RegisterFlagEffect(id+1,RESET_EVENT+RESET_TOFIELD|RESET_TURN_SET,0,1)
 	end
 end
 
 --Target and Destroy
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	return tc:IsPreviousLocation(LOCATION_ONFIELD) and e:GetHandler():GetFlagEffect(id+1)>0 and tc:GetPreviousControler()==1-tp
+	return tc:IsPreviousLocation(LOCATION_ONFIELD) and tc:GetFlagEffect(id+1)>0 and tc:GetPreviousControler()==1-tp
 end
 
 
@@ -85,8 +85,10 @@ function s.desfilter(c,e)
 	return c:IsDestructable(e)
 end
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetLabelObject()
 	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e)
-	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) and e:GetHandler():GetFlagEffect(id+1)>0 then
+	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) and tc:GetFlagEffect(id+1)>0 then
+		tc:ResetFlagEffect(id+1)
 		Duel.BreakEffect()
 		Duel.Hint(HINT_CARD,0,id)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
