@@ -71,7 +71,7 @@ end
 function s.actfilter(c,tp)
 	return c:IsFaceup() and c:IsType(TYPE_SPELL+TYPE_TRAP) 
 	and ((c:IsAbleToRemove() and Duel.IsExistingMatchingCard(s.addfilter,tp,LOCATION_DECK,0,1,nil,tp)) 
-	or (c:IsAbleToGrave() and Duel.IsExistingMatchingCard(s.negfilter,tp,0,LOCATION_MZONE,1,nil,tp))) --and c:IsSetCard(0x12EA)
+	or (c:IsAbleToGrave() and Duel.IsExistingMatchingCard(s.negfilter,tp,0,LOCATION_MZONE,1,nil,tp))) and c:IsSetCard(0x12EA)
 end
 function s.addfilter(c,tp)
 	return c:IsType(TYPE_MONSTER) and not c:IsCode(id) and c:IsSetCard(0x12EA)
