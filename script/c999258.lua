@@ -8,22 +8,11 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.con)
 	e1:SetTarget(s.target)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
 end
 
-function s.sfilter(c)
-    return c:IsHasEffect(EFFECT_TO_GRAVE_REDIRECT)
-end
-function s.con(e,tp)
-    local g=Duel.GetMatchingGroup(s.sfilter,tp,LOCATION_ONFIELD,0,1,nil)
-    for tc in g:Iter() do
-        Debug.Message(tc:GetCode())
-    end
-    return true
-end
 
 function s.filter(c)
 	return c:IsSetCard(0x718) and c:IsFaceup() and (c:IsType(TYPE_RITUAL) or c:IsType(TYPE_XYZ))

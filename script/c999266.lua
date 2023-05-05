@@ -242,15 +242,23 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
 	end
 end
 
-
-
-function s.cfilter(c,seq,p)
-	return c:IsFaceup() and c:IsSetCard(0x718) and (c:IsColumn(seq,p,LOCATION_ONFIELD) or c:IsColumn(seq+1,p,LOCATION_ONFIELD) or c:IsColumn(seq-1,p,LOCATION_ONFIELD))
+function s.efilter(c,seq,tp)
+	local cg=c:GetColumnGroup(1,1)
+	return cg:IsExists(s.fgfilter,1,nil,seq,tp)
 end
+function s.fgfilter(c,seq,tp)
+	return c:IsSetCard(0x718) and c:IsFaceup() and c:IsControler(tp)
+end
+
+
+--[[function s.cfilter(c,seq,tp)
+	return c:IsFaceup() and c:IsSetCard(0x718) and c:IsControler(tp) and (c:IsColumn(seq,tp,LOCATION_ONFIELD) or c:IsColumn(seq+1,tp,LOCATION_ONFIELD) or c:IsColumn(seq-1,tp,LOCATION_ONFIELD))
+end--]]
+
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
-	local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	return loc==LOCATION_SZONE and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_ONFIELD,0,1,nil,seq,p)
+	local loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
+	return Duel.IsExistingMatchingCard(s.efilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,seq,tp)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

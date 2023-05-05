@@ -96,13 +96,13 @@ function s.initial_effect(c)
 	e9:SetTarget(s.shtg)
 	e9:SetValue(s.repval)
 	c:RegisterEffect(e9)
-	local e10=Effect.CreateEffect(c)
+--[[	local e10=Effect.CreateEffect(c)
 	e10:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e10:SetCode(EVENT_CHAIN_SOLVING)
 	e10:SetRange(LOCATION_MZONE)
 	e10:SetCondition(s.deckcon)
 	e10:SetOperation(s.deckop)
-	c:RegisterEffect(e10)
+	c:RegisterEffect(e10)--]]
 	if not s.global_check then
 		s.global_check=true
 		local ge1=Effect.GlobalEffect()
