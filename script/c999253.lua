@@ -69,7 +69,10 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.efilter(e,c)
-	return 1<<c:GetSequence() and c:IsSetCard(0x719) and c:GetActivateEffect():IsHasType(EFFECT_TYPE_ACTIVATE)
+	local p=e:GetHandlerPlayer()
+	local cg=e:GetHandler():GetColumnGroup(1,1)
+    if not cg:IsContains(c) then return false end
+	return cg:IsContains(c) and c:IsSetCard(0x719) and c:GetActivateEffect():IsHasType(EFFECT_TYPE_ACTIVATE)
 end
 
 

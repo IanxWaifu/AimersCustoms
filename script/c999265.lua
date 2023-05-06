@@ -72,11 +72,13 @@ function s.regop(e)
 	end
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-    if not (c:IsColumn(seq,p,LOCATION_ONFIELD) or c:IsColumn(seq+1,p,LOCATION_ONFIELD) or c:IsColumn(seq-1,p,LOCATION_ONFIELD)) then
+    local c = e:GetHandler()
+    local te, p, loc, seq = Duel.GetChainInfo(ev, CHAININFO_TRIGGERING_EFFECT, CHAININFO_TRIGGERING_CONTROLER, CHAININFO_TRIGGERING_LOCATION, CHAININFO_TRIGGERING_SEQUENCE)
+    local tc = te:GetHandler()
+    local cg = tc:GetColumnGroup(1, 1)
+    if not cg:IsContains(c) then
         return false
-    end
+	end
     local flageff=c:GetFlagEffectLabel(1)
     c:RegisterFlagEffect(1,RESET_EVENT|RESETS_STANDARD&~RESET_TURN_SET|RESET_CHAIN,0,1,re:GetHandler():GetCardID())
     if flageff==nil then e:GetLabelObject():Clear() end
@@ -102,8 +104,8 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local c=e:GetHandler()
     local zone=0
     local stzone=0
-    local pz1=c==Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-    local pz2=c==Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+    local pz1 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 0))
+	local pz2 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 1))
     local seq1=Duel.GetFieldCard(tp,LOCATION_MZONE,0)
     local seq2=Duel.GetFieldCard(tp,LOCATION_MZONE,1)
     local seq3=Duel.GetFieldCard(tp,LOCATION_MZONE,3)
@@ -158,8 +160,8 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
     local c=e:GetHandler()
     local zone=0
     local stzone=0
-    local pz1=c==Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-    local pz2=c==Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+    local pz1 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 0))
+	local pz2 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 1))
     local seq1=Duel.GetFieldCard(tp,LOCATION_MZONE,0)
     local seq2=Duel.GetFieldCard(tp,LOCATION_MZONE,1)
     local seq3=Duel.GetFieldCard(tp,LOCATION_MZONE,3)

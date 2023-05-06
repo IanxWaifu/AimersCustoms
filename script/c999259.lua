@@ -68,7 +68,8 @@ function s.initial_effect(c)
 	c:RegisterEffect(e6,false,REGISTER_FLAG_DETACH_XMAT)
 	--if leaves the field draw
 	local e7=Effect.CreateEffect(c)
-	e7:SetDescription(aux.Stringid(id,1))
+	e7:SetDescription(aux.Stringid(id,2))
+	e7:SetCategory(CATEGORY_DRAW)
 	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e7:SetProperty(EFFECT_FLAG_DELAY)
 	e7:SetRange(LOCATION_MZONE)
@@ -259,7 +260,7 @@ function s.onfieldcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.actfilter(c)
-	return c:IsFaceup() and not c:IsDisabled() and c:IsCanTurnSet()
+	return c:IsFaceup() and not c:IsDisabled() and c:IsCanTurnSet() and not c:IsLocation(LOCATION_PZONE)
 end
 
 function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

@@ -57,13 +57,16 @@ function s.initial_effect(c)
 	e4:SetTarget(s.pctg)
 	e4:SetOperation(s.pcop)
 	c:RegisterEffect(e4)
-	--effect gain 
-	local e5=Effect.CreateEffect(c)
-	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-	e5:SetCode(EVENT_BE_MATERIAL)
-	e5:SetCondition(s.efcon)
-	e5:SetOperation(s.efop)
+	local e5=e4:Clone()
+	e5:SetCode(EVENT_SPSUMMON_SUCCESS)
 	c:RegisterEffect(e5)
+	--effect gain 
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e6:SetCode(EVENT_BE_MATERIAL)
+	e6:SetCondition(s.efcon)
+	e6:SetOperation(s.efop)
+	c:RegisterEffect(e6)
 end
 function s.splimit(e,c,sump,sumtype,sumpos,targetp)
 	if c:IsSetCard(0x718) then return false end
@@ -83,8 +86,10 @@ function s.regop(e)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-    if not (c:IsColumn(seq,p,LOCATION_ONFIELD) or c:IsColumn(seq+1,p,LOCATION_ONFIELD) or c:IsColumn(seq-1,p,LOCATION_ONFIELD)) then
+    local te,p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
+    local tc=te:GetHandler()
+    local cg = tc:GetColumnGroup(1, 1)
+    if not cg:IsContains(c) then
         return false
     end
     local flageff=c:GetFlagEffectLabel(1)
@@ -92,6 +97,10 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
     if flageff==nil then e:GetLabelObject():Clear() end
     return flageff==nil
 end
+function s.checkfilter(c,tp)
+	return c:IsSetCard(0x718) and c:IsFaceup() and c:IsControler(tp)
+end
+
 function s.thfilter(c,e,tp,...)
 	return not c:IsCode(...) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,zone) and c:IsSetCard(0x718) and c:IsMonster()
 end
@@ -112,8 +121,8 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local c=e:GetHandler()
     local zone=0
     local stzone=0
-    local pz1=c==Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-    local pz2=c==Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+    local pz1 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 0))
+	local pz2 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 1))
     local seq1=Duel.GetFieldCard(tp,LOCATION_MZONE,0)
     local seq2=Duel.GetFieldCard(tp,LOCATION_MZONE,1)
     local seq3=Duel.GetFieldCard(tp,LOCATION_MZONE,3)
@@ -168,8 +177,8 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
     local c=e:GetHandler()
     local zone=0
     local stzone=0
-    local pz1=c==Duel.GetFieldCard(tp,LOCATION_PZONE,0)
-    local pz2=c==Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+	local pz1 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 0))
+	local pz2 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 1))
     local seq1=Duel.GetFieldCard(tp,LOCATION_MZONE,0)
     local seq2=Duel.GetFieldCard(tp,LOCATION_MZONE,1)
     local seq3=Duel.GetFieldCard(tp,LOCATION_MZONE,3)
@@ -182,7 +191,7 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
 
     	((pz1 and not seq1 and not seq2 and not STZ2) or (pz2 and not seq3 and not seq4 and not STZ4)) then
 
-    	opt=Duel.SelectOption(tp,aux.Stringid(id,4),aux.Stringid(id,3))
+    	opt=Duel.SelectOption(tp,aux.Stringid(id,6),aux.Stringid(id,5))
 		opt=opt+1
 
 	--Spell/Trap Case

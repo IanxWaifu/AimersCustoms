@@ -50,7 +50,7 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)==0 then return end
     Duel.ConfirmDecktop(tp,5)
-    if not Duel.CheckLocation(tp,LOCATION_PZONE,0) or not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return false end
+    if not (Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1)) then return false end
     local g=Duel.GetDecktopGroup(tp,5):Filter(s.spfilter,nil,e,tp)
     local ct=0
     if #g>0 then
@@ -105,9 +105,11 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
                 if #sg==1 then
                     Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEDOWN,true,1<<og:GetFirst():GetPreviousSequence())
                     Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+                    Duel.ConfirmCards(1-tp,tc)
                 end
                 Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEDOWN,true,(1<<0|1<<4))
                 Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+                Duel.ConfirmCards(1-tp,tc)
                 tc=sg:GetNext()
             until not tc
         end

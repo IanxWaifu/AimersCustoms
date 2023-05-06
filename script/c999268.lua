@@ -24,7 +24,6 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetCode(EFFECT_CANNOT_INACTIVATE)
 	e3:SetRange(LOCATION_SZONE)
---[[	e3:SetCondition(s.effcon)--]]
 	e3:SetValue(s.efilter)
 	c:RegisterEffect(e3)
 end
@@ -70,49 +69,66 @@ end
 
 
 
---[[function s.efilter(e,te)
-	return te and te:GetColumnGroup(1,1):IsExists(function(c,tp,te)
-		return c:IsControler(1-tp) 
-	end,1,te,e:GetHandlerPlayer())
-end--]]
 
-function s.efilter(e,ct)
-	local p=e:GetHandlerPlayer()
-	local te,tp=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
-	local tc=te:GetHandler()
-	return p==tp and tc:IsSetCard(0x718) 
-end
 
 --[[
-function s.efilter(c,tp)
-	local cg=c:GetColumnGroup(1,1)
-	return cg:IsExists(s.fgfilter,1,nil,tp)
-end
-function s.fgfilter(c,tp)
-	return c:IsSetCard(0x718) and c:IsOriginalType(TYPE_MONSTER) and c:IsFaceup() and c:GetControler()==tp
+local DaemonMonsterCard = {
+    [0] = true,   -- Set column 0 as true if it contains a Daemon Monster Card
+    [1] = true,   -- Set column 1 as true if it contains a Daemon Monster Card
+    [2] = true,   -- Set column 2 as true if it contains a Daemon Monster Card
+    [3] = true,   -- Set column 3 as true if it contains a Daemon Monster Card
+    [4] = true,   -- Set column 4 as true if it contains a Daemon Monster Card
+    [5] = true,   -- Set column 5 as true if it contains a Daemon Monster Card
+    [6] = true,   -- Set column 6 as true if it contains a Daemon Monster Card
+}
+
+function s.efilter(e, ct)
+    local p = e:GetHandlerPlayer()
+    local te, loc, tp = Duel.GetChainInfo(ct, CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_LOCATION, CHAININFO_TRIGGERING_PLAYER)
+    local tc = te:GetHandler()
+	if not ((te:IsActiveType(TYPE_MONSTER) and loc==LOCATION_MZONE) or (te:IsActiveType(TYPE_SPELL) and loc==LOCATION_PZONE)) then return false end
+    local c = e:GetHandler()
+    local zones = {}  -- Table of zones with matching Daemon Monster Cards
+
+    -- Iterate over all 7 monster zones
+    for seq = 0, 6 do
+        local zone = Duel.GetFieldCard(p, LOCATION_MZONE, seq)
+        if zone and zone:IsControler(p) then  -- Check if there is a monster in the monster zone and if you control it
+            local column = zone:GetColumnZone(seq)
+            if DaemonMonsterCard[column] then  -- Check if the column matches one of your Daemon Monster Cards
+                table.insert(zones, seq)  -- Add the zone to the table of matching zones
+            end
+        end
+    end
+
+    -- Check the Pendulum Zones (if applicable)
+    for seq = 0, 1 do
+        local zone = Duel.GetFieldCard(p, LOCATION_PZONE, seq)
+        if zone and zone:IsControler(p) then  -- Check if there is a card in the Pendulum Zone and if you control it
+            local column = zone:GetColumnZone(seq + 16)  -- Adjust the sequence for Pendulum Zones
+            if DaemonMonsterCard[column] then  -- Check if the column matches one of your Daemon Monster Cards
+                table.insert(zones, seq + 16)  -- Add the Pendulum Zone to the table of matching zones
+            end
+        end
+    end
+
+    -- Check if the triggering effect meets the condition for any of the zones
+    for _, seq in ipairs(zones) do
+        local zone = c:GetColumnZone(seq)
+        if seq == tc:GetSequence() and p == tp and zone == c:GetColumnZone(tc:GetSequence()) then
+            return true
+        end
+    end
+
+    return false
 end
 --]]
 
-function s.effectfilter(e,ct)
-	local te=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT)
-	local tc=te:GetHandler()
-	return tc:IsSetCard(0xed)
-end
---[[
 function s.efilter(e,ct)
 	local p=e:GetHandlerPlayer()
-	local te,tp=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
-	local cg=te:GetColumnGroup(1,1)
-	return cg:IsExists(s.fgfilter,1,nil) and te:IsSetCard(0x718) and ((te:IsHasCategory(CATEGORY_SPECIAL_SUMMON)) or (te:IsActiveType(TYPE_MONSTER) and p==tp)) and cg:GetHandlerPlayer()==te:GetHandlerPlayer() 
+	local te,loc,tp=Duel.GetChainInfo(ct,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_PLAYER)
+	local tc=te:GetHandler()
+	local cg=tc:GetColumnGroup(1,1)
+	return p==tp and tc:IsSetCard(0x718) and tc:GetControler()==tp and tc:IsFaceup() and cg:IsExists(Card.IsControler,1,nil,1-tp)
+	and ((((tc:IsType(TYPE_XYZ) or tc:IsType(TYPE_RITUAL)) and tc:IsMonster()) or (tc:IsLocation(LOCATION_PZONE))) and (te:IsHasCategory(CATEGORY_SPECIAL_SUMMON) or te:IsActiveType(TYPE_MONSTER)))
 end
-
-
-function s.fgfilter(c)
-	return c:IsSetCard(0x718) and ((c:IsLocation(LOCATION_PZONE)) or (c:IsType(TYPE_XYZ) or c:IsType(TYPE_RITUAL))) 
-end
-
-function s.efilter(e,te)
-	local loc=Duel.GetChainInfo(0,CHAININFO_TRIGGERING_LOCATION)
-	return te:IsActivated() and loc==LOCATION_ONFIELD and e:GetHandlerPlayer()==1-te:GetHandlerPlayer() 
-end
---]]
