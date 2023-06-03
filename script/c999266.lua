@@ -205,7 +205,7 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
 
     	((pz1 and not seq1 and not seq2 and not STZ2) or (pz2 and not seq3 and not seq4 and not STZ4))) then
 
-    	opt=Duel.SelectOption(tp,aux.Stringid(id,4),aux.Stringid(id,3))
+    	opt=Duel.SelectOption(tp,aux.Stringid(id,6),aux.Stringid(id,5))
 		opt=opt+1
 
 	--Spell/Trap Case
@@ -324,7 +324,7 @@ function s.efop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 		rc:RegisterEffect(e2,true)
 	end
-	rc:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,2))
+	rc:RegisterFlagEffect(0,RESET_EVENT+RESETS_STANDARD,EFFECT_FLAG_CLIENT_HINT,1,0,aux.Stringid(id,3))
 end
 
 function s.tdcost(e,tp,eg,ep,ev,re,r,rp,chk)
