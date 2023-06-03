@@ -1,5 +1,11 @@
 --Zodiakieri Constellation
 function c9945550.initial_effect(c)
+	--Can be activated from the hand
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetCode(EFFECT_TRAP_ACT_IN_HAND)
+	e0:SetCondition(c9945550.handcon)
+	c:RegisterEffect(e0)
 	--Cannot Trigger
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -37,8 +43,12 @@ function c9945550.initial_effect(c)
 	e5:SetOperation(c9945550.setop)
 	c:RegisterEffect(e5)
 end
+function c9945550.handcon(e)
+	return e:GetHandler():GetFlagEffect(9945550)>0
+end
 function c9945550.condition(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if c:GetFlagEffect(9945550)>0 then return false end
 	return not (c:IsLocation(LOCATION_GRAVE) and c:IsPreviousLocation(LOCATION_HAND+LOCATION_ONFIELD) and c:IsReason(REASON_DESTROY))
 	and not (c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD))
 end

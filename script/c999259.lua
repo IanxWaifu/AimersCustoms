@@ -85,7 +85,7 @@ function s.initial_effect(c)
 	e8:SetType(EFFECT_TYPE_IGNITION)
 	e8:SetRange(LOCATION_MZONE)
 	e8:SetCountLimit(1,{id,2})
-	--[[e8:SetCondition(s.pencon)--]]
+	e8:SetCondition(s.pencon)
 	e8:SetTarget(s.pentg)
 	e8:SetOperation(s.penop)
 	c:RegisterEffect(e8)
@@ -260,7 +260,7 @@ function s.onfieldcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.actfilter(c)
-	return c:IsFaceup() and not c:IsDisabled() and c:IsCanTurnSet() and not c:IsLocation(LOCATION_PZONE)
+	return c:IsFaceup() and c:IsCanTurnSet() and not c:IsLocation(LOCATION_PZONE)
 end
 
 function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)

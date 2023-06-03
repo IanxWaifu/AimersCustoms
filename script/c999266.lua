@@ -110,9 +110,6 @@ end
 function s.chk(c,e,tp,zone)
 	return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,c,e,tp,c:GetCode(),zone)
 end
-function s.dblchk(c,e,tp,zone,stzone)
-	return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,c,e,tp,c:GetCode(),zone) or Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,c,e,tp,c:GetCode(),stzone)
-end
 function s.schk(c,e,tp,stzone)
 	return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,c,e,tp,c:GetCode(),stzone)
 end
@@ -129,6 +126,8 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local seq4=Duel.GetFieldCard(tp,LOCATION_MZONE,4) 
     local STZ2=Duel.GetFieldCard(tp,LOCATION_SZONE,1)
     local STZ4=Duel.GetFieldCard(tp,LOCATION_SZONE,3)
+	local stg=g:IsExists(s.schk,1,nil,e,tp,stzone)
+    local mtg=g:IsExists(s.chk,1,nil,e,tp,zone)
     --Check Left Pzone
 
 		if pz1 and not STZ2 then stzone=1<<1 end
@@ -144,18 +143,21 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	
     if chk==0 then return 
     --Group Case
-    (g:IsExists(s.dblchk,1,nil,e,tp,zone,stzone) and ((pz1 and not seq1 and seq2 and not STZ2) or (pz1 and not seq2 and seq1 and not STZ2)) or ((pz2 and not seq3 and seq4 and not STZ4) or (pz2 and not seq4 and seq3 and not STZ4)) or
+    (stg and mtg and ((pz1 and not seq1 and seq2 and not STZ2) or (pz1 and not seq2 and seq1 and not STZ2)) or ((pz2 and not seq3 and seq4 and not STZ4) or (pz2 and not seq4 and seq3 and not STZ4)) or
 
     	((pz1 and not seq1 and not seq2 and not STZ2) or (pz2 and not seq3 and not seq4 and not STZ4))) 
 
     or
     --Spell/Trap Case
-    (g:IsExists(s.schk,1,nil,e,tp,stzone) and (pz1 and seq1 and seq2 and not STZ2) or (pz2 and seq3 and seq4 and not STZ4)) 
+    (stg and ((pz1 and seq1 and seq2 and not STZ2) or (pz2 and seq3 and seq4 and not STZ4) or (pz1 and not STZ2) or (pz2 and not STZ4))) 
+    or ((stg and ((pz1 and seq1 and seq2 and not STZ2) or (pz2 and seq3 and seq4 and not STZ4) or (pz1 and not STZ2) or (pz2 and not STZ4))) and not mtg)
 
     or 
     --Monster Case
-    (g:IsExists(s.chk,1,nil,e,tp,zone) and (pz1 and seq1 and not seq2 and STZ2) or (pz1 and seq2 and not seq1 and STZ2) or (pz2 and seq3 and not seq4 and STZ4) or (pz2 and seq4 and not seq3 and STZ2) 
-    	or ((pz1 and not seq1 and not seq2 and STZ2) or (pz2 and not seq1 and not seq2 and STZ4)))
+    (mtg and (((pz1 and seq1 and not seq2 and STZ2) or (pz1 and seq2 and not seq1 and STZ2)) or ((pz2 and seq3 and not seq4 and STZ4) or (pz2 and seq4 and not seq3 and STZ2)) 
+    	or ((pz1 and not seq1 and not seq2 and STZ2) or (pz2 and not seq1 and not seq2 and STZ4))))
+    or ((mtg and (((pz1 and seq1 and not seq2 and STZ2) or (pz1 and seq2 and not seq1 and STZ2)) or ((pz2 and seq3 and not seq4 and STZ4) or (pz2 and seq4 and not seq3 and STZ2)) 
+    	or ((pz1 and not seq1 and not seq2 and STZ2) or (pz2 and not seq1 and not seq2 and STZ4)))) and not stg)
 	end
 
 
@@ -176,8 +178,9 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
     if not tc then return end  
     local c=e:GetHandler()
     local zone=0
+    local g=e:GetLabelObject()
     local stzone=0
-	local pz1 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 0))
+    local pz1 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 0))
 	local pz2 = (c == Duel.GetFieldCard(tp, LOCATION_PZONE, 1))
     local seq1=Duel.GetFieldCard(tp,LOCATION_MZONE,0)
     local seq2=Duel.GetFieldCard(tp,LOCATION_MZONE,1)
@@ -186,29 +189,37 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
     local STZ2=Duel.GetFieldCard(tp,LOCATION_SZONE,1)
     local STZ4=Duel.GetFieldCard(tp,LOCATION_SZONE,3)
     local opt=0
+     --Check Left Pzone
+		if pz1 and not STZ2 then stzone=1<<1 end
+		if pz2 and not STZ4 then stzone=1<<3 end
+		 -- Check Left Pzone
+	    if pz1 and not seq1 and seq2 then zone=1 end
+	    if pz1 and not seq1 and not seq2 then zone=1|2 end 
+	    if pz1 and seq1 and not seq2 then zone=2 end 
+	    -- Check Right Pzone
+	    if pz2 and not seq4 and seq3 then zone=16 end   
+	    if pz2 and not seq4 and not seq3 then zone=8|16 end   
+	    if pz2 and seq4 and not seq3 then zone=8 end 
     --Group Case
-    if ((pz1 and not seq1 and seq2 and not STZ2) or (pz1 and not seq2 and seq1 and not STZ2)) or ((pz2 and not seq3 and seq4 and not STZ4) or (pz2 and not seq4 and seq3 and not STZ4)) or
+    if g:IsExists(s.schk,1,nil,e,tp,stzone) and g:IsExists(s.chk,1,nil,e,tp,zone) and (((pz1 and not seq1 and seq2 and not STZ2) or (pz1 and not seq2 and seq1 and not STZ2)) or ((pz2 and not seq3 and seq4 and not STZ4) or (pz2 and not seq4 and seq3 and not STZ4)) or
 
-    	((pz1 and not seq1 and not seq2 and not STZ2) or (pz2 and not seq3 and not seq4 and not STZ4)) then
+    	((pz1 and not seq1 and not seq2 and not STZ2) or (pz2 and not seq3 and not seq4 and not STZ4))) then
 
-    	opt=Duel.SelectOption(tp,aux.Stringid(id,6),aux.Stringid(id,5))
+    	opt=Duel.SelectOption(tp,aux.Stringid(id,4),aux.Stringid(id,3))
 		opt=opt+1
 
 	--Spell/Trap Case
-    elseif (pz1 and seq1 and seq2 and not STZ2) or (pz2 and seq3 and seq4 and not STZ4) then 
+    elseif g:IsExists(s.schk,1,nil,e,tp,stzone) and not ((pz1 and STZ2) or (pz2 and STZ4)) then 
         opt=1
 
     --Monster Case
-    elseif (pz1 and seq1 and not seq2 and STZ2) or (pz1 and seq2 and not seq1 and STZ2) or (pz2 and seq3 and not seq4 and STZ4) or (pz2 and seq4 and not seq3 and STZ2)
+    elseif g:IsExists(s.chk,1,nil,e,tp,zone) and ((pz1 and seq1 and not seq2) or (pz1 and seq2 and not seq1) or (pz2 and seq3 and not seq4) or (pz2 and seq4 and not seq3)
 
-    	or ((pz1 and not seq1 and not seq2 and STZ2) or (pz2 and not seq1 and not seq2 and STZ4)) then
+    	or ((pz1 and not seq1 and not seq2) or (pz2 and not seq1 and not seq2)) or ((pz1 and not seq1 and not seq2) or (pz2 and not seq1 and not seq2)))  then
 
     	opt=2
     end
     if opt==1 then
-    	 --Check Left Pzone
-		if pz1 and not STZ2 then stzone=1<<1 end
-		if pz2 and not STZ4 then stzone=1<<3 end
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	    local tg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.setfilter),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,e:GetLabelObject(),e,tp,tc:GetCode()):GetFirst()
 	    if tg then
@@ -226,14 +237,6 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
 			tg:RegisterEffect(e1)
 	    end
 	    elseif opt==2 then
-	    -- Check Left Pzone
-	    if pz1 and not seq1 and seq2 then zone=1 end
-	    if pz1 and not seq1 and not seq2 then zone=1|2 end 
-	    if pz1 and seq1 and not seq2 then zone=2 end 
-	    -- Check Right Pzone
-	    if pz2 and not seq4 and seq3 then zone=16 end   
-	    if pz2 and not seq4 and not seq3 then zone=8|16 end   
-	    if pz2 and seq4 and not seq3 then zone=8 end 
 	    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	    local tg = Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.thfilter),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,e:GetLabelObject(),e,tp,tc:GetCode()):GetFirst()  
 		if tg and Duel.SpecialSummonStep(tg,0,tp,tp,false,false,POS_FACEUP,zone) then
@@ -251,24 +254,17 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
 	end
 end
 
-function s.efilter(c,seq,tp)
-	local cg=c:GetColumnGroup(1,1)
-	return cg:IsExists(s.fgfilter,1,nil,seq,tp)
-end
-function s.fgfilter(c,seq,tp)
+
+function s.fgfilter(c,tp)
 	return c:IsSetCard(0x718) and c:IsFaceup() and c:IsControler(tp)
 end
-
-
---[[function s.cfilter(c,seq,tp)
-	return c:IsFaceup() and c:IsSetCard(0x718) and c:IsControler(tp) and (c:IsColumn(seq,tp,LOCATION_ONFIELD) or c:IsColumn(seq+1,tp,LOCATION_ONFIELD) or c:IsColumn(seq-1,tp,LOCATION_ONFIELD))
-end--]]
-
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local rc=re:GetHandler()
-	local loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	return Duel.IsExistingMatchingCard(s.efilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,seq,tp)
+	local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
+    local tc=re:GetHandler()
+    local cg=tc:GetColumnGroup(1,1)
+	return cg:IsExists(s.fgfilter,1,nil,tp)
 end
+
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end

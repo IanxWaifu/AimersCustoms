@@ -133,92 +133,59 @@ end
 
 
 
-function c9945590.filter(c,tp)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSetCard(0x12D7) and not c:IsFaceup()
-		and c:GetActivateEffect():IsActivatable(tp,true,true)
+--activate
+function c9945590.actfilter(c,e,tp)
+	local type_spell=TYPE_SPELL
+	local type_trap=TYPE_TRAP
+	if not c:IsType(type_spell|type_trap) then return end
+	return c:IsSetCard(0x12D7) and c:GetActivateEffect():IsActivatable(tp,true,true) and c:IsType(TYPE_SPELL+TYPE_TRAP) and not c:IsFaceup()
 end
 function c9945590.actg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(c9945590.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,nil,tp) end
+	local loc=0
+    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then loc=LOCATION_HAND+LOCATION_SZONE end
+ 	if Duel.GetLocationCount(tp,LOCATION_SZONE)==0 and Duel.GetLocationCount(tp,LOCATION_FZONE)==0 then loc=LOCATION_SZONE end
+ 	if loc==0 then return false end
+	if chk==0 then return loc>0 and Duel.IsExistingMatchingCard(c9945590.actfilter,tp,loc,0,1,nil,e,tp) end
 end
 function c9945590.acop(e,tp,eg,ep,ev,re,r,rp)
-	local sg=Duel.SelectMatchingCard(tp,c9945590.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,1,nil,tp)
-	local tc=sg:GetFirst()
-	if tc then
-	Duel.HintSelection(sg)
-	local tpe=tc:GetType()
-	local te=tc:GetActivateEffect()
-	local tg=te:GetTarget()
-	local co=te:GetCost()
-	local op=te:GetOperation()
-	e:SetCategory(te:GetCategory())
-	e:SetProperty(te:GetProperty())
-	Duel.ClearTargetCard()
-	if bit.band(tpe,TYPE_FIELD)~=0 and not tc:IsType(TYPE_FIELD) and not tc:IsFacedown() then
-		local fc=Duel.GetFieldCard(1-tp,LOCATION_SZONE,5)
-		if Duel.IsDuelType(DUEL_OBSOLETE_RULING) then
-			if fc then Duel.Destroy(fc,REASON_RULE) end
-			fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-			if fc and Duel.Destroy(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
-		else
-			fc=Duel.GetFieldCard(tp,LOCATION_SZONE,5)
-			if fc and Duel.SendtoGrave(fc,REASON_RULE)==0 then Duel.SendtoGrave(tc,REASON_RULE) end
-		end
-	end
-	Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-	if tc and tc:IsFacedown() then Duel.ChangePosition(tc,POS_FACEUP) end
-	Duel.Hint(HINT_CARD,0,tc:GetCode())
-	tc:CreateEffectRelation(te)
-	if bit.band(tpe,TYPE_EQUIP+TYPE_CONTINUOUS+TYPE_FIELD)==0 and not tc:IsHasEffect(EFFECT_REMAIN_FIELD) then
-		tc:CancelToGrave(false) 	
-	end
-	if co then co(te,tp,eg,ep,ev,re,r,rp,1) end
-	if tg then tg(te,tp,eg,ep,ev,re,r,rp,1) end
-	Duel.BreakEffect()
-	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	if g then
-		local etc=g:GetFirst()
-		while etc do
-			etc:CreateEffectRelation(te)
-			etc=g:GetNext()
-		end
-	end
-	if op then op(te,tp,eg,ep,ev,re,r,rp) end
-	tc:ReleaseEffectRelation(te)
-	if etc then	
-		etc=g:GetFirst()
-		while etc do
-			etc:ReleaseEffectRelation(te)
-			etc=g:GetNext()
-			end
-		end
-	end
-end
+	local loc=0
+    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then loc=LOCATION_HAND+LOCATION_SZONE end
+ 	if Duel.GetLocationCount(tp,LOCATION_SZONE)==0 and Duel.GetLocationCount(tp,LOCATION_FZONE)==0 then loc=LOCATION_SZONE end
+  	if loc==0 then return false end
+    local g=Duel.GetMatchingGroup(c9945590.actfilter,tp,loc,0,nil,e,tp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+    local sc=g:Select(tp,1,1,nil):GetFirst()
+    if not sc then return end
+    --activate
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+    e1:SetCode(EVENT_CHAIN_END)
+    e1:SetCountLimit(1)
+    e1:SetLabelObject(sc)
+    e1:SetOperation(c9945590.faop)
+    Duel.RegisterEffect(e1,tp)
+    sc:RegisterFlagEffect(9945550,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,0,0)
 
-function c9945590.retcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if not bit.band(e:GetHandler():GetSummonType(),SUMMON_TYPE_RITUAL)==SUMMON_TYPE_RITUAL or c:IsHasEffect(EFFECT_SPIRIT_DONOT_RETURN) then return false end
-	if e:IsHasType(EFFECT_TYPE_TRIGGER_F) then
-		return not c:IsHasEffect(EFFECT_SPIRIT_MAYNOT_RETURN) and Duel.GetTurnPlayer()==tp
-	else return c:IsHasEffect(EFFECT_SPIRIT_MAYNOT_RETURN) and Duel.GetTurnPlayer()==tp end
 end
-function c9945590.rettg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then
-		if e:IsHasType(EFFECT_TYPE_TRIGGER_F) then
-			return true
-		else
-			return Duel.IsExistingMatchingCard(Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
+function c9945590.faop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if not tc then return end
+    local te=tc:GetActivateEffect()
+    local tep=tc:GetControler()
+    if not te then return end
+	local pre={Duel.GetPlayerEffect(tp,EFFECT_CANNOT_ACTIVATE)}
+	if pre[1] then
+		for i,eff in ipairs(pre) do
+			local prev=eff:GetValue()
+			if type(prev)~='function' or prev(eff,te,tep) then return end
 		end
 	end
-	local g=Duel.GetMatchingGroup(Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,#g,0,0)
-	Duel.SetOperationInfo(0,CATEGORY_TODECK,e:GetHandler(),1,0,0)
-end
-function c9945590.retop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and c:IsFaceup() then
-	Duel.SendtoDeck(c,nil,2,REASON_EFFECT)
-	local g=Duel.GetMatchingGroup(Card.IsAbleToHand,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-	if #g==0 then return end
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-	end
+	if tc:GetFlagEffect(9945550)==0 then return false end
+	if te and te:GetCode()==EVENT_FREE_CHAIN and te:IsActivatable(tep) then
+        Duel.Activate(te)
+        Duel.BreakEffect()
+        tc:ResetFlagEffect(9945550)
+    end
+    e:Reset()
 end

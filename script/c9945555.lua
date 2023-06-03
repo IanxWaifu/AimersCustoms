@@ -36,7 +36,9 @@ function c9945555.initial_effect(c)
 end
 function c9945555.condition(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
+	if c:GetFlagEffect(9945550)>0 then return false end
 	return not (c:IsLocation(LOCATION_GRAVE) and c:IsPreviousLocation(LOCATION_HAND+LOCATION_ONFIELD) and c:IsReason(REASON_DESTROY))
+	and not (c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD))
 end
 function c9945555.filter(c,e,tp)
 	return c:IsSetCard(0x12D7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)

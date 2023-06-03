@@ -84,8 +84,8 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_PZONE,0,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,#g,0,0)
 end
-function s.dgfilter(c,ignore)
-	return c:IsSetCard(0x719) and  c:IsSpellTrap() and c:IsSSetable(ignore)
+function s.dgfilter(c)
+	return c:IsSetCard(0x719) and  c:IsSpellTrap() --[[and c:IsSSetable(ignore)--]] and not c:IsType(TYPE_FIELD)
 end
 function s.cfilter(c,e)
 	return c:IsLocation(LOCATION_REMOVED) and c:IsRelateToEffect(e)
@@ -97,7 +97,7 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
     local og=Duel.GetOperatedGroup()
     local cg=og:Filter(Card.IsLocation,nil,LOCATION_REMOVED)
     if ct>0 and #dg>=ct then
-        if ct<1 or ct>Duel.GetLocationCount(tp,LOCATION_SZONE) then return end
+        if ct==0 or Duel.GetLocationCount(tp,LOCATION_SZONE)<=-ct then return end
         if aux.SelectUnselectGroup(dg,e,tp,ct,ct,aux.dncheck,0) then
             local sg=aux.SelectUnselectGroup(dg,e,tp,ct,ct,aux.dncheck,1,tp,HINTMSG_SET)
             local tc=sg:GetFirst()

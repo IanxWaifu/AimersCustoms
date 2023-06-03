@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	c:EnableReviveLimit()
-	Link.AddProcedure(c,aux.FilterBoolFunction(Card.IsSetCard,0x718),2,2)
+	Link.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsSetCard,0x718),2,2,s.lcheck)
 	--Banish
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -31,6 +31,10 @@ function s.initial_effect(c)
 end
 s.listed_series={0x718,0x719}
 
+	--Monsters with different names
+function s.lcheck(g,lc,sumtype,tp)
+	return g:CheckDifferentProperty(Card.GetCode,lc,sumtype,tp)
+end
 function s.rmfilter(c)
 	return c:IsSetCard(0x718) and c:IsAbleToRemoveAsCost() and c:IsFaceup() and c:IsType(TYPE_PENDULUM)
 end

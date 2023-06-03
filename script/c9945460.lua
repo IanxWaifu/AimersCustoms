@@ -1,4 +1,5 @@
 --Zodiakieri Taurus
+local s,id=GetID()
 function c9945460.initial_effect(c)
 	--spirit return
 	Spirit.AddProcedure(c,EVENT_SUMMON_SUCCESS,EVENT_FLIP)
@@ -53,14 +54,74 @@ function c9945460.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():GetFlagEffect(9945460)==0 end
 	e:GetHandler():RegisterFlagEffect(9945460,RESET_EVENT+0x1fe0000+RESET_PHASE+PHASE_END,0,0)
 end
-function c9945460.filter(c)
+--[[function c9945460.filter(c)
 	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSetCard(0x12D7) and not (c:IsStatus(STATUS_SET_TURN) and c:IsType(TYPE_QUICKPLAY+TYPE_TRAP)) and not c:IsFaceup()
 		and c:CheckActivateEffect(false,false,false)~=nil
 end
 function c9945460.actg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(c9945460.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,nil) end
+end--]]
+
+
+
+--activate
+function c9945460.actfilter(c,e,tp)
+	local type_spell=TYPE_SPELL
+	local type_trap=TYPE_TRAP
+	if not c:IsType(type_spell|type_trap) then return end
+	return c:IsSetCard(0x12D7) and c:CheckActivateEffect(false,false,false)~=nil and c:IsType(TYPE_SPELL+TYPE_TRAP) and not (c:IsStatus(STATUS_SET_TURN) and c:IsType(TYPE_QUICKPLAY+TYPE_TRAP)) and not c:IsFaceup()
+end
+function c9945460.actg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local loc=0
+    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then loc=LOCATION_HAND+LOCATION_SZONE end
+ 	if Duel.GetLocationCount(tp,LOCATION_SZONE)==0 and Duel.GetLocationCount(tp,LOCATION_FZONE)==0 then loc=LOCATION_SZONE end
+ 	if loc==0 then return false end
+	if chk==0 then return loc>0 and Duel.IsExistingMatchingCard(c9945460.actfilter,tp,loc,0,1,nil,e,tp) end
 end
 function c9945460.acop(e,tp,eg,ep,ev,re,r,rp)
+	local loc=0
+    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then loc=LOCATION_HAND+LOCATION_SZONE end
+ 	if Duel.GetLocationCount(tp,LOCATION_SZONE)==0 and Duel.GetLocationCount(tp,LOCATION_FZONE)==0 then loc=LOCATION_SZONE end
+  	if loc==0 then return false end
+    local g=Duel.GetMatchingGroup(c9945460.actfilter,tp,loc,0,nil,e,tp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+    local sc=g:Select(tp,1,1,nil):GetFirst()
+    if not sc then return end
+    --activate
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+    e1:SetCode(EVENT_CHAIN_END)
+    e1:SetCountLimit(1)
+    e1:SetLabelObject(sc)
+    e1:SetOperation(c9945460.faop)
+    Duel.RegisterEffect(e1,tp)
+    sc:RegisterFlagEffect(9945550,RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD+RESET_PHASE+PHASE_END,0,0)
+
+end
+function c9945460.faop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if not tc then return end
+    local te=tc:GetActivateEffect()
+    local tep=tc:GetControler()
+    if not te then return end
+	local pre={Duel.GetPlayerEffect(tp,EFFECT_CANNOT_ACTIVATE)}
+	if pre[1] then
+		for i,eff in ipairs(pre) do
+			local prev=eff:GetValue()
+			if type(prev)~='function' or prev(eff,te,tep) then return end
+		end
+	end
+	if tc:GetFlagEffect(9945550)==0 then return false end
+	if te and te:GetCode()==EVENT_FREE_CHAIN and te:IsActivatable(tep) then
+        Duel.Activate(te)
+        Duel.BreakEffect()
+        tc:ResetFlagEffect(9945550)
+    end
+    e:Reset()
+end
+
+--[[function c9945460.acop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then
 	local sg=Duel.SelectMatchingCard(tp,c9945460.filter,tp,LOCATION_HAND+LOCATION_SZONE,0,1,1,nil)
@@ -165,4 +226,4 @@ function c9945460.acop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-end
+end--]]

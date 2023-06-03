@@ -109,7 +109,6 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g2=Duel.GetMatchingGroup(s.spfilter2,tp,LOCATION_MZONE,0,nil)
 	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
 	local tc=g:GetFirst()
-	if #g1==1 and tc:IsFaceup() and tc:IsCode(998385) then return false end
 	if chk==0 then local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,nil,nil,REASON_SYNCHRO)
 		return #pg<=0 and  Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and #g1>0 and #g2>0 
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,true,false) end
@@ -123,7 +122,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g2=Duel.GetMatchingGroup(s.spfilter2,tp,LOCATION_MZONE,0,nil)
 	local g=Duel.GetFieldGroup(tp,LOCATION_MZONE,0)
 	local tc=g:GetFirst()
-	if #g1==1 and tc:IsFaceup() and tc:IsCode(998385) then return false end
 	if chk==0 then return Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and #g1>0 and #g2>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g3=Duel.SelectMatchingCard(tp,s.spfilter1,tp,LOCATION_MZONE,0,1,1,nil)
