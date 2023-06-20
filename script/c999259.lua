@@ -71,7 +71,7 @@ function s.initial_effect(c)
 	e7:SetDescription(aux.Stringid(id,2))
 	e7:SetCategory(CATEGORY_DRAW)
 	e7:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e7:SetProperty(EFFECT_FLAG_DELAY)
+	e7:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_NO_TURN_RESET)
 	e7:SetRange(LOCATION_MZONE)
 	e7:SetCode(EVENT_CHAIN_SOLVED)
 	e7:SetCountLimit(1,{id,1})
@@ -274,7 +274,7 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.actfilter,tp,0,LOCATION_ONFIELD,1,1,nil)
 	if #g>0 then
 		local tc=g:GetFirst()
-		if Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 then
+		if Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 and tc:IsSpellTrap() then
 			tc:CancelToGrave()
 			Duel.ChangePosition(tc,POS_FACEDOWN)
 			tc:SetStatus(STATUS_ACTIVATE_DISABLED,false)
@@ -296,6 +296,9 @@ function s.actop(e,tp,eg,ep,ev,re,r,rp)
 				tc:RegisterEffect(e1)
 				c:RegisterFlagEffect(id+2,RESET_EVENT|RESETS_STANDARD-RESET_TOFIELD-RESET_TURN_SET-RESET_LEAVE,0,1)
 			end
+			elseif Duel.NegateRelatedChain(tc,RESET_TURN_SET)~=0 and tc:IsMonster() then
+				Duel.ChangePosition(g,POS_FACEDOWN_DEFENSE)
+				Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 		end
 	end
 end

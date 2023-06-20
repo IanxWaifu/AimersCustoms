@@ -8,7 +8,7 @@ function s.initial_effect(c)
 	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetCountLimit(1,id)
+	e1:SetCountLimit(1,{id,1+EFFECT_COUNT_CODE_OATH})
 	e1:SetCost(s.cost)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
@@ -45,7 +45,7 @@ function s.filter(c)
 	return c:IsSetCard(0x718) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.filter2(c)
-	return c:IsSetCard(0x719) and c:IsSpellTrap() and c:IsAbleToHand()
+	return c:IsSetCard(0x719) and c:IsSpellTrap() and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end

@@ -86,7 +86,8 @@ function s.scon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.stg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetFieldGroupCount(1-tp,LOCATION_ONFIELD|LOCATION_HAND,0)>0 end
+	local tc=e:GetLabelObject()
+	if chk==0 then return tc:GetFlagEffect(id)>0 and Duel.GetFieldGroupCount(1-tp,LOCATION_ONFIELD|LOCATION_HAND,0)>0 end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,0,LOCATION_ONFIELD|LOCATION_HAND)
 end
 
@@ -98,7 +99,7 @@ function s.sop(e,tp,eg,ep,ev,re,r,rp)
 	local dg=Duel.SelectMatchingCard(1-tp,aux.TRUE,1-tp,LOCATION_HAND|LOCATION_ONFIELD,0,1,1,nil)
 	if #dg>0 then
 		Duel.SendtoGrave(dg,REASON_RULE,PLAYER_NONE,1-tp)
-		tc:ResetFlagEffect(id+1)
+		tc:ResetFlagEffect(id)
 	end
 end
 

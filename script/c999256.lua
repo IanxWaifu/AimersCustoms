@@ -5,7 +5,7 @@ function s.initial_effect(c)
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
+	e1:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH+CATEGORY_DRAW)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,id)
@@ -58,6 +58,8 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.MoveToDeckBottom(g2,tp)
 		Duel.SortDeckbottom(tp,tp,ac)
 	end
+	Duel.BreakEffect()
+	Duel.Draw(tp,1,REASON_EFFECT)
 	local loc=LOCATION_EXTRA
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)>0 then loc=loc+LOCATION_PZONE+LOCATION_HAND end
 	if loc==0 then return end
