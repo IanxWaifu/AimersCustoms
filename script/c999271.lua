@@ -55,7 +55,8 @@ function s.excop(e,tp,eg,ep,ev,re,r,rp)
 				function(c)
 				Duel.DisableShuffleCheck()
 				Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) end,
-				aux.Stringid(id,2))
+				aux.Stringid(id,2)) 
+				Duel.ShuffleHand(tp)
 				ct=1
 				local ac=3-ct
     			if ac>0 then

@@ -119,6 +119,7 @@ end
 s.minxyzct=2
 s.maxxyzct=2
 s.maintain_overlay=true
+s.pendulum_level=7
 s.listed_series={0x718,0x719}
 s.listed_names={id}
 
