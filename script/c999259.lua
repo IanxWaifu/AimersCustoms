@@ -363,7 +363,7 @@ end
 --Draw when activated
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
 	local rc=re:GetHandler()
-	return rp==tp and rc:IsSetCard(0x719) and re:IsHasType(EFFECT_TYPE_ACTIVATE)
+	return rc:IsSetCard(0x719) and re:IsHasType(EFFECT_TYPE_ACTIVATE)
 end
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
