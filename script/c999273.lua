@@ -181,7 +181,7 @@ function s.gspop(e,tp,eg,ep,ev,re,r,rp)
 	local ct=0
 	local g=Duel.GetDecktopGroup(tp,3):Filter(s.excfilter,nil)
 	if #g>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
 		local sg=g:Select(tp,1,1,nil)
 		local tc=sg:GetFirst()
 		Duel.DisableShuffleCheck()

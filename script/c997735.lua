@@ -49,9 +49,8 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
-	local ec=re:GetHandler()
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.SendtoGrave(ec,nil,2,REASON_EFFECT)
+		Duel.SendtoGrave(eg,REASON_EFFECT)
 	end
 end
 --Monster Eff

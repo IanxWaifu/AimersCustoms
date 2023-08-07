@@ -86,11 +86,11 @@ end
 
 --Ritual Proc
 function s.exfilter(c,e,tp,code)
-	return ((c:IsCode(999259) and code==999250) or (c:IsCode(999265) and code==999270)) and c:IsAbleToGrave() 
+	return ((c:IsCode(999259) and code==999250) or (c:IsCode(999265) and code==999270) or (c:IsCode(999180) and code==999182)) and c:IsAbleToGrave() 
 end
 function s.rfilter(c,e,tp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,c,nil,REASON_RITUAL)
-	return #pg<=0 and c:IsRitualMonster() and c:IsSetCard(0x718) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true) and Duel.IsExistingMatchingCard(s.exfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c:GetCode())
+	return #pg<=0 and c:IsRitualMonster() and c:IsSetCard(0x718) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true) and Duel.IsExistingMatchingCard(s.exfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,nil,e,tp,c:GetCode())
 	and Duel.IsExistingMatchingCard(s.fcfilter,tp,LOCATION_EXTRA+LOCATION_ONFIELD+LOCATION_HAND,0,1,c,e,tp)
 end
 function s.fcfilter(c)
@@ -102,7 +102,8 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 			and Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_HAND,0,1,nil,e,tp)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_EXTRA+LOCATION_ONFIELD+LOCATION_HAND)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA+LOCATION_DECK)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
@@ -113,7 +114,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local tc=rg:GetFirst()
 	if tc then
 		local fc=Duel.SelectMatchingCard(tp,s.fcfilter,tp,LOCATION_EXTRA+LOCATION_ONFIELD+LOCATION_HAND,0,1,1,tc)
-		local tg=Duel.SelectMatchingCard(tp,s.exfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,code)
+		local tg=Duel.SelectMatchingCard(tp,s.exfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,1,nil,e,tp,code)
 		local sg=tg:GetFirst()
 		Duel.SendtoGrave(sg,REASON_EFFECT+REASON_MATERIAL+REASON_RITUAL)
 		Duel.Remove(fc,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_RITUAL)

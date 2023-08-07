@@ -27,29 +27,29 @@ s.listed_names={id}
 
 
 function s.exfilter(c,e,tp,code)
-	return ((c:IsCode(999259) and code==999250) or (c:IsCode(999265) and code==999270)) and c:IsAbleToGrave() 
+	return ((c:IsCode(999259) and code==999250) or (c:IsCode(999265) and code==999270) or (c:IsCode(999180) and code==999182)) and c:IsAbleToGrave() 
 end
 function s.rfilter(c,e,tp)
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,c,nil,REASON_RITUAL)
-	return #pg<=0 and c:IsRitualMonster() and c:IsSetCard(0x718) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true) and Duel.IsExistingMatchingCard(s.exfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp,c:GetCode())
+	return #pg<=0 and c:IsRitualMonster() and c:IsSetCard(0x718) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,false,true) and Duel.IsExistingMatchingCard(s.exfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,nil,e,tp,c:GetCode())
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then
 		return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-			and Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_PZONE,0,1,nil,e,tp)
+			and Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp)
 	end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_PZONE)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND+LOCATION_GRAVE)
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_EXTRA+LOCATION_DECK)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,nil,nil,REASON_RITUAL)
 	if #pg>0 then return end
-	local rg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.rfilter),tp,LOCATION_HAND+LOCATION_GRAVE+LOCATION_PZONE,0,1,1,nil,e,tp)
+	local rg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.rfilter),tp,LOCATION_HAND+LOCATION_GRAVE,0,1,1,nil,e,tp)
 	local code=rg:GetFirst():GetCode()
 	local tc=rg:GetFirst()
 	if tc then
-		local tg=Duel.SelectMatchingCard(tp,s.exfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,code)
+		local tg=Duel.SelectMatchingCard(tp,s.exfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,1,nil,e,tp,code)
 		local sg=tg:GetFirst()
 		Duel.SendtoGrave(sg,REASON_EFFECT+REASON_MATERIAL+REASON_RITUAL)
 		tc:SetMaterial(rg)  
