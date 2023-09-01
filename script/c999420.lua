@@ -144,19 +144,25 @@ end
 
 function s.descon(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
+    local bc = c:GetBattleTarget()
     local att = c:GetAttribute()
-    local bc=c:GetBattleTarget()
-    local att = c:GetAttribute()
-    local sharedAttribute = att & bc:GetAttribute() ~= 0
-    local attCount = 0
-    while att > 0 do
-        if att & 0x1 ~= 0 then
-            attCount = attCount + 1
+    
+    -- Check if there's a battle target and the attack is not direct
+    if bc and not bc:IsStatus(STATUS_ATTACK_CANCELED) then
+        local sharedAttribute = att & bc:GetAttribute() ~= 0
+        local attCount = 0
+        while att > 0 do
+            if att & 0x1 ~= 0 then
+                attCount = attCount + 1
+            end
+            att = att >> 1
         end
-        att = att >> 1
+        return attCount > 1 and c:IsRelateToBattle() and bc and bc:IsFaceup() and bc:IsRelateToBattle() and sharedAttribute
     end
-    return attCount > 1 and c:IsRelateToBattle() and bc and bc:IsFaceup() and bc:IsRelateToBattle() and sharedAttribute
+    
+    return false
 end
+
 
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
