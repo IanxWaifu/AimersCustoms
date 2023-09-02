@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Soul Harvest
 local s, id = GetID()
+Duel.LoadScript('AimersAux.lua')
 
 function s.initial_effect(c)
 	--activate
@@ -15,21 +16,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 
--- Function to get the count of set bits (1s) in a card's attribute
-function GetAttributeCount(card)
-    local att = card:GetAttribute()
-    local count = 0
-    while att > 0 do
-        if att & 0x1 ~= 0 then
-            count = count + 1
-        end
-        att = att >> 1
-    end
-    return count
-end
+
 
 function s.attcountfilter(c)
- 	local attCount = GetAttributeCount(c)
+ 	local attCount = Aimer.GetAttributeCount(c)
     return c:IsFaceup() and attCount > 1
 end
 

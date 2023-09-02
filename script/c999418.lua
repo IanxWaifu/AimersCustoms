@@ -1,18 +1,8 @@
 --Scripted by IanxWaifu
 --Sargengelis, Necrotic Paragon
 local s,id=GetID()
-
-local function CountAttributes(att)
-    local count = 0
-    while att > 0 do
-        count = count + (att & 1)
-        att = att >> 1
-    end
-    return count
-end
-
+Duel.LoadScript('AimersAux.lua')
 local chosenAttribute = 0
-
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--fusion material
@@ -64,9 +54,9 @@ function s.initial_effect(c)
     end
     function s.repop(e,c)
         return function(e,tp,eg,ep,ev,re,r,rp)
-            local g=Duel.GetDecktopGroup(e:GetHandlerPlayer(),1)
+            local g=Duel.GetDecktopGroup(e:GetHandlerPlayer(),2)
             if #g>0 then
-                Duel.DiscardDeck(1-tp,1,REASON_EFFECT)
+                Duel.DiscardDeck(1-tp,2,REASON_EFFECT)
             end
             c:ResetFlagEffect(id)
             c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,chosenAttribute)
@@ -141,7 +131,7 @@ function s.chcon(e, tp, eg, ep, ev, re, r, rp)
     if not c:IsHasEffect(EFFECT_ADD_ATTRIBUTE) then
         return false
     end
-    local attCount = CountAttributes(c:GetAttribute())
+    local attCount = Aimer.GetAttributeCount(c)
     -- Check if the activating monster shares an attribute with e:GetHandler()
     local sharedAttribute = c:GetAttribute() & rc:GetAttribute() ~= 0
     return re:IsMonsterEffect() and attCount > 1 and rc ~= c and sharedAttribute
