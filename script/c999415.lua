@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Zorga, Necromancer of Woe
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Search 1 "Necrotic" Spell/Trap card
 	local e1=Effect.CreateEffect(c)
@@ -30,6 +31,7 @@ function s.initial_effect(c)
 
 end
 s.listed_series={0x129f}
+s.listed_names={id,CARD_ZORGA}
 
 function s.thfilter(c)
 	return c:IsSetCard(0x29f) and c:IsSpellTrap() and c:IsAbleToHand()

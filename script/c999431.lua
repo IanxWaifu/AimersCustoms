@@ -1,5 +1,5 @@
 --Scripted by IanxWaifu
---Necrotic Soul Harvest
+--Necrotic Veil of Emanation
 local s, id = GetID()
 Duel.LoadScript('AimersAux.lua')
 
@@ -15,7 +15,8 @@ function s.initial_effect(c)
 	e1:SetOperation(s.attop)
 	c:RegisterEffect(e1)
 end
-
+s.listed_series={0x29f}
+s.listed_names={id}
 
 
 function s.attcountfilter(c)
@@ -101,6 +102,8 @@ function s.attop(e, tp, eg, ep, ev, re, r, rp)
         
         while attCount > 1 do
             local quickatt = tc:GetAttribute()
+            -- Set the Divine attribute bit to 0
+            quickatt = quickatt & ~ATTRIBUTE_DIVINE
             local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
             local e1 = Effect.CreateEffect(c)
             e1:SetType(EFFECT_TYPE_SINGLE)

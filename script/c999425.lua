@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Soulshaver
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Special Summon this card from your hand or GY
 	local e0=Effect.CreateEffect(c)
@@ -25,6 +26,9 @@ function s.initial_effect(c)
 	e1:SetOperation(s.tgop)
 	c:RegisterEffect(e1)
 end
+
+s.listed_series={0x29f}
+s.listed_names={id,999416}
 
 function s.spfilter(c)
 	return c:IsCode(999416) and c:IsAbleToHand()

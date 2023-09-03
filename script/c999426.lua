@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Soul Harvest
-local s, id = GetID()
+local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
     -- Targeted monster has its effects negate
     local e1 = Effect.CreateEffect(c)
@@ -28,6 +29,9 @@ function s.initial_effect(c)
 	e2:SetOperation(s.attop)
 	c:RegisterEffect(e2)
 end
+
+s.listed_series={0x29f}
+s.listed_names={id}
 
 function s.oppfilter(c, tp)
     return (c:IsNegatableMonster() or (c:IsFaceup() and (c:GetAttack() > 0 or c:GetDefense() > 0))) and Duel.IsExistingMatchingCard(s.myattfilter, tp, LOCATION_MZONE, 0, 1, nil, c)
@@ -142,7 +146,7 @@ function s.attop(e, tp, eg, ep, ev, re, r, rp)
     local removedCount = 0
     while attCount > 1 do
         local quickatt = tc:GetAttribute()
-        local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
+        local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt-ATTRIBUTE_DIVINE)
         local e1 = Effect.CreateEffect(c)
         e1:SetType(EFFECT_TYPE_SINGLE)
         e1:SetCode(EFFECT_REMOVE_ATTRIBUTE)

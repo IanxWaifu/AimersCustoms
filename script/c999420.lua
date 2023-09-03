@@ -1,7 +1,7 @@
 --Scripted by IanxWaifu
 --Kro'akoth, Necrotic Severer
 local s,id=GetID()
-
+Duel.LoadScript('AimersAux.lua')
 local function CountAttributes(att)
     local count = 0
     while att > 0 do
@@ -69,6 +69,7 @@ end
 s.listed_series={0x29f}
 s.material={999415}
 s.material_setcode={0x129f}
+s.listed_names={id,CARD_ZORGA}
 
 function s.mfilter1(c)
 	return c:IsCode(999415)
@@ -132,16 +133,6 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
 function s.descon(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
     local bc = c:GetBattleTarget()
@@ -175,8 +166,11 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
     local bc=c:GetBattleTarget()
     local p=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER)
     if c:IsFaceup() and c:IsRelateToBattle() and bc:IsFaceup() and bc:IsRelateToBattle() and Duel.Destroy(bc,REASON_EFFECT)>0 then
+    local quickatt = c:GetAttribute()
+    -- Set the Divine attribute bit to 0
+    quickatt = quickatt & ~ATTRIBUTE_DIVINE
     -- Prompt the player to select an attribute to lose
-        local att_to_lose = Duel.AnnounceAttribute(tp, 1, c:GetAttribute())
+        local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
         c:ResetFlagEffect(id) -- Reset the flag before setting a new one
         c:RegisterFlagEffect(id, RESET_EVENT + RESETS_STANDARD + RESET_PHASE + PHASE_END, 0, 1, att_to_lose)
         local e1=Effect.CreateEffect(c)

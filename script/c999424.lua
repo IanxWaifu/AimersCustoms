@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Soulshaver
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Special Summon this card from your hand or GY
 	local e0=Effect.CreateEffect(c)
@@ -25,8 +26,11 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 
+s.listed_series={0x29f}
+s.listed_names={id}
+
 function s.attfil(c,e,att)
-    return c:IsCanBeEffectTarget(e) and c:IsAttributeExcept(att) and c:IsFaceup() and c:GetAttribute() ~= ATTRIBUTE_ALL and c:GetAttribute() ~= ATTRIBUTE_DIVINE
+    return c:IsCanBeEffectTarget(e) and c:IsAttributeExcept(att) and c:IsFaceup() and c:GetAttribute() ~= ATTRIBUTE_ALL
 end
 
 function s.attrtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -38,7 +42,12 @@ function s.attrtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
     local g=Duel.SelectTarget(tp,s.attfil,tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,1,1,nil,e,e:GetLabel())
-    local negatt = ATTRIBUTE_ALL - ATTRIBUTE_DIVINE - g:GetFirst():GetAttribute()
+    local negatt
+    if g:GetFirst():GetAttribute() & ATTRIBUTE_DIVINE ~= 0 then
+        negatt = bit.band(ATTRIBUTE_ALL, bit.bnot(g:GetFirst():GetAttribute()))
+    else 
+        negatt = ATTRIBUTE_ALL - ATTRIBUTE_DIVINE - g:GetFirst():GetAttribute()
+    end
     local att = Duel.AnnounceAttribute(tp, 1, negatt)
     e:SetLabel(att)
 end

@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Shade
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Change the Attribute of 1 monster
 	local e1=Effect.CreateEffect(c)
@@ -26,6 +27,9 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
+s.listed_series={0x29f}
+s.listed_names={id,CARD_ZORGA}
+
 function s.attcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:IsDiscardable() end
@@ -33,7 +37,7 @@ function s.attcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.attfil(c,e,att)
-    return c:IsCanBeEffectTarget(e) and c:IsAttributeExcept(att) and c:IsFaceup() and c:GetAttribute() ~= ATTRIBUTE_ALL and c:GetAttribute() ~= ATTRIBUTE_DIVINE
+    return c:IsCanBeEffectTarget(e) and c:IsAttributeExcept(att) and c:IsFaceup() and c:GetAttribute() ~= ATTRIBUTE_ALL 
 end
 
 
@@ -46,10 +50,16 @@ function s.attrtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
     local g=Duel.SelectTarget(tp,s.attfil,tp,LOCATION_MZONE+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,1,1,nil,e,e:GetLabel())
-    local negatt = ATTRIBUTE_ALL - ATTRIBUTE_DIVINE - g:GetFirst():GetAttribute()
+    local negatt
+    if g:GetFirst():GetAttribute() & ATTRIBUTE_DIVINE ~= 0 then
+        negatt = bit.band(ATTRIBUTE_ALL, bit.bnot(g:GetFirst():GetAttribute()))
+    else 
+        negatt = ATTRIBUTE_ALL - ATTRIBUTE_DIVINE - g:GetFirst():GetAttribute()
+    end
     local att = Duel.AnnounceAttribute(tp, 1, negatt)
     e:SetLabel(att)
 end
+
 
 function s.attrop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()

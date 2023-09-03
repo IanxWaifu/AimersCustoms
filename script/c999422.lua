@@ -1,7 +1,7 @@
 --Scripted by IanxWaifu
 --Zorga, Wraithlord of Invictus
 local s,id=GetID()
-
+Duel.LoadScript('AimersAux.lua')
 local function CountAttributes(att)
     local count = 0
     while att > 0 do
@@ -63,6 +63,7 @@ end
 s.listed_series={0x29f}
 s.material={999415}
 s.material_setcode={0x129f}
+s.listed_names={id,CARD_ZORGA}
 
 function s.mfilter1(c)
 	return c:IsCode(999415)

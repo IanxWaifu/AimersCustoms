@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Crypt Maiden
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
     -- Cannot be destroyed by battle or card effects while you control a specific monster
     local e1=Effect.CreateEffect(c)
@@ -42,6 +43,9 @@ function s.initial_effect(c)
     e6:SetCode(EVENT_SPSUMMON_SUCCESS)
     c:RegisterEffect(e6)
 end
+
+s.listed_series={0x29f}
+s.listed_names={id}
 
 -- Condition for the indestructible effect
 function s.rcfilter(c)

@@ -1,17 +1,24 @@
 --Scripted by IanxWaifu
 --Crux of the Necromancer
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Activate
 	local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.ListsCodeAsMaterial,999415),matfilter=s.matfilter,extrafil=s.fextra,extraop=s.extraop,extratg=s.extratg})
 	c:RegisterEffect(e1)
 end
-s.listed_series={0x29f}
-s.listed_names={999415}
+
+s.listed_names={id,CARD_ZORGA}
 
 function s.matfilter(c)
 	return (c:IsLocation(LOCATION_MZONE) and c:IsAbleToGrave()) or (c:IsLocation(LOCATION_GRAVE) and c:IsAbleToRemove())
 end
+
+--new found thing
+--[[function s.matcheck(e,c)
+    local attcheck=c:GetMaterial():GetBitwiseOr(Card.GetAttribute)&(ATTRIBUTE_ALL-ATTRIBUTE_DIVINE)
+end--]]
+
 
 local function GetAttributes(att)
     local attributes = {}

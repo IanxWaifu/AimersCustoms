@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Revenant Aperture
 local s, id = GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
     --Activate
     local e1=Effect.CreateEffect(c)
@@ -24,6 +25,9 @@ function s.initial_effect(c)
     e2:SetOperation(s.attrop)
     c:RegisterEffect(e2)
 end
+
+s.listed_series={0x29f}
+s.listed_names={id}
 
 function s.ApplyEffectToCards(cfilter, tp, e)
     local c = e:GetHandler()
@@ -63,27 +67,29 @@ end
 
 -- Attribute count filter
 function s.attctfilter(c)
-    return c:IsFaceup() and s.GetAttributeCount(c) > 1
+    return c:IsFaceup() and s.GetAttributeCount(c) > 1 
 end
 
 function s.destg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
-    local ct = Duel.GetMatchingGroupCount(s.attctfilter, tp, LOCATION_MZONE, 0, nil)
+    local ct = Duel.GetMatchingGroupCount(s.attctfilter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
     if chk == 0 then
-        return ct > 0 and Duel.IsExistingMatchingCard(aux.TRUE, tp, 0, LOCATION_MZONE, 1, nil)
+        return ct > 0 and Duel.IsExistingMatchingCard(Card.IsFaceup, tp, 0, LOCATION_ONFIELD, 1, nil)
     end
 end
 
 -- Attribute selection and operation
 function s.desop(e, tp, eg, ep, ev, re, r, rp)
     local c = e:GetHandler()
-    local g = Duel.GetMatchingGroup(s.attctfilter, tp, LOCATION_MZONE, 0, nil)
-    local g2 = Duel.GetMatchingGroup(aux.TRUE, tp, 0, LOCATION_MZONE, nil)
+    local g = Duel.GetMatchingGroup(s.attctfilter, tp, LOCATION_MZONE, LOCATION_MZONE, nil)
+    local g2 = Duel.GetMatchingGroup(Card.IsFaceup, tp, 0, LOCATION_ONFIELD, nil)
     if #g == 0 then return false end
     local removedCount = 0
     for tc in aux.Next(g) do
         local attCount = s.GetAttributeCount(tc)
         while attCount > 1 do
             local quickatt = tc:GetAttribute()
+            -- Set the Divine attribute bit to 0
+            quickatt = quickatt & ~ATTRIBUTE_DIVINE
             Duel.HintSelection(tc)
             local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
             local e1 = Effect.CreateEffect(c)
@@ -102,7 +108,7 @@ function s.desop(e, tp, eg, ep, ev, re, r, rp)
         end
     end
     if removedCount > 0 then
-        local dg = Duel.SelectMatchingCard(tp, aux.TRUE, tp, 0, LOCATION_MZONE, 1, removedCount, nil)
+        local dg = Duel.SelectMatchingCard(tp, Card.IsFaceup, tp, 0, LOCATION_ONFIELD, 1, removedCount, nil)
         if #dg > 0 then
             Duel.HintSelection(dg)
             Duel.Destroy(dg, REASON_EFFECT)
@@ -114,7 +120,7 @@ end
 
 --Attribute Gain BFG
 function s.attfil(c,e,att)
-    return c:IsCanBeEffectTarget(e) and c:IsAttributeExcept(att) and c:IsFaceup() and c:GetAttribute() ~= ATTRIBUTE_ALL and c:GetAttribute() ~= ATTRIBUTE_DIVINE
+    return c:IsCanBeEffectTarget(e) and c:IsAttributeExcept(att) and c:IsFaceup() and c:GetAttribute() ~= ATTRIBUTE_ALL
 end
 
 function s.attrtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -126,7 +132,12 @@ function s.attrtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
     local g=Duel.SelectTarget(tp,s.attfil,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil,e,e:GetLabel())
-    local negatt = ATTRIBUTE_ALL - ATTRIBUTE_DIVINE - g:GetFirst():GetAttribute()
+    local negatt
+    if g:GetFirst():GetAttribute() & ATTRIBUTE_DIVINE ~= 0 then
+        negatt = bit.band(ATTRIBUTE_ALL, bit.bnot(g:GetFirst():GetAttribute()))
+    else 
+        negatt = ATTRIBUTE_ALL - ATTRIBUTE_DIVINE - g:GetFirst():GetAttribute()
+    end
     local att = Duel.AnnounceAttribute(tp, 1, negatt)
     e:SetLabel(att)
 end

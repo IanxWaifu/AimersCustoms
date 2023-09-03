@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Fusion
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Activate
 	-- local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_ZOMBIE),matfilter=s.matfilter,extrafil=s.fextra,extraop=s.extraop,nosummoncheck=true,location=LOCATION_GRAVE|LOCATION_EXTRA,extratg=s.extratg})
@@ -29,7 +30,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 s.listed_series={0x29f}
-s.listed_names={999415}
+s.listed_names={id,CARD_ZORGA}
 
 function s.matfilter(c)
 	return (c:IsLocation(LOCATION_HAND+LOCATION_MZONE) and c:IsAbleToGrave()) or (c:IsLocation(LOCATION_GRAVE) and c:IsAbleToRemove())

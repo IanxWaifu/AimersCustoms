@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necrotic Sepulchryael
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
     -- Special Summon from Deck or GY
     local e1=Effect.CreateEffect(c)
@@ -25,6 +26,9 @@ function s.initial_effect(c)
     e2:SetOperation(s.matop)
     c:RegisterEffect(e2)
 end
+
+s.listed_series={0x29f}
+s.listed_names={id}
 
 -- Special Summon from Deck or GY
 function s.spfilter(c,e,tp)

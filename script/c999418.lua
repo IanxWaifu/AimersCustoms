@@ -49,7 +49,10 @@ function s.initial_effect(c)
         local c=e:GetHandler()
         local g=Group.CreateGroup()
         Duel.ChangeTargetCard(ev,g)
-        chosenAttribute=Duel.AnnounceAttribute(tp,1,c:GetAttribute())
+        local quickatt = c:GetAttribute()
+        -- Set the Divine attribute bit to 0
+        quickatt = quickatt & ~ATTRIBUTE_DIVINE
+        chosenAttribute=Duel.AnnounceAttribute(tp,1,quickatt)
         Duel.ChangeChainOperation(ev,s.repop(nil,c))
     end
     function s.repop(e,c)
@@ -74,6 +77,7 @@ end
 s.listed_series={0x29f}
 s.material={999415}
 s.material_setcode={0x129f}
+s.listed_names={id,CARD_ZORGA}
 
 function s.mfilter1(c)
 	return c:IsCode(999415)
