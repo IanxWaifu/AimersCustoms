@@ -137,7 +137,7 @@ function s.cgop(e,tp,eg,ep,ev,re,r,rp)
 	if not c:IsRelateToEffect(e) or not c:IsReleasableByEffect() then return end
 	local tc=Duel.GetFirstTarget()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RELEASE)
-	if Duel.Release(c,REASON_EFFECT)>0 and tc and tc:IsRelateToEffect(e) then 
+	if Duel.Release(c,REASON_EFFECT)~=0 and tc and tc:IsRelateToEffect(e) then 
 		Duel.Destroy(tc,REASON_EFFECT)
 	end
 end

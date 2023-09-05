@@ -66,7 +66,7 @@ function s.initial_effect(c)
 	e6:SetTarget(s.acttg)
 	e6:SetOperation(s.actop)
 	c:RegisterEffect(e6,false,REGISTER_FLAG_DETACH_XMAT)
-	--if leaves the field draw
+	--[[--if leaves the field draw
 	local e7=Effect.CreateEffect(c)
 	e7:SetDescription(aux.Stringid(id,2))
 	e7:SetCategory(CATEGORY_DRAW)
@@ -78,7 +78,7 @@ function s.initial_effect(c)
 	e7:SetCondition(s.drcon)
 	e7:SetTarget(s.drtg)
 	e7:SetOperation(s.drop)
-	c:RegisterEffect(e7)
+	c:RegisterEffect(e7)--]]
 	--Place this card in the Pendulum Zone
 	local e8=Effect.CreateEffect(c)
 	e8:SetDescription(aux.Stringid(id,3))

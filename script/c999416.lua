@@ -36,7 +36,7 @@ function s.matfilter(c)
 	return (c:IsLocation(LOCATION_HAND+LOCATION_MZONE) and c:IsAbleToGrave()) or (c:IsLocation(LOCATION_GRAVE) and c:IsAbleToRemove())
 end
 function s.checkmat(tp,sg,fc)
-	return fc:ListsCodeAsMaterial(999415) or not sg:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE)
+	return fc:ListsCode(999415) or not sg:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE)
 end
 function s.fextra(e,tp,mg)
 	if not Duel.IsPlayerAffectedByEffect(tp,69832741) then
@@ -80,16 +80,18 @@ function s.thtdop(e,tp,eg,ep,ev,re,r,rp)
 	local b2=g:FilterCount(Card.IsAbleToDeck,nil)==1
 	if not (b1 or b2) then return end
 	local op=Duel.SelectEffect(tp,
-		{b1,aux.Stringid(id,2)}, --"Add both to the hand"
+		{b1,aux.Stringid(id,2)}, --"Send to Grave and shuffle"
 		{b2,aux.Stringid(id,3)}) --"Shuffle both into the Deck"
 	if op==1 then
 		if Duel.SendtoGrave(g,REASON_EFFECT)~=0 and Duel.SendtoDeck(e:GetHandler(),nil,SEQ_DECKSHUFFLE,REASON_EFFECT)~=0 then
+		Duel.ShuffleDeck(tp)
 		Duel.BreakEffect()
 		Duel.Draw(tp,1,REASON_EFFECT)
 	end
 	else
 		g:Merge(e:GetHandler())
 		if Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)~=0 then
+		Duel.ShuffleDeck(tp)
 		Duel.BreakEffect()
 		Duel.Draw(tp,1,REASON_EFFECT)
 		end

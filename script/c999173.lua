@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.sptg2)
 	e2:SetOperation(s.spop2)
 	c:RegisterEffect(e2)
-	--dont need to detach
+	--field id
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
@@ -93,19 +93,4 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e2)
 		Duel.SpecialSummonComplete()
 	end
-end
-
---Dont have to detach
-
-function s.regtg(e,c)
-	local oc=e:GetHandler()
-	local tc=oc:GetLinkedGroup():IsContains(c)
-	e:SetLabelObject(tc)
-	return oc:GetLinkedGroup():IsContains(c) and c:IsType(TYPE_XYZ) and c:IsFaceup()
-end
-
---Effect Gain - Target Destruction
-function s.regop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
-	tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 end

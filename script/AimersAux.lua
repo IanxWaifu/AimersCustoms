@@ -26,4 +26,3 @@ function Aimer.GetAttributeCount(card)
     end
     return count
 end
-

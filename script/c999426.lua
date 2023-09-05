@@ -145,8 +145,11 @@ function s.attop(e, tp, eg, ep, ev, re, r, rp)
     local attCount = s.GetAttributeCount(tc)
     local removedCount = 0
     while attCount > 1 do
-        local quickatt = tc:GetAttribute()
-        local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt-ATTRIBUTE_DIVINE)
+         local quickatt = c:GetAttribute()
+        -- Set the Divine attribute bit to 0
+        quickatt = quickatt & ~ATTRIBUTE_DIVINE
+        -- Prompt the player to select an attribute to lose
+        local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
         local e1 = Effect.CreateEffect(c)
         e1:SetType(EFFECT_TYPE_SINGLE)
         e1:SetCode(EFFECT_REMOVE_ATTRIBUTE)

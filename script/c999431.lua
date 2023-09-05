@@ -98,7 +98,7 @@ function s.attop(e, tp, eg, ep, ev, re, r, rp)
         local dg = Duel.GetMatchingGroup(s.attcountfilter, tp, LOCATION_MZONE, 0, nil)
         local tg = dg:Select(tp, 1, 1, nil)
         local tc = tg:GetFirst()
-        local attCount = GetAttributeCount(tc)
+        local attCount = Aimer.GetAttributeCount(tc)
         
         while attCount > 1 do
             local quickatt = tc:GetAttribute()

@@ -5,7 +5,7 @@ Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--2+ Zombie monsters with different 
-	Fusion.AddProcMixN(c,true,true,s.ffilter,2)
+	Fusion.AddProcMixRep(c,true,true,s.ffilter,2,99)
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -60,16 +60,23 @@ function s.initial_effect(c)
 	e8:SetCondition(s.tgcon)
 	c:RegisterEffect(e8)
 end
-s.listed_series={0x29f}
+s.listed_series={0x129f,0x718}
 s.listed_names={id,CARD_ZORGA}
 
-function s.ffilter(c,fc,sumtype,sp,sub,mg,sg)
-	return c:IsRace(RACE_ZOMBIE,fc,sumtype,sp)--[[ and (not sg or sg:FilterCount(aux.TRUE,c)==0 or not sg:IsExists(Card.IsAttribute,1,c,c:GetAttribute(),fc,sumtype,sp))--]]
+function s.ffilter(c,fc,sumtype,tp,sub,mg,sg)
+    return c:IsRace(RACE_ZOMBIE,fc,sumtype,tp) and c:GetAttribute(fc,sumtype,tp)>0 and (not sg or #sg>0 and not sg:IsExists(s.fusfilter,1,c,c:GetAttribute(fc,sumtype,tp),fc,sumtype,tp))
 end
---[[function s.ffilter(c,fc,sumtype,tp,sub,mg,sg)
-	return c:IsRace(RACE_ZOMBIE,fc,sumtype,sp) and c:GetAttribute(fc,sumtype,tp)~=0
-		and (not sg or not sg:IsExists(s.fusfilter,1,c,c:GetAttribute(fc,sumtype,tp),fc,sumtype,tp))
+function s.fusfilter(c,attr,fc,sumtype,tp)
+    return c:IsAttribute(attr,fc,sumtype,tp) and not c:IsHasEffect(511002961)
+end
+--[[local ATTRIBUTES=ATTRIBUTE_EARTH|ATTRIBUTE_WATER|ATTRIBUTE_FIRE|ATTRIBUTE_WIND|ATTRIBUTE_DARK|ATTRIBUTE_LIGHT
+
+
+function s.ffilter(c,fc,sumtype,sp,sub,mg,sg,tp)
+	local g=Duel.GetMatchingGroup(s.spfilter,0,LOCATION_HAND+LOCATION_ONFIELD+LOCATION_GRAVE,0,nil)
+	return true,not g:CheckDifferentPropertyBinary(function(c)return c:GetAttribute()&(ATTRIBUTES)end)
 end--]]
+
 function s.statval(e,c)
 	local attCount = Aimer.GetAttributeCount(e:GetHandler())
 	return attCount*1000
