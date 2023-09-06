@@ -1,9 +1,9 @@
 --Scripted by IanxWaifu
---Necroticrypt Deathlord
+--Necroticrypt Wraithwalker
 local s,id=GetID()
 function s.initial_effect(c)
 	--xyz summon
-	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,RACE_ZOMBIE),8,3,s.ovfilter,aux.Stringid(id,0),3,s.xyzop)
+	Xyz.AddProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_ZOMBIE),3,2)
 	c:EnableReviveLimit()
 	--Gains ATK/DEF equal to the total ATK/DEF of the "Zoodiac" monsters attached
 	local e1=Effect.CreateEffect(c)
@@ -18,31 +18,28 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	e2:SetValue(s.defval)
 	c:RegisterEffect(e2)
-	--Prevent the activation of effects
+	--Limit battle target
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCode(EFFECT_CANNOT_TRIGGER)
-	e3:SetTargetRange(0,LOCATION_GRAVE)
-	e3:SetValue(1)
-	e3:SetTarget(s.attg)
+	e3:SetTargetRange(0,LOCATION_MZONE)
+	e3:SetCode(EFFECT_CANNOT_SELECT_BATTLE_TARGET)
+	e3:SetValue(s.atlimit)
+	e3:SetTarget(s.atktg)
 	c:RegisterEffect(e3)
-	--send
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,4))
-	e4:SetCategory(CATEGORY_TOGRAVE)
-	e4:SetType(EFFECT_TYPE_QUICK_O)
-	e4:SetCode(EVENT_FREE_CHAIN)
-	e4:SetRange(LOCATION_MZONE)
-	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e4:SetCountLimit(1,id)
-	e4:SetCost(s.cost)
-	e4:SetTarget(s.target)
-	e4:SetOperation(s.operation)
-	c:RegisterEffect(e4,false,REGISTER_FLAG_DETACH_XMAT)
+    --destroy
+    local e4=Effect.CreateEffect(c)
+    e4:SetDescription(aux.Stringid(id,2))
+    e4:SetCategory(CATEGORY_DESTROY)
+    e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e4:SetCode(EVENT_BATTLE_CONFIRM)
+    e4:SetCountLimit(1,id)
+    e4:SetTarget(s.destg)
+    e4:SetOperation(s.desop)
+    c:RegisterEffect(e4)
 	--attach
 	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,1))
+	e5:SetDescription(aux.Stringid(id,0))
 	e5:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e5:SetProperty(EFFECT_FLAG_DELAY)
 	e5:SetCode(EVENT_SPSUMMON_SUCCESS)
@@ -59,31 +56,48 @@ function s.statcon(e,tp,eg,ep,ev,re,r,rp)
     local mg=e:GetHandler():GetOverlayGroup()
     return mg:IsExists(s.oppfilter,1,nil,e:GetHandlerPlayer())
 end
-function s.atkfilter(c)
-	return c:GetAttack()>=0
+function s.atkfilter(c,tp)
+	return c:GetAttack()>=0 and c:GetOwner()~=tp
 end
-function s.deffilter(c)
-	return c:GetDefense()>=0
+function s.deffilter(c,tp)
+	return c:GetDefense()>=0 and c:GetOwner()~=tp
 end
 function s.atkval(e,c)
-	local g=e:GetHandler():GetOverlayGroup():Filter(s.atkfilter,nil)
+	local g=e:GetHandler():GetOverlayGroup():Filter(s.atkfilter,nil,tp)
 	return g:GetSum(Card.GetAttack)
 end
 function s.defval(e,c)
-	local g=e:GetHandler():GetOverlayGroup():Filter(s.deffilter,nil)
+	local g=e:GetHandler():GetOverlayGroup():Filter(s.deffilter,nil,tp)
 	return g:GetSum(Card.GetDefense)
 end
-function s.ovfilter(c,tp,lc)
-	return c:IsFaceup() and c:GetOverlayCount()==0 and c:IsType(TYPE_XYZ,lc,SUMMON_TYPE_XYZ,tp) and c:IsRace(RACE_ZOMBIE,lc,SUMMON_TYPE_XYZ,tp)
-end
-function s.xyzop(e,tp,chk)
-	if chk==0 then return Duel.GetFlagEffect(tp,id)==0 end
-	Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-	return true
+
+function s.atlimit(e,c)
+	return c~=e:GetHandler()
 end
 
-function s.attg(e, c)
-    local g = e:GetHandler():GetOverlayGroup()
+function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+    local c = e:GetHandler()
+    local g = c:GetOverlayGroup()
+    local races = {} -- Store the races of Xyz Materials
+    for tc in aux.Next(g) do
+        table.insert(races, tc:GetRace()) -- Store the race of each Xyz Material
+    end
+    local target = Duel.GetAttacker() or Duel.GetAttackTarget()
+    if target and target:IsControler(1 - e:GetHandlerPlayer()) and target:IsFaceup() then
+        local targetRace = target:GetRace() -- Get the race of the target card
+        -- Check if any of the stored races matches the target race
+        for _, race in ipairs(races) do
+            if race == targetRace then
+                return true -- If a match is found, return true
+            end
+        end
+    end
+    return false -- If no match is found, return false
+end
+
+function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local c=e:GetHandler()
+    local g = c:GetOverlayGroup()
     local races = {} -- Store the races of Xyz Materials
     for tc in aux.Next(g) do
         table.insert(races, tc:GetRace()) -- Store the race of each Xyz Material
@@ -98,27 +112,24 @@ function s.attg(e, c)
     return false -- If no match is found, return false
 end
 
-function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():CheckRemoveOverlayCard(tp,2,REASON_COST) end
-	e:GetHandler():RemoveOverlayCard(tp,2,2,REASON_COST)
-end
-function s.filter(c)
-	return c:IsAbleToGrave()
-end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_ONFIELD) and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,0,0)
-end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then 
-		Duel.SendtoGrave(tc,REASON_EFFECT)
+	local bc=c:GetBattleTarget()
+	if not bc or c:GetFlagEffect(id)~=0 then return end
+	if not e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT) then return end
+	if Duel.SelectYesNo(tp,aux.Stringid(id,1)) and bc:IsDestructable() then
+	Duel.Hint(HINT_CARD,0,id) 
+	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+		if Duel.Destroy(bc,REASON_EFFECT)>0 then
+		Duel.BreakEffect()
+		e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_EFFECT)
+		Duel.RaiseSingleEvent(e:GetHandler(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
+		end
 	end
 end
+
+
+
 
 function s.attachfilter(c)
 	return c:IsType(TYPE_MONSTER)

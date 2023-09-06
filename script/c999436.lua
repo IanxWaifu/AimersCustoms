@@ -29,7 +29,7 @@ function s.initial_effect(c)
 	e4:SetDescription(aux.Stringid(id,0))
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_FZONE)
-	e4:SetCountLimit(1,{id,1})
+	e4:SetCountLimit(2,{id,1})
 	e4:SetCost(s.lvcost)
 	e4:SetOperation(s.lvop)
 	c:RegisterEffect(e4)
@@ -63,37 +63,84 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.rfilter(c,tp)
-	local lv=c:GetLevel()
-	return lv>0 and c:IsAbleToGraveAsCost() 
-		and Duel.IsExistingMatchingCard(s.tfilter,tp,LOCATION_MZONE,0,1,c,lv)
-end
-function s.tfilter(c,clv)
-	local lv=c:GetLevel()
-	return lv>0 and lv~=clv and c:IsFaceup() and c:IsSetCard(0x29f)
+
+
+
+function s.lvfilter(c)
+	return c:IsSetCard(0x29f) and c:IsAbleToGraveAsCost() and c:IsMonster() and c:GetLevel()>=1
 end
 function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.rfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,nil,tp) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.lvfilter,tp,LOCATION_DECK,0,1,nil,tp) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.rfilter,tp,LOCATION_EXTRA+LOCATION_DECK,0,1,1,nil,tp)
-	local lv=g:GetFirst():GetLevel()
-	Duel.SetTargetParam(lv)
+	local g=Duel.SelectMatchingCard(tp,s.lvfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
 	Duel.SendtoGrave(g,REASON_COST)
+	e:SetLabel(g:GetFirst():GetLevel())
 end
 function s.lvop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsSetCard,0x29f),tp,LOCATION_MZONE,0,nil)
-	local lv=Duel.GetChainInfo(0,CHAININFO_TARGET_PARAM)
-	local tc=g:GetFirst()
-	for tc in aux.Next(g) do
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_CHANGE_LEVEL)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-		e1:SetValue(lv)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-		tc:RegisterEffect(e1)
-	end
+	local c=e:GetHandler()
+	local lv=e:GetLabel()
+	local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_SUMMON_SUCCESS)
+    e2:SetProperty(EFFECT_FLAG_DELAY)
+    e2:SetReset(RESET_PHASE+PHASE_END)
+    e2:SetCondition(s.hcondition)
+    e2:SetLabel(lv)
+    e2:SetTarget(s.htarget)
+    e2:SetOperation(s.hoperation)
+    Duel.RegisterEffect(e2,tp)
+    local e3=e2:Clone()
+    e3:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
+    e3:SetCondition(s.hcondition2)
+    Duel.RegisterEffect(e3,tp)
+    local e4=e2:Clone()
+    e4:SetCode(EVENT_SPSUMMON_SUCCESS)
+    Duel.RegisterEffect(e4,tp)
 end
+function s.hfilter(c,tp)
+	return c:IsFaceup() and c:GetSummonPlayer()==tp
+end
+function s.hcondition(e,tp,eg,ep,ev,re,r,rp)
+    return eg:IsExists(s.hfilter,1,nil,tp)
+end
+function s.hcondition2(e,tp,eg,ep,ev,re,r,rp)
+    return ep~=tp
+end
+function s.htarget(e,tp,eg,ep,ev,re,r,rp,chk)
+    local tc=eg:GetFirst()
+    if chk==0 then return tc:IsControler(tp) end
+    tc:CreateEffectRelation(e)
+end
+function s.hoperation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=eg:GetFirst()
+    local lv=e:GetLabel()
+    if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CHANGE_LEVEL)
+        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+        e1:SetValue(lv)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+        tc:RegisterEffect(e1)
+        Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function s.thfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x29f) and c:IsSummonLocation(LOCATION_EXTRA) and c:IsAbleToGraveAsCost()
