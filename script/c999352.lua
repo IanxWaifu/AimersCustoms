@@ -46,7 +46,7 @@ function s.attcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVEXYZ)
 	local sg=g:Select(tp,1,1,nil)
 	Duel.SendtoGrave(sg,REASON_COST)
-	Duel.RaiseSingleEvent(sg,EVENT_DETACH_MATERIAL,e,0,0,0,0)
+	Duel.RaiseSingleEvent(sg:GetFirst(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
 end
 function s.attg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.checkfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,nil,e) end

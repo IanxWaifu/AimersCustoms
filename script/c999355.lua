@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--xyz summon
-	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,RACE_ZOMBIE),6,3,s.ovfilter,aux.Stringid(id,0),3,s.xyzop)
+	Xyz.AddProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_ZOMBIE),5,2)
 	c:EnableReviveLimit()
 	--Gains ATK/DEF equal to the total ATK/DEF of the "Zoodiac" monsters attached
 	local e1=Effect.CreateEffect(c)
