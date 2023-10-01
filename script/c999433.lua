@@ -5,7 +5,35 @@ Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--2+ Zombie monsters with different 
-	Fusion.AddProcMixRep(c,true,true,s.ffilter,2,99)
+	--2 monsters
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_SINGLE)
+	e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+	e0:SetCode(EFFECT_FUSION_MATERIAL)
+	e0:SetDescription(aux.Stringid(id,3))
+	e0:SetCondition(Fusion.ConditionMixRep(true,true,s.ffilter1,2,2))
+	e0:SetOperation(Fusion.OperationMixRep(true,true,s.ffilter1,2,2))
+	c:RegisterEffect(e0)
+	local e0a=e0:Clone()
+	e0a:SetDescription(aux.Stringid(id,4))
+	e0a:SetCondition(Fusion.ConditionMixRep(true,true,s.ffilter1,3,3))
+	e0a:SetOperation(Fusion.OperationMixRep(true,true,s.ffilter1,3,3))
+	c:RegisterEffect(e0a)
+	local e0b=e0:Clone()
+	e0b:SetDescription(aux.Stringid(id,5))
+	e0b:SetCondition(Fusion.ConditionMixRep(true,true,s.ffilter1,4,4))
+	e0b:SetOperation(Fusion.OperationMixRep(true,true,s.ffilter1,4,4))
+	c:RegisterEffect(e0b)
+	local e0c=e0:Clone()
+	e0c:SetDescription(aux.Stringid(id,6))
+	e0c:SetCondition(Fusion.ConditionMixRep(true,true,s.ffilter1,5,5))
+	e0c:SetOperation(Fusion.OperationMixRep(true,true,s.ffilter1,5,5))
+	c:RegisterEffect(e0c)
+	local e0d=e0:Clone()
+	e0d:SetDescription(aux.Stringid(id,7))
+	e0d:SetCondition(Fusion.ConditionMixRep(true,true,s.ffilter1,6,6))
+	e0d:SetOperation(Fusion.OperationMixRep(true,true,s.ffilter1,6,6))
+	c:RegisterEffect(e0d)
 	--spsummon condition
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -63,12 +91,16 @@ end
 s.listed_series={0x129f,0x718}
 s.listed_names={id,CARD_ZORGA}
 
-function s.ffilter(c,fc,sumtype,tp,sub,mg,sg)
-    return c:IsRace(RACE_ZOMBIE,fc,sumtype,tp) and c:GetAttribute(fc,sumtype,tp)>0 and (not sg or #sg>0 and not sg:IsExists(s.fusfilter,1,c,c:GetAttribute(fc,sumtype,tp),fc,sumtype,tp))
+
+
+
+function s.ffilter1(c,fc,sumtype,sub,mg,sg)
+    return c:IsRace(RACE_ZOMBIE,fc,sumtype,fc:GetControler()) and c:GetAttribute(fc,sumtype,fc:GetControler())>0 and (not sg or #sg>0 and not sg:IsExists(s.fusfilter,1,c,c:GetAttribute(fc,sumtype,fc:GetControler()),fc,sumtype,fc:GetControler()))
 end
-function s.fusfilter(c,attr,fc,sumtype,tp)
-    return c:IsAttribute(attr,fc,sumtype,tp) and not c:IsHasEffect(511002961)
+function s.fusfilter(c,attr,fc,sumtype,sub1,sub2)
+    return c:IsAttribute(attr,fc,sumtype,fc:GetControler()) 
 end
+
 --[[local ATTRIBUTES=ATTRIBUTE_EARTH|ATTRIBUTE_WATER|ATTRIBUTE_FIRE|ATTRIBUTE_WIND|ATTRIBUTE_DARK|ATTRIBUTE_LIGHT
 
 

@@ -136,19 +136,25 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		e0:SetValue(LOCATION_REMOVED)
 		tc:RegisterEffect(e0)
 		if not tc:GetOwner()==1-tp then return end
-		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(id,2))
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-		e1:SetCode(EFFECT_ADD_SETCODE)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-		e1:SetValue(0x129f)
-		tc:RegisterEffect(e1)
-		local e2=e1:Clone()
-		e2:SetCode(EFFECT_CHANGE_RACE)
-		e2:SetValue(RACE_ZOMBIE)
-		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-		tc:RegisterEffect(e2)
+		if not tc:IsSetCard(0x129f) then
+			local e1=Effect.CreateEffect(c)
+			e1:SetDescription(aux.Stringid(id,2))
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+			e1:SetCode(EFFECT_ADD_SETCODE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			e1:SetValue(0x129f)
+			tc:RegisterEffect(e1)
+		end
+		if not tc:IsRace(RACE_ZOMBIE) then
+			local e2=Effect.CreateEffect(c)
+			e2:SetType(EFFECT_TYPE_SINGLE)
+			e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+			e2:SetCode(EFFECT_CHANGE_RACE)
+			e2:SetValue(RACE_ZOMBIE)
+			e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+			tc:RegisterEffect(e2)
+		end
 		Duel.SpecialSummonComplete()
     end
 end

@@ -76,7 +76,7 @@ function s.mfilter1(c)
 	return c:IsCode(999415)
 end
 function s.mfilter2(c,fc,sumtype,tp)
-	return c:IsType(TYPE_FUSION,fc,sumtype,tp) or c:IsRace(RACE_ZOMBIE,fc,sumtype,tp)
+	return c:IsType(TYPE_FUSION,fc,sumtype,tp) and c:IsRace(RACE_ZOMBIE,fc,sumtype,tp)
 end
 function s.attcon(e,tp,eg,ep,ev,re,r,rp)
     return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
