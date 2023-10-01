@@ -5,7 +5,7 @@ function s.initial_effect(c)
 	--xyz summon
 	Xyz.AddProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_ZOMBIE),3,2)
 	c:EnableReviveLimit()
-	--Gains ATK/DEF equal to the total ATK/DEF of the "Zoodiac" monsters attached
+	--Gains ATK/DEF equal to the total ATK/DEF
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_UPDATE_ATTACK)
@@ -34,7 +34,7 @@ function s.initial_effect(c)
     e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
     e4:SetCode(EVENT_BATTLE_CONFIRM)
     e4:SetCountLimit(1,id)
-    e4:SetTarget(s.destg)
+    e4:SetCondition(s.descon)
     e4:SetOperation(s.desop)
     c:RegisterEffect(e4)
 	--attach
@@ -63,10 +63,12 @@ function s.deffilter(c,tp)
 	return c:GetDefense()>=0 and c:GetOwner()~=tp
 end
 function s.atkval(e,c)
+	local tp=e:GetHandlerPlayer() 
 	local g=e:GetHandler():GetOverlayGroup():Filter(s.atkfilter,nil,tp)
 	return g:GetSum(Card.GetAttack)
 end
 function s.defval(e,c)
+	local tp=e:GetHandlerPlayer() 
 	local g=e:GetHandler():GetOverlayGroup():Filter(s.deffilter,nil,tp)
 	return g:GetSum(Card.GetDefense)
 end
@@ -75,7 +77,7 @@ function s.atlimit(e,c)
 	return c~=e:GetHandler()
 end
 
-function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
+function s.atktg(e, c)
     local c = e:GetHandler()
     local g = c:GetOverlayGroup()
     local races = {} -- Store the races of Xyz Materials
@@ -95,27 +97,14 @@ function s.atktg(e, tp, eg, ep, ev, re, r, rp, chk, chkc)
     return false -- If no match is found, return false
 end
 
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	local c=e:GetHandler()
-    local g = c:GetOverlayGroup()
-    local races = {} -- Store the races of Xyz Materials
-    for tc in aux.Next(g) do
-        table.insert(races, tc:GetRace()) -- Store the race of each Xyz Material
-    end
-    local targetRace = c:GetRace() -- Get the race of the target card
-    -- Check if any of the stored races matches the target race
-    for _, race in ipairs(races) do
-        if race == targetRace then
-            return true -- If a match is found, return true
-        end
-    end
-    return false -- If no match is found, return false
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():GetBattleTarget()~=nil
 end
-
 function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local bc=c:GetBattleTarget()
-	if not bc or c:GetFlagEffect(id)~=0 then return end
+	local check=c:GetOverlayGroup():IsExists(Card.IsRace,1,nil,bc:GetRace())
+	if not bc or not check or c:GetFlagEffect(id)~=0 then return end
 	if not e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT) then return end
 	if Duel.SelectYesNo(tp,aux.Stringid(id,1)) and bc:IsDestructable() then
 	Duel.Hint(HINT_CARD,0,id) 

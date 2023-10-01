@@ -235,8 +235,10 @@ function s.poscon(e,tp,eg,ep,ev,re,r,rp)
     return Duel.GetTurnPlayer()~=tp and ((ph==PHASE_DRAW) or (ph==PHASE_STANDBY) or (ph==PHASE_MAIN1) or (ph>=PHASE_BATTLE_START and ph<=PHASE_BATTLE))
 end
 function s.postg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    local c=e:GetHandler()
+    local attCount = Aimer.GetAttributeCount(c)
     if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_MZONE) end
-    if chk==0 then return Duel.IsExistingTarget(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
+    if chk==0 then return attCount>1 and Duel.IsExistingTarget(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
     local g=Duel.SelectTarget(tp,Card.IsFaceup,tp,0,LOCATION_MZONE,1,1,nil)
     Duel.SetOperationInfo(0,CATEGORY_POSITION,g,#g,0,0)
@@ -244,25 +246,26 @@ end
 function s.posop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
     local c=e:GetHandler()
-    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+    local attCount = Aimer.GetAttributeCount(c)
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() and attCount>1 then
         local e1=Effect.CreateEffect(e:GetHandler())
         e1:SetType(EFFECT_TYPE_SINGLE)
         e1:SetCode(EFFECT_MUST_ATTACK)
         e1:SetReset(RESET_PHASE+PHASE_END)
         tc:RegisterEffect(e1)
+        local quickatt = c:GetAttribute()
+        -- Set the Divine attribute bit to 0
+        quickatt = quickatt & ~ATTRIBUTE_DIVINE
+        -- Prompt the player to select an attribute to lose
+        local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
+        c:ResetFlagEffect(id) -- Reset the flag before setting a new one
+        c:RegisterFlagEffect(id, RESET_EVENT + RESETS_STANDARD + RESET_PHASE + PHASE_END, 0, 1, att_to_lose)
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_REMOVE_ATTRIBUTE)
+        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+        e1:SetValue(att_to_lose)
+        c:RegisterEffect(e1)
     end
-    local quickatt = c:GetAttribute()
-    -- Set the Divine attribute bit to 0
-    quickatt = quickatt & ~ATTRIBUTE_DIVINE
-    -- Prompt the player to select an attribute to lose
-    local att_to_lose = Duel.AnnounceAttribute(tp, 1, quickatt)
-    c:ResetFlagEffect(id) -- Reset the flag before setting a new one
-    c:RegisterFlagEffect(id, RESET_EVENT + RESETS_STANDARD + RESET_PHASE + PHASE_END, 0, 1, att_to_lose)
-    local e1=Effect.CreateEffect(c)
-    e1:SetType(EFFECT_TYPE_SINGLE)
-    e1:SetCode(EFFECT_REMOVE_ATTRIBUTE)
-    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-    e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-    e1:SetValue(att_to_lose)
-    c:RegisterEffect(e1)
 end

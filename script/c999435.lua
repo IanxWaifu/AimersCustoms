@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 	--Special summon a Necroticrypt
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,0))
+	e3:SetDescription(aux.Stringid(id,2))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetCountLimit(1,{id,1})
@@ -51,7 +51,7 @@ function s.operation(e, tp, eg, ep, ev, re, r, rp)
 	if not e:GetHandler():IsRelateToEffect(e)  then return end
     local c = e:GetHandler()
     local g = Duel.GetMatchingGroup(s.thcostfilter, tp, LOCATION_DECK, 0, nil, tp)
-    if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then 
+    if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then 
     local tc = Duel.GetMatchingGroup(s.thcostfilter, tp, LOCATION_DECK, 0, nil, tp):Select(tp, 1, 1, nil):GetFirst()
     if tc and Duel.SendtoHand(tc, nil, REASON_EFFECT) ~= 0 then
         local code = tc:GetCode()

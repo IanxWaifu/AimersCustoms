@@ -36,7 +36,7 @@ function s.rcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spfilter(c,e,tp)
-	return c:IsMonster() and c:IsSetCard(0x129f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) 
+	return c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) 
 end
 function s.tgfilter(c,e,tp)
 	if not (c:IsFaceup() and c:IsType(TYPE_XYZ) and c:IsSetCard(0x129f)) then return false end

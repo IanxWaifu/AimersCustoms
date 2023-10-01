@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--xyz summon
-	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,RACE_ZOMBIE),8,3,s.ovfilter,aux.Stringid(id,0),3,s.xyzop)
+	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsRace,RACE_ZOMBIE),6,3,s.ovfilter,aux.Stringid(id,0),3,s.xyzop)
 	c:EnableReviveLimit()
 	--Gains ATK/DEF equal to the total ATK/DEF of the "Zoodiac" monsters attached
 	local e1=Effect.CreateEffect(c)
@@ -22,23 +22,22 @@ function s.initial_effect(c)
 	local e3=Effect.CreateEffect(c)
 	e3:SetType(EFFECT_TYPE_FIELD)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCode(EFFECT_CANNOT_TRIGGER)
-	e3:SetTargetRange(0,LOCATION_GRAVE)
-	e3:SetValue(1)
+	e3:SetCode(EFFECT_SET_POSITION)
+	e3:SetTargetRange(0,LOCATION_MZONE)
+	e3:SetValue(POS_FACEUP_DEFENSE)
 	e3:SetTarget(s.attg)
 	c:RegisterEffect(e3)
 	--send
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,4))
-	e4:SetCategory(CATEGORY_TOGRAVE)
+	e4:SetCategory(CATEGORY_POSITION)
 	e4:SetType(EFFECT_TYPE_QUICK_O)
 	e4:SetCode(EVENT_FREE_CHAIN)
 	e4:SetRange(LOCATION_MZONE)
-	e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
 	e4:SetCountLimit(1,id)
 	e4:SetCost(s.cost)
-	e4:SetTarget(s.target)
-	e4:SetOperation(s.operation)
+	e4:SetTarget(s.postg)
+	e4:SetOperation(s.posop)
 	c:RegisterEffect(e4,false,REGISTER_FLAG_DETACH_XMAT)
 	--attach
 	local e5=Effect.CreateEffect(c)
@@ -89,13 +88,18 @@ function s.attg(e, c)
         table.insert(races, tc:GetRace()) -- Store the race of each Xyz Material
     end
     local targetRace = c:GetRace() -- Get the race of the target card
+
     -- Check if any of the stored races matches the target race
     for _, race in ipairs(races) do
         if race == targetRace then
-            return true -- If a match is found, return true
+            -- Check if the target card is face-up
+            if c:IsFaceup() then
+                return true -- If a match is found and the target card is face-up, return true
+            end
         end
     end
-    return false -- If no match is found, return false
+
+    return false -- If no match is found or the target card is not face-up, return false
 end
 
 function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -103,20 +107,17 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RemoveOverlayCard(tp,2,2,REASON_COST)
 end
 function s.filter(c)
-	return c:IsAbleToGrave()
+	return c:IsCanChangePosition() and not c:IsFacedown() and c:IsSummonLocation(LOCATION_EXTRA)
 end
-function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_ONFIELD) and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.filter,tp,0,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local g=Duel.SelectTarget(tp,s.filter,tp,0,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,g,1,0,0)
+function s.postg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,0,LOCATION_MZONE,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_POSITION,nil,1,1-tp,LOCATION_MZONE)
 end
-function s.operation(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then 
-		Duel.SendtoGrave(tc,REASON_EFFECT)
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
+	local g=Duel.SelectMatchingCard(tp,s.filter,tp,0,LOCATION_MZONE,1,1,nil)
+	if #g>0 then
+		Duel.ChangePosition(g,POS_FACEDOWN_DEFENSE)
 	end
 end
 

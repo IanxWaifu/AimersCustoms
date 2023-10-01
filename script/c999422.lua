@@ -59,6 +59,13 @@ function s.initial_effect(c)
 	e5:SetTarget(s.sptg)
 	e5:SetOperation(s.spop)
 	c:RegisterEffect(e5)
+	--disable cards
+	local e6=Effect.CreateEffect(c)
+	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+	e6:SetCode(EVENT_LEAVE_FIELD)
+	e6:SetCondition(s.sumcon)
+	e6:SetOperation(s.sumop)
+	c:RegisterEffect(e6)
 end
 s.listed_series={0x29f}
 s.material={999415}
@@ -101,7 +108,7 @@ function s.spfilter(c,e,tp)
 	return e:GetHandler():GetAttribute() & c:GetAttribute() ~= 0  and c:IsRace(RACE_ZOMBIE) and c:IsType(TYPE_FUSION) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and (c:IsLocation(LOCATION_GRAVE) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()))
 end
 
-local ATTRIBUTES=ATTRIBUTE_EARTH|ATTRIBUTE_WATER|ATTRIBUTE_FIRE|ATTRIBUTE_WIND|ATTRIBUTE_DARK|ATTRIBUTE_LIGHT|ATTRIBUTE_DIVINE
+local ATTRIBUTES=ATTRIBUTE_EARTH|ATTRIBUTE_WATER|ATTRIBUTE_FIRE|ATTRIBUTE_WIND|ATTRIBUTE_DARK|ATTRIBUTE_LIGHT
 
 function s.rescon(sg,e,tp,mg)
 	return true,not sg:CheckDifferentPropertyBinary(function(c)return c:GetAttribute()&(ATTRIBUTES)end)
@@ -141,4 +148,50 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(sg,0,tp,tp,false,false,POS_FACEUP)
 		end
 	end
+end
+
+function s.sumcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
+end
+
+function s.sumop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,1))
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e1:SetCode(EVENT_CHAIN_SOLVING)
+	e1:SetCondition(s.discon)
+	e1:SetOperation(s.disop)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e1,tp)
+	aux.RegisterClientHint(c,nil,tp,1,0,aux.Stringid(id,1),nil)
+end
+
+function s.checkfilter(c)
+	return c:IsFaceup() and c:IsType(TYPE_FUSION) and c:IsRace(RACE_ZOMBIE)
+end
+
+function s.discon(e,tp,eg,ep,ev,re,r,rp)
+	if rp==tp or not Duel.IsExistingMatchingCard(s.checkfilter,tp,LOCATION_ONFIELD,0,1,nil) then
+		return false
+	end
+	local rg=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_ONFIELD,0,nil)
+	local rc=re:GetHandler()
+	local te, p, loc, seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
+	local tc = te:GetHandler()
+	local cg = tc:GetColumnGroup()
+	local cg2 = tc:GetColumnGroup()
+	-- Iterate over each card in rg
+	local g = rg:GetFirst()
+	while g do
+		if (cg:IsContains(g) or cg2:IsContains(g)) then
+			return true
+		end
+		g = rg:GetNext()
+	end
+	return false
+end
+
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.NegateEffect(ev)
 end

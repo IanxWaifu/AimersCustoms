@@ -44,35 +44,36 @@ function s.initial_effect(c)
     e7:SetTarget(s.chtg)
     e7:SetOperation(s.chop)
     c:RegisterEffect(e7)
-    --Contained Effect
-    function s.chop(e,tp,eg,ep,ev,re,r,rp)
-        local c=e:GetHandler()
-        local g=Group.CreateGroup()
-        Duel.ChangeTargetCard(ev,g)
-        local quickatt = c:GetAttribute()
-        -- Set the Divine attribute bit to 0
-        quickatt = quickatt & ~ATTRIBUTE_DIVINE
-        chosenAttribute=Duel.AnnounceAttribute(tp,1,quickatt)
-        Duel.ChangeChainOperation(ev,s.repop(nil,c))
-    end
-    function s.repop(e,c)
-        return function(e,tp,eg,ep,ev,re,r,rp)
-            local g=Duel.GetDecktopGroup(e:GetHandlerPlayer(),2)
-            if #g>0 then
-                Duel.DiscardDeck(1-tp,2,REASON_EFFECT)
-            end
-            c:ResetFlagEffect(id)
-            c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,chosenAttribute)
-            local e1 = Effect.CreateEffect(c)
-            e1:SetType(EFFECT_TYPE_SINGLE)
-            e1:SetCode(EFFECT_REMOVE_ATTRIBUTE)
-            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-            e1:SetReset(RESET_EVENT + RESETS_STANDARD)
-            e1:SetValue(chosenAttribute)
-            c:RegisterEffect(e1)
+end
+
+function s.chop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Group.CreateGroup()
+    Duel.ChangeTargetCard(ev,g)
+    local quickatt = c:GetAttribute()
+    -- Set the Divine attribute bit to 0
+    quickatt = quickatt & ~ATTRIBUTE_DIVINE
+    chosenAttribute=Duel.AnnounceAttribute(tp,1,quickatt)
+    Duel.ChangeChainOperation(ev,s.repop(nil,c))
+end
+function s.repop(e,c)
+    return function(e,tp,eg,ep,ev,re,r,rp)
+        local g=Duel.GetDecktopGroup(e:GetHandlerPlayer(),2)
+        if #g>0 then
+            Duel.DiscardDeck(1-tp,2,REASON_EFFECT)
         end
+        c:ResetFlagEffect(id)
+        c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1,chosenAttribute)
+        local e1 = Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_REMOVE_ATTRIBUTE)
+        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+        e1:SetReset(RESET_EVENT + RESETS_STANDARD)
+        e1:SetValue(chosenAttribute)
+        c:RegisterEffect(e1)
     end
 end
+
 
 s.listed_series={0x29f}
 s.material={999415}
