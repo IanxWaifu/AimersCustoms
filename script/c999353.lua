@@ -53,7 +53,7 @@ end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then
-		local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,nil)
+		local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,LOCATION_GRAVE+LOCATION_REMOVED,nil)
 		return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 			and aux.SelectUnselectGroup(g,e,tp,2,2,s.rescon,0)
 	end

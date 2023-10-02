@@ -108,7 +108,7 @@ function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
 	if #tg>0 and #g>0 then
 		local mg=g:Select(tp,1,1,nil)
 		local oc=mg:GetFirst():GetOverlayTarget()
-		Duel.Overlay(tg:GetFirst(),mg)
+		Duel.Overlay(mg:GetFirst(),tg:GetFirst())
 	end
 end
 
