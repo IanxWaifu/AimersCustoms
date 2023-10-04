@@ -21,7 +21,6 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_GRAVE)
 	e2:SetCountLimit(1,{id,1})
-	e2:SetCondition(aux.exccon)
 	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(s.xyztg)
 	e2:SetOperation(s.xyzop)
@@ -39,17 +38,42 @@ function s.tgfilter(c,tp,cd)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil,tp) end
+	if chk==0 then return Duel.IsPlayerCanDiscardDeck(1-tp,3) and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil,tp) end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	Duel.SetOperationInfo(0,CATEGORY_DECKDES,0,0,1-tp,3)
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
-	if #g>0 then
-		Duel.SendtoGrave(g,REASON_EFFECT)
+	if #g>0 and Duel.SendtoGrave(g,REASON_EFFECT)~=0 then
+		Duel.BreakEffect()
+		Duel.DiscardDeck(1-tp,3,REASON_EFFECT)
+		s.ApplyEffectToCards(s.cfilter, tp, e)
 	end
 end
 
+function s.cfilter(c, tp)
+	return c:IsLocation(LOCATION_GRAVE) and c:IsControler(1-tp)
+end
+function s.ApplyEffectToCards(cfilter, tp, e)
+    local c = e:GetHandler()
+    local fg1 = Duel.GetOperatedGroup()
+    local fg2 = fg1:Filter(cfilter, nil, tp)
+    for dc in aux.Next(fg2) do
+        local e1 = Effect.CreateEffect(c)
+        e1:SetDescription(aux.Stringid(id, 3))
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE + EFFECT_FLAG_CLIENT_HINT)
+        e1:SetReset(RESET_EVENT + RESETS_STANDARD)
+        dc:RegisterEffect(e1)
+        local e2 = Effect.CreateEffect(c)
+        e2:SetType(EFFECT_TYPE_SINGLE)
+        e2:SetCode(EFFECT_CANNOT_TRIGGER)
+        e2:SetReset(RESET_EVENT + RESETS_STANDARD)
+        dc:RegisterEffect(e2)
+    end
+end
 
 function s.xyzfilter(c)
 	return c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ)

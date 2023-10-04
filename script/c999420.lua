@@ -75,7 +75,7 @@ function s.mfilter1(c)
 	return c:IsCode(999415)
 end
 function s.mfilter2(c,fc,sumtype,tp)
-	return c:IsRace(RACE_WYRM,fc,sumtype,tp) or c:IsAttribute(ATTRIBUTE_EARTH,fc,sumtype,tp)
+	return c:IsRace(RACE_ILLUSION,fc,sumtype,tp) or c:IsAttribute(ATTRIBUTE_EARTH,fc,sumtype,tp)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
     return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
@@ -98,7 +98,8 @@ end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
     local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-    if #g>0 and Duel.SendtoHand(g,nil,REASON_EFFECT)>0 and g:GetFirst():IsLocation(LOCATION_HAND) then
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
         Duel.ConfirmCards(1-tp,g)
     end
 end

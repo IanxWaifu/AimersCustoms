@@ -73,7 +73,7 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 	local g=eg:FilterSelect(tp,s.addfilter,1,1,nil,tp)
 	local tc=g:GetFirst()
 	if tc:IsLocation(LOCATION_GRAVE) and tc:IsAbleToHand() then
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,tc)
 	end
 end

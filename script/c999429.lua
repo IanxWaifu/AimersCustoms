@@ -139,6 +139,9 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
             e5:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE+RESET_PHASE+PHASE_END)
             e5:SetValue(#og*500)
             tc:RegisterEffect(e5)
+            local e6=e5:Clone()
+            e6:SetCode(EVENT_UPDATE_DEFENSE)
+            tc:RegisterEffect(e6)
         end
     end
 end

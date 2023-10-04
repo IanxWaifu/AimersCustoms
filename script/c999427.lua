@@ -5,7 +5,7 @@ Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
     --Activate
     local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.ListsCodeAsMaterial,999415),matfilter=s.matfil,extrafil=s.extrafilter,extraop=s.extraop})
-    e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+    e1:SetCountLimit(1,id)
     c:RegisterEffect(e1)
     --Set to field
     local e2=Effect.CreateEffect(c)
@@ -13,7 +13,7 @@ function s.initial_effect(c)
     e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
     e2:SetCode(EVENT_PHASE+PHASE_END)
     e2:SetRange(LOCATION_GRAVE)
-    e2:SetCountLimit(1,{id,1})
+    e2:SetCountLimit(1,id)
 --[[    e2:SetCondition(s.setcon)--]]
     e2:SetTarget(s.settg)
     e2:SetOperation(s.setop)

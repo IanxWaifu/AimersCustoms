@@ -55,7 +55,7 @@ function s.splimit(e,c)
 	return not c:IsSetCard(0x29f)
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x29f) and c:IsAbleToHand() and c:IsMonster()
+	return c:IsSetCard(0x29f) and c:IsAbleToHand() and not c:IsCode(id)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) and Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -65,9 +65,11 @@ end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 	local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if Duel.SendtoHand(g,nil,REASON_EFFECT)>0 and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_ZORGA),tp,LOCATION_ONFIELD,0,1,nil) then
+	if #g>0 then
+		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
 		Duel.ShuffleDeck(tp)
+		if not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,CARD_ZORGA),tp,LOCATION_ONFIELD,0,1,nil) then return end
 		Duel.BreakEffect()
 		Duel.Draw(tp,1,REASON_EFFECT)
 	end

@@ -93,7 +93,7 @@ function s.xyzeffcon(e,tp,eg,ep,ev,re,r,rp)
     return ep==1-tp
 end
 function s.xyzfilter(c,tp)
-	return c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ) and c:IsFaceup() and c:GetOverlayCount()==0
+	return c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ) and c:IsFaceup()
 end
 function s.attachfilter(c,tp)
 	return c:IsMonster() and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_MZONE,0,1,nil)

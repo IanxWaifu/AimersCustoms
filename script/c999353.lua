@@ -41,10 +41,10 @@ function s.xyzchk(c,tp,sg)
 	return c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ) and Duel.GetLocationCountFromEx(tp,tp,sg,c)>0 and c:IsRankBelow(5)
 end
 function s.monster(c)
-	return c:IsMonster() and not (c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ))
+	return c:IsMonster()
 end
 function s.xyzmonster(c,e,tp)
-	return c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ)
+	return c:IsSetCard(0x129f) and not c:IsType(TYPE_XYZ)
 end
 function s.rescon(sg,e,tp,mg)
 	local res=sg:FilterCount(s.monster,nil)>=1 or sg:FilterCount(s.xyzmonster,nil)<=1 

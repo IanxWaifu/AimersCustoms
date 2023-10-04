@@ -84,15 +84,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		g:GetFirst():RegisterEffect(e1)
-		--Banish it if it leaves the field
-		local e2=Effect.CreateEffect(c)
-		e2:SetDescription(3300)
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-		e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
-		e2:SetReset(RESET_EVENT+RESETS_REDIRECT)
-		e2:SetValue(LOCATION_REMOVED)
-		g:GetFirst():RegisterEffect(e2)
 	else
 		--Cannot be activated this turn
 		local e3=Effect.CreateEffect(e:GetHandler())
@@ -100,15 +91,6 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetCode(EFFECT_CANNOT_TRIGGER)
 		e3:SetReset(RESET_EVENT+RESETS_CANNOT_ACT+RESET_PHASE+PHASE_END)
 		g:GetFirst():RegisterEffect(e3)
-		--Banish it if it leaves the field
-		local e4=Effect.CreateEffect(c)
-		e4:SetDescription(3300)
-		e4:SetType(EFFECT_TYPE_SINGLE)
-		e4:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-		e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
-		e4:SetReset(RESET_EVENT+RESETS_REDIRECT)
-		e4:SetValue(LOCATION_REMOVED)
-		g:GetFirst():RegisterEffect(e4)
 		end
 	end
 end
