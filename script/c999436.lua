@@ -44,7 +44,7 @@ function s.initial_effect(c)
 	--tohand
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id,3))
-	e6:SetCategory(CATEGORY_TOHAND)
+	e6:SetCategory(CATEGORY_LEAVE_GRAVE)
 	e6:SetType(EFFECT_TYPE_IGNITION)
 	e6:SetRange(LOCATION_GRAVE)
 	e6:SetCountLimit(1,{id,2})
@@ -78,10 +78,10 @@ function s.lvfilter(c)
 	return c:IsSetCard(0x29f) and c:IsAbleToGraveAsCost() and c:IsMonster() and c:GetLevel()>=1
 end
 function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.lvfilter,tp,LOCATION_DECK,0,1,nil,tp) and Duel.GetFlagEffect(tp,id+1)==0 
-		and not (Duel.GetFlagEffect(tp,id+1)>0 and Duel.GetFlagEffect(tp,id+2)>0) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.lvfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,nil,tp) and Duel.GetFlagEffect(tp,999371)==0 
+		and not (Duel.GetFlagEffect(tp,999371)>0 and Duel.GetFlagEffect(tp,999370)>0) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.lvfilter,tp,LOCATION_DECK,0,1,1,nil,tp)
+	local g=Duel.SelectMatchingCard(tp,s.lvfilter,tp,LOCATION_DECK+LOCATION_EXTRA,0,1,1,nil,tp)
 	Duel.SendtoGrave(g,REASON_COST)
 	e:SetLabel(g:GetFirst():GetLevel())
 end
@@ -116,16 +116,27 @@ function s.lvop(e,tp,eg,ep,ev,re,r,rp)
     local e4=e2:Clone()
     e4:SetCode(EVENT_SPSUMMON_SUCCESS)
     Duel.RegisterEffect(e4,tp)
-    Duel.RegisterFlagEffect(tp,id+1,RESET_PHASE+PHASE_END,0,1)
+    Duel.RegisterFlagEffect(tp,999371,RESET_PHASE+PHASE_END,0,1)
+    local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e5:SetTargetRange(1,0)
+	e5:SetTarget(s.splimit)
+	e5:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e5,tp)
+	aux.RegisterClientHint(e:GetHandler(),nil,tp,1,0,aux.Stringid(id,4),nil)
 end
-
+function s.splimit(e,c)
+	return not c:IsSetCard(0x29f)
+end
 
 function s.dlvfilter(c)
 	return c:IsSetCard(0x29f) and c:IsDiscardable() and c:IsMonster() and c:GetLevel()>=1
 end
 function s.dlvcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.dlvfilter,tp,LOCATION_HAND,0,1,nil) and Duel.GetFlagEffect(tp,id+2)==0 
-		and not (Duel.GetFlagEffect(tp,id+1)>0 and Duel.GetFlagEffect(tp,id+2)>0) end
+	if chk==0 then return Duel.IsExistingMatchingCard(s.dlvfilter,tp,LOCATION_HAND,0,1,nil) and Duel.GetFlagEffect(tp,999370)==0 
+		and not (Duel.GetFlagEffect(tp,999371)>0 and Duel.GetFlagEffect(tp,999370)>0) end
 	Duel.DiscardHand(tp,s.dlvfilter,1,1,REASON_COST+REASON_DISCARD)
 	local g=Duel.GetOperatedGroup()
 	e:SetLabel(g:GetFirst():GetLevel())
@@ -164,7 +175,16 @@ function s.dlvop(e,tp,eg,ep,ev,re,r,rp)
     local e4=e2:Clone()
     e4:SetCode(EVENT_SPSUMMON_SUCCESS)
     Duel.RegisterEffect(e4,tp)
-    Duel.RegisterFlagEffect(tp,id+2,RESET_PHASE+PHASE_END,0,1)
+    Duel.RegisterFlagEffect(tp,999370,RESET_PHASE+PHASE_END,0,1)
+    local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+	e5:SetTargetRange(1,0)
+	e5:SetTarget(s.splimit)
+	e5:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e5,tp)
+	aux.RegisterClientHint(e:GetHandler(),nil,tp,1,0,aux.Stringid(id,4),nil)
 end
 
 
@@ -200,21 +220,8 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 function s.thfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x29f) and c:IsSummonLocation(LOCATION_EXTRA) and c:IsAbleToGraveAsCost()
+	return c:IsFaceup() and c:IsSetCard(0x29f) and (c:IsSummonType(SUMMON_TYPE_FUSION) or c:IsSummonType(SUMMON_TYPE_XYZ)) and c:IsAbleToGraveAsCost()
 end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_MZONE,0,1,nil) end
@@ -223,13 +230,11 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(g,REASON_COST)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():IsAbleToHand() end
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,e:GetHandler(),1,0,0)
+	if chk==0 then return true end
 	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,e:GetHandler(),1,0,0)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	if e:GetHandler():IsRelateToEffect(e) then
-		Duel.SendtoHand(e:GetHandler(),nil,REASON_EFFECT)
+		Duel.MoveToField(e:GetHandler(),tp,tp,LOCATION_FZONE,POS_FACEUP,true)
 	end
 end
-

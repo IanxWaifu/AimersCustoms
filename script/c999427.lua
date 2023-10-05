@@ -12,38 +12,33 @@ function s.initial_effect(c)
     e2:SetDescription(aux.Stringid(id,0))
     e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
     e2:SetCode(EVENT_PHASE+PHASE_END)
+    e2:SetProperty(EFFECT_FLAG_DELAY)
     e2:SetRange(LOCATION_GRAVE)
     e2:SetCountLimit(1,id)
---[[    e2:SetCondition(s.setcon)--]]
+    e2:SetCondition(function(_,tp) return Duel.GetFlagEffect(tp,id)>0 end)
     e2:SetTarget(s.settg)
     e2:SetOperation(s.setop)
     c:RegisterEffect(e2)
+    --Check for Fusion Monsters sent to the GY
     aux.GlobalCheck(s,function()
-        s[0]=false
-        s[1]=false
         local ge1=Effect.CreateEffect(c)
         ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
         ge1:SetCode(EVENT_TO_GRAVE)
         ge1:SetOperation(s.checkop)
         Duel.RegisterEffect(ge1,0)
-        aux.AddValuesReset(function()
-            s[0]=false
-            s[1]=false
-        end)
     end)
-end
-function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-    local tc=eg:GetFirst()
-    for tc in aux.Next(eg) do
-        if (tc:IsLevelAbove(8) or tc:IsRankAbove(8)) and tc:IsSetCard(0x29f) and tc:IsPreviousLocation(LOCATION_MZONE) then
-            s[tc:GetPreviousControler()]=true
-        end
-    end
 end
 
 s.listed_series={0x29f}
 s.listed_names={id,CARD_ZORGA}
 
+function s.checkop(e,tp,eg,ep,ev,re,r,rp)
+    for tc in eg:Iter() do
+        if (tc:GetOriginalLevel()>=8 or tc:GetOriginalRank()>=8) and tc:IsPreviousLocation(LOCATION_MZONE) then
+            Duel.RegisterFlagEffect(tc:GetControler(),id,RESET_PHASE+PHASE_END,0,1)
+        end
+    end
+end
 
 --Material Check
 function s.matfil(c,e,tp,chk)
@@ -110,7 +105,7 @@ function s.extraop(e,tc,tp,sg)
 end
 
 function s.setfilter(c,tp)
-    return (c:IsLevelAbove(8) or c:IsRankAbove()) and c:IsSetCard(0x29f) and c:IsControler(tp) and c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsLocation(LOCATION_GRAVE)
+    return c:IsLocation(LOCATION_GRAVE)
 end
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
     return eg and eg:IsExists(s.setfilter,1,nil,tp)

@@ -19,18 +19,23 @@ function s.initial_effect(c)
 	e2:SetCode(EFFECT_UPDATE_DEFENSE)
 	e2:SetValue(s.defval)
 	c:RegisterEffect(e2)
-	--indes
+	--chain resolve attach
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_SINGLE)
-	e3:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
-	e3:SetValue(s.indval)
+	e3:SetDescription(aux.Stringid(id,4))
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
+	e3:SetCode(EVENT_BATTLE_START)
+	e3:SetCountLimit(1,id)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetCondition(s.xyzcon)
+	e3:SetOperation(s.xyzop)
 	c:RegisterEffect(e3)
 	--Add or Special
 	local e4=Effect.CreateEffect(c)
 	e4:SetCategory(CATEGORY_TOHAND+CATEGORY_SEARCH)
 	e4:SetDescription(aux.Stringid(id,3))
 	e4:SetType(EFFECT_TYPE_IGNITION)
-	e4:SetCountLimit(1,id)
+	e4:SetCountLimit(1,{id,1})
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCost(s.thcost)
 	e4:SetTarget(s.thtg)
@@ -47,8 +52,11 @@ function s.initial_effect(c)
 	e5:SetTarget(s.attachtg)
 	e5:SetOperation(s.attachop)
 	c:RegisterEffect(e5)
-
 end
+
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
+
 function s.oppfilter(c,tp)
     return c:GetOwner()~=tp
 end
@@ -78,26 +86,69 @@ function s.defval(e,c)
 end
 
 
-function s.indval(e, c)
-    local g = e:GetHandler():GetOverlayGroup()
+function s.xspfilter(c)
+	return c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ)
+end
+function s.xyzcon(e,tp,eg,ep,ev,re,r,rp,chk)
+    local c = e:GetHandler()
+    local g = c:GetOverlayGroup()
     local races = {} -- Store the races of Xyz Materials
-    for tc in aux.Next(g) do
-        table.insert(races, tc:GetRace()) -- Store the race of each Xyz Material
+    local xyz=Duel.GetMatchingGroup(s.xspfilter,tp,LOCATION_MZONE,0,nil)
+    for check in aux.Next(g) do
+        table.insert(races, check:GetRace()) -- Store the race of each Xyz Material
     end
-    local targetRace = c:GetRace() -- Get the race of the target card
-
-    -- Check if any of the stored races matches the target race
-    for _, race in ipairs(races) do
-        if race == targetRace then
-            -- Check if the target card is face-up
-            if c:IsFaceup() then
-                return true -- If a match is found and the target card is face-up, return true
+    local tc=Duel.GetAttacker()
+	local bc=Duel.GetAttackTarget()
+	if not bc then return false end
+	if tc:IsControler(1-tp) then bc,tc=tc,bc end
+	if not tc:IsType(TYPE_XYZ) and not c:IsSetCard(0x129f) then return end
+    local target = Duel.GetAttacker() or Duel.GetAttackTarget()
+    if bc and bc:IsControler(1-tp) and bc:IsFaceup() and #xyz>0 then
+        local targetRace = bc:GetRace() -- Get the race of the target card
+        -- Check if any of the stored races matches the target race
+        for _, race in ipairs(races) do
+            if race == targetRace then
+                return true -- If a match is found, return true
             end
         end
     end
-
-    return false -- If no match is found or the target card is not face-up, return false
+    return false -- If no match is found, return false
 end
+
+function s.xyzfilter(c,e,tp,mc)
+	return mc:IsCanBeXyzMaterial(c,tp)
+		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_XYZ,tp,false,false) and c:IsSetCard(0x129f)
+		and Duel.GetLocationCountFromEx(tp,tp,mc,c)>0 and c:IsRankBelow(5)
+end
+
+function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
+	local xyz=Duel.GetMatchingGroup(s.xspfilter,tp,LOCATION_MZONE,0,nil)
+	if #xyz<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
+	local dg=xyz:Select(tp,1,1,nil)
+	Duel.HintSelection(dg)
+	local tc=dg:GetFirst()
+	local g=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,nil,e,tp,tc)
+	if #g<=0 or not tc or tc:IsFacedown() or tc:IsImmuneToEffect(e) then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	local sc=Duel.SelectMatchingCard(tp,s.xyzfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,1,1,nil,e,tp,tc):GetFirst()
+	if sc then
+		sc:SetMaterial(Group.FromCards(tc))
+		Duel.Overlay(sc,tc)
+		Duel.SpecialSummon(sc,SUMMON_TYPE_XYZ,tp,tp,false,false,POS_FACEUP)
+		sc:CompleteProcedure()
+	end
+end
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -164,7 +215,7 @@ function s.thfilter(c)
 	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x129f)
 end
 function s.spfilter(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x129f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsType(TYPE_XYZ)
+	return c:IsType(TYPE_MONSTER) and c:IsSetCard(0x129f) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and not c:IsType(TYPE_XYZ) and not c:IsType(TYPE_FUSION)
 end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil)
@@ -266,3 +317,7 @@ function s.attachop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Overlay(c,tc,true)
 	end
 end
+
+
+
+

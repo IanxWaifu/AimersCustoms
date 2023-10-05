@@ -52,6 +52,10 @@ function s.initial_effect(c)
 	e5:SetOperation(s.attachop)
 	c:RegisterEffect(e5)
 end
+
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
+
 function s.oppfilter(c,tp)
     return c:GetOwner()~=tp
 end
@@ -74,7 +78,7 @@ function s.defval(e,c)
 	return g:GetSum(Card.GetDefense)
 end
 function s.ovfilter(c,tp,lc)
-	return c:IsFaceup() and c:GetOverlayCount()==0 and c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ,lc,SUMMON_TYPE_XYZ,tp) 
+	return c:IsFaceup() and c:IsRankBelow(6) and c:GetOverlayCount()==0 and c:IsSetCard(0x129f) and c:IsType(TYPE_XYZ,lc,SUMMON_TYPE_XYZ,tp) 
 end
 function s.xyzop(e,tp,chk)
 	if chk==0 then return Duel.GetFlagEffect(tp,id)==0 end

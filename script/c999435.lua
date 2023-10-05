@@ -22,20 +22,21 @@ function s.initial_effect(c)
 	e2:SetTarget(s.stg)
 	e2:SetOperation(s.sop)
 	c:RegisterEffect(e2)
-	--Special summon a Necroticrypt
+	--banish
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,2))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetCountLimit(1,{id,1})
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetRange(LOCATION_SZONE)
-	e3:SetCost(s.spcost)
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
+	e3:SetCountLimit(1,{id,2})
+	e3:SetCode(EVENT_PHASE+PHASE_END)
+	e3:SetCondition(s.setcond)
+	e3:SetOperation(s.effop)
 	c:RegisterEffect(e3)
 end
-s.listed_series={0x129f}
+
+s.listed_series={0x129f,0x29f}
 s.listed_names={id}
+
 
 
 function s.thcostfilter(c, tp)
@@ -120,5 +121,26 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_HAND,0,1,1,nil,e,tp)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
+
+
+function s.setcond(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.GetCurrentPhase()==PHASE_END and Duel.GetTurnPlayer()==tp
+end
+function s.rthfilter(c)
+	return c:IsSetCard(0x129F) and c:IsMonster() and c:IsAbleToHand()
+end
+function s.effop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(s.rthfilter,tp,LOCATION_GRAVE,0,nil)
+	if Duel.GetFlagEffect(tp,id)>0 or #g<=0 then return end
+	if Duel.GetFlagEffect(tp,id)==0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) and #g>0 then
+		Duel.BreakEffect()
+		Duel.Hint(HINT_CARD,0,id)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
+		local tc=g:Select(tp,1,1,nil)
+		Duel.SendtoHand(tc,nil,REASON_EFFECT)
+		Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
 	end
 end

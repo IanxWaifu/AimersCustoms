@@ -36,17 +36,26 @@ end
 function s.checkfilter(c,e)
 	return c:IsMonster() and not c:IsImmuneToEffect(e)
 end
+function s.attfilter2(c)
+	return c:IsSetCard(0x29f) and c:IsFaceup()
+end
 function s.attcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Group.CreateGroup()
 	local mg=Duel.GetMatchingGroup(s.attfilter,tp,LOCATION_MZONE,0,nil)
 	for tc in aux.Next(mg) do
 		g:Merge(tc:GetOverlayGroup())
 	end
+	local mg=Duel.GetMatchingGroup(s.attfilter2,tp,LOCATION_MZONE,0,nil)
+	g:Merge(mg)
 	if chk==0 then return #g>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVEXYZ)
 	local sg=g:Select(tp,1,1,nil)
-	Duel.SendtoGrave(sg,REASON_COST)
-	Duel.RaiseSingleEvent(sg:GetFirst(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
+	if sg:IsLocation(LOCATION_OVERLAY) then 
+		Duel.SendtoGrave(sg,REASON_COST)
+		Duel.RaiseSingleEvent(sg:GetFirst(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
+	else 
+		Duel.SendtoGrave(sg,REASON_COST)
+	end
 end
 function s.attg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.checkfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,1,nil,e) end
@@ -54,17 +63,21 @@ end
 function s.attop(e,tp,eg,ep,ev,re,r,rp)
     local raceCount = 0
     local excludedRace = 0
-
+	local attCount = 0
+    local excludedAtt = 0
     local mg = Duel.GetMatchingGroup(s.checkfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,nil,e)
     for mrc in aux.Next(mg) do
         local race = mrc:GetRace()
         raceCount = raceCount + 1
         excludedRace = excludedRace | race -- Exclude the current race using bitwise OR
+        local att = mrc:GetAttribute()
+        attCount = attCount + 1
+        excludedAtt = excludedAtt | att -- Exclude the current race using bitwise OR
     end
 
     local race = 0
-
-    if raceCount == 1 then
+    local att = 0
+    if attCount == 1 then
         -- If there's only one unique race, exclude it from the selection
         local allRaces = RACE_ALL
         excludedRace = ~excludedRace -- Get the complement of excludedRace
@@ -72,6 +85,15 @@ function s.attop(e,tp,eg,ep,ev,re,r,rp)
         race = Duel.AnnounceRace(tp, 1, allRaces)
     else
         race = Duel.AnnounceRace(tp, 1, RACE_ALL)
+    end
+    if attCount == 1 then
+        -- If there's only one unique race, exclude it from the selection
+        local allAttr = ATTRIBUTE_ALL-ATTRIBUTE_DIVINE
+        excludedAtt = ~excludedAtt -- Get the complement of excludedAtt
+        allAttr = allAttr & excludedAtt -- Exclude the race using bitwise AND
+        att = Duel.AnnounceAttribute(tp, 1, allAttr)
+    else
+        att = Duel.AnnounceAttribute(tp, 1, ATTRIBUTE_ALL-ATTRIBUTE_DIVINE)
     end
 
     local tg = Duel.GetMatchingGroup(s.checkfilter,tp,0,LOCATION_MZONE+LOCATION_GRAVE,nil,e)
@@ -84,6 +106,13 @@ function s.attop(e,tp,eg,ep,ev,re,r,rp)
         e2:SetValue(race)
         e2:SetReset(RESET_PHASE+PHASE_END)
         trc:RegisterEffect(e2)
+        local e3 = Effect.CreateEffect(e:GetHandler())
+        e3:SetType(EFFECT_TYPE_SINGLE)
+        e3:SetCode(EFFECT_CHANGE_ATTRIBUTE)
+        e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+        e3:SetValue(att)
+        e3:SetReset(RESET_PHASE+PHASE_END)
+        trc:RegisterEffect(e3)
     end
 end
 

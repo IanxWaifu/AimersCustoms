@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.rtop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x129f}
+s.listed_series={0x129f,0x29f}
 s.listed_names={id,CARD_ZORGA}
 
 function s.counterfilter(c)
@@ -77,7 +77,7 @@ end
 
 
 function s.rtfilter(c,tp)
-	return c:IsSummonType(SUMMON_TYPE_FUSION) and c:IsSetCard(0x29f) and c:IsControler(tp)
+	return (c:IsSummonType(SUMMON_TYPE_FUSION) or c:IsSummonType(SUMMON_TYPE_XYZ)) and c:IsSetCard(0x29f) and c:IsControler(tp)
 end
 function s.rtcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg and eg:IsExists(s.rtfilter,1,nil,tp)

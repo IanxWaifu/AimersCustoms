@@ -27,20 +27,28 @@ Duel.LoadScript('AimersAux.lua')
 	c:RegisterEffect(e2)
 end
 
-s.listed_series={0x129f}
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
 
 function s.xyzfilter(c)
     return c:IsType(TYPE_XYZ) and c:IsSetCard(0x129f) and c:IsFaceup()
 end
 function s.rcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	local dg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_MZONE,0,nil)
-	if chk==0 then return Duel.IsPlayerCanDraw(tp,1) and c:IsAbleToGraveAsCost() and Duel.CheckRemoveOverlayCard(tp,0,0,1,REASON_COST,dg) end
+	local g=Group.CreateGroup()
+	local mg=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_MZONE,0,nil)
+	for tc in aux.Next(mg) do
+		g:Merge(tc:GetOverlayGroup())
+	end
+	if chk==0 then return #g>0 and Duel.IsPlayerCanDraw(tp,1) and c:IsAbleToGraveAsCost() end
 	Duel.SendtoGrave(c,REASON_COST)
 	Duel.BreakEffect()
-	Duel.RemoveOverlayCard(tp,0,0,1,1,REASON_COST,dg)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVEXYZ)
+	local sg=g:Select(tp,1,1,nil)
+	Duel.SendtoGrave(sg,REASON_COST)
+	Duel.RaiseSingleEvent(sg:GetFirst(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
+	e:SetLabel(sg:GetFirst():GetRace())
 end
-
 
 --Apply Continuous
 function s.rcop(e,tp,eg,ep,ev,re,r,rp)
@@ -52,6 +60,7 @@ function s.rcop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		e1:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
 		e1:SetCode(EVENT_ATTACK_ANNOUNCE)
+		e1:SetLabel(e:GetLabel())
 		e1:SetCondition(s.atkcon)
 		e1:SetOperation(s.atkop)
 		Duel.RegisterEffect(e1,tp)
@@ -60,8 +69,11 @@ function s.rcop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return ep~=tp
+    local race = e:GetLabel()
+    local attacker = Duel.GetAttacker()
+    return ep ~= tp and attacker and attacker:IsRace(race)
 end
+
 
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFlagEffect(tp,id)==0 then return end

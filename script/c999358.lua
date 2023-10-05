@@ -28,7 +28,8 @@ Duel.LoadScript('AimersAux.lua')
 	c:RegisterEffect(e2)
 end
 
-s.listed_series={0x129f}
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
 
 function s.xyzfilter(c)
     return c:IsType(TYPE_XYZ) and c:IsSetCard(0x129f) and c:IsFaceup()

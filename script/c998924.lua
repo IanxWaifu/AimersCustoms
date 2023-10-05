@@ -21,7 +21,6 @@ function s.initial_effect(c)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.CheckPhaseActivity()
-
 end
 --return to hand
 function s.rtfilter(c)

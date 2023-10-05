@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 
 end
-s.listed_series={0x129f}
+s.listed_series={0x129f,0x29f}
 s.listed_names={CARD_ZORGA}
 
 function s.thfilter(c)

@@ -51,6 +51,14 @@ function s.initial_effect(c)
 	e6:SetTarget(s.attachtg)
 	e6:SetOperation(s.attachop)
 	c:RegisterEffect(e6)
+	local e7=Effect.CreateEffect(c)
+	e7:SetType(EFFECT_TYPE_FIELD)
+	e7:SetCode(id)
+	e7:SetRange(LOCATION_MZONE)
+	e7:SetTargetRange(0,LOCATION_MZONE)
+	e7:SetTarget(s.atktg)
+	e7:SetOperation(s.labelop)
+	c:RegisterEffect(e7)
 end
 
 s.listed_names={id}

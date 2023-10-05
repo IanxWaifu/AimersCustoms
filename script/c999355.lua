@@ -51,6 +51,10 @@ function s.initial_effect(c)
 	e5:SetOperation(s.attachop)
 	c:RegisterEffect(e5)
 end
+
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
+
 function s.oppfilter(c,tp)
     return c:GetOwner()~=tp
 end
@@ -58,18 +62,20 @@ function s.statcon(e,tp,eg,ep,ev,re,r,rp)
     local mg=e:GetHandler():GetOverlayGroup()
     return mg:IsExists(s.oppfilter,1,nil,e:GetHandlerPlayer())
 end
-function s.atkfilter(c)
-	return c:GetAttack()>=0
+function s.atkfilter(c,tp)
+	return c:GetAttack()>=0 and c:GetOwner()~=tp
 end
-function s.deffilter(c)
-	return c:GetDefense()>=0
+function s.deffilter(c,tp)
+	return c:GetDefense()>=0 and c:GetOwner()~=tp
 end
 function s.atkval(e,c)
-	local g=e:GetHandler():GetOverlayGroup():Filter(s.atkfilter,nil)
+	local tp=e:GetHandlerPlayer() 
+	local g=e:GetHandler():GetOverlayGroup():Filter(s.atkfilter,nil,tp)
 	return g:GetSum(Card.GetAttack)
 end
 function s.defval(e,c)
-	local g=e:GetHandler():GetOverlayGroup():Filter(s.deffilter,nil)
+	local tp=e:GetHandlerPlayer() 
+	local g=e:GetHandler():GetOverlayGroup():Filter(s.deffilter,nil,tp)
 	return g:GetSum(Card.GetDefense)
 end
 function s.ovfilter(c,tp,lc)

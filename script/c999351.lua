@@ -56,6 +56,10 @@ function s.initial_effect(c)
 	e6:SetOperation(s.attachop)
 	c:RegisterEffect(e6)
 end
+
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
+
 function s.oppfilter(c,tp)
     return c:GetOwner()~=tp
 end
@@ -159,7 +163,7 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetValue(1)
 		e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END+RESET_OPPO_TURN,rct)
 		tc:RegisterEffect(e3)
-		c:RemoveOverlayCard(tp,1,1,REASON_COST)
+		c:RemoveOverlayCard(tp,1,1,REASON_EFFECT)
 	end
 end
 

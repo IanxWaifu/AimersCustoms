@@ -49,6 +49,10 @@ function s.initial_effect(c)
 	e5:SetOperation(s.attachop)
 	c:RegisterEffect(e5)
 end
+
+s.listed_series={0x129f,0x29f}
+s.listed_names={id}
+
 function s.oppfilter(c,tp)
     return c:GetOwner()~=tp
 end
