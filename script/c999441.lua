@@ -30,7 +30,7 @@ function s.initial_effect(c)
     --destroy
     local e4=Effect.CreateEffect(c)
     e4:SetDescription(aux.Stringid(id,2))
-    e4:SetCategory(CATEGORY_DESTROY)
+    e4:SetCategory(CATEGORY_TOGRAVE)
     e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
     e4:SetCode(EVENT_BATTLE_CONFIRM)
     e4:SetCountLimit(1,id)
@@ -110,10 +110,10 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 	local check=c:GetOverlayGroup():IsExists(Card.IsRace,1,nil,bc:GetRace())
 	if not bc or not check or c:GetFlagEffect(id)~=0 then return end
 	if not e:GetHandler():CheckRemoveOverlayCard(tp,1,REASON_EFFECT) then return end
-	if Duel.SelectYesNo(tp,aux.Stringid(id,1)) and bc:IsDestructable() then
+	if Duel.SelectYesNo(tp,aux.Stringid(id,1)) and bc:IsAbleToGrave() then
 	Duel.Hint(HINT_CARD,0,id) 
 	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
-		if Duel.Destroy(bc,REASON_EFFECT)>0 then
+		if Duel.SendtoGrave(bc,REASON_EFFECT)>0 then
 		Duel.BreakEffect()
 		e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_EFFECT)
 		Duel.RaiseSingleEvent(e:GetHandler(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
