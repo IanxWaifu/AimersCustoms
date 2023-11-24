@@ -2,6 +2,7 @@
 --Scripted by IanxWaifu
 local s,id=GetID()
 function s.initial_effect(c)
+	Pendulum.AddProcedure(c)
 	--Must be properly summoned before reviving
 	c:EnableReviveLimit()
 	--Fusion summon procedure

@@ -161,13 +161,13 @@ end
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	if rp==tp then return false end
 	local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	return loc==LOCATION_GRAVE and Duel.IsExistingMatchingCard(s.disfilter,tp,LOCATION_ONFIELD+LOCATION_EXTRA,LOCATION_ONFIELD,1,nil)
+	return loc==LOCATION_GRAVE and Duel.IsExistingMatchingCard(s.disfilter,tp,LOCATION_EXTRA,0,1,nil)
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.SelectYesNo(tp,aux.Stringid(id,2)) then return end
 	Duel.Hint(HINT_CARD,0,id)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g=Duel.SelectMatchingCard(tp,s.disfilter,tp,LOCATION_ONFIELD+LOCATION_EXTRA,LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.disfilter,tp,LOCATION_EXTRA,0,1,1,nil)
 	if #g>0 and Duel.Destroy(g,REASON_EFFECT)~=0 then
 		Duel.NegateEffect(ev)
 	end

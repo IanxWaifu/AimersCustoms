@@ -52,27 +52,6 @@ function s.cfilter2(c,tp)
 	return true
 end
 
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	local g1=Duel.GetFieldGroup(tp,0,LOCATION_HAND)
-	local g2=Duel.GetFieldGroup(tp,0,LOCATION_MZONE)
-	local opt=0
-	if #g1>0 and #g2>0 then
-		opt=Duel.SelectOption(1-tp,aux.Stringid(id,1),aux.Stringid(id,2))
-	elseif #g1>0 then
-		opt=Duel.SelectOption(1-tp,aux.Stringid(id,1))
-	elseif #g2>0 then
-		opt=Duel.SelectOption(1-tp,aux.Stringid(id,2))+1
-	else return end
-	if opt==0 then
-		local dg=g1:RandomSelect(1-tp,1)
-		Duel.SendtoGrave(dg,REASON_EFFECT+REASON_DISCARD)
-	else
-		Duel.Hint(HINT_SELECTMSG,1-tp,HINTMSG_DESTROY)
-		local dg=g2:Select(1-tp,1,1,nil)
-		Duel.Destroy(dg,REASON_EFFECT)
-	end
-end
-
 
 function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local check=re:GetHandler()

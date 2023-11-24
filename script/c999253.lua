@@ -80,7 +80,7 @@ end
 function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
 	local cg=e:GetHandler():GetColumnGroup(1,1)
 	local tc=re:GetHandler()
-	return rp==tp and ((re:IsActiveType(TYPE_TRAP) or re:IsActiveType(TYPE_QUICKPLAY)) and re:GetHandler():IsStatus(STATUS_SET_TURN)) and re:GetHandler():IsSetCard(0x719) and e:GetHandler():GetFlagEffect(id)==0 and cg:IsContains(tc) and not (re:GetHandler():IsOnField() and (re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and not re:IsHasType(EFFECT_TYPE_ACTIVATE)))
+	return not e:GetHandler():GetColumnGroup() and rp==tp and ((re:IsActiveType(TYPE_TRAP) or re:IsActiveType(TYPE_QUICKPLAY)) and re:GetHandler():IsStatus(STATUS_SET_TURN)) and re:GetHandler():IsSetCard(0x719) and e:GetHandler():GetFlagEffect(id)==0 and cg:IsContains(tc) and not (re:GetHandler():IsOnField() and (re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and not re:IsHasType(EFFECT_TYPE_ACTIVATE)))
 end
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
 	if rp==tp then

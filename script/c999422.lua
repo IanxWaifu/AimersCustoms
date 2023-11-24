@@ -136,7 +136,7 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c = e:GetHandler()
 	local ft = Duel.GetLocationCount(tp,LOCATION_MZONE)
-	if ft <= 0 or not c:IsRelateToEffect(e) or not c:IsReleasableByEffect() then return end
+	if ft <-1  or not c:IsRelateToEffect(e) or not c:IsReleasableByEffect() then return end
 	local g = Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
 	local sg = g:Filter(Card.IsRelateToEffect,nil,e)
 	if #sg > 0 and (#sg > 1 or not Duel.IsPlayerAffectedByEffect(tp,CARD_BLUEEYES_SPIRIT)) then

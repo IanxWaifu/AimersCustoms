@@ -103,10 +103,10 @@ end
 
 --Destroy during End Phase
 function s.gycon(e,tp,eg,ep,ev,re,r,rp)
-	return not eg:IsContains(e:GetHandler())
+	return eg:IsExists(s.cfilter,1,nil) and not eg:IsContains(e:GetHandler())
 end
 function s.cfilter(c)
-	return c:IsSummonLocation(LOCATION_EXTRA) and c:IsLocation(LOCATION_MZONE)
+	return (c:GetSummonLocation()&LOCATION_EXTRA)==LOCATION_EXTRA and c:IsLocation(LOCATION_MZONE)
 end
 function s.gytg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -144,7 +144,7 @@ end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return (r&REASON_FUSION)==REASON_FUSION and ((c:IsPreviousControler(tp) and c:IsPreviousLocation(LOCATION_HAND)) or c:IsPreviousLocation(LOCATION_PZONE))
-		and ((c:IsLocation(LOCATION_REMOVED+LOCATION_EXTRA) and c:IsFaceup()) or c:IsLocation(LOCATION_DECK+LOCATION_GRAVE))
+		and c:IsFaceup()
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

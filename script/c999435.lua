@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Necroticrypt Gateway
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 --Activate
 	local e1=Effect.CreateEffect(c)

@@ -45,17 +45,17 @@ function s.dragfilter(c)
 	return c:IsSetCard(0x12A7)
 end
 function s.fexfilter(c,e)
-	return c:IsAbleToRemove() and c:IsCanBeFusionMaterial() and ((c:IsLocation(LOCATION_GRAVE)) or (c:IsFaceup() and c:IsLocation(LOCATION_EXTRA)))
+	return c:IsAbleToRemove() and c:IsCanBeFusionMaterial() and c:IsAbleToRemove() and ((c:IsLocation(LOCATION_GRAVE)) or (c:IsFaceup() and c:IsLocation(LOCATION_EXTRA)))
 end
 function s.Envfilter(c,e,tp)
-	return (c:GetControler()==tp and ((c:IsLocation(LOCATION_GRAVE)) or (c:IsFaceup() and c:IsLocation(LOCATION_EXTRA)))) or (c:IsLocation(LOCATION_MZONE) and c:IsRace(RACE_DRAGON) and c:GetControler()==1-tp and c:IsDestructable(e))
-	or (c:IsLocation(LOCATION_PZONE) and c:GetControler()==1-tp and c:IsRace(RACE_DRAGON) and c:IsDestructable(e)) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
+	return (c:GetControler()==tp and ((c:IsLocation(LOCATION_GRAVE)) or (c:IsFaceup() and c:IsLocation(LOCATION_EXTRA)))) or (c:IsLocation(LOCATION_MZONE) and c:IsRace(RACE_DRAGON) and c:IsAbleToRemove())
+	or (c:IsLocation(LOCATION_PZONE) and c:IsRace(RACE_DRAGON) and c:IsAbleToRemove()) and c:IsCanBeFusionMaterial() and not c:IsImmuneToEffect(e)
 end
 function s.extrafilter(e,tp,mg)
 	if Duel.IsEnvironment(999117,tp) then
 		local sg=Duel.GetMatchingGroup(s.Envfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_PZONE+LOCATION_MZONE,LOCATION_PZONE+LOCATION_MZONE,nil,e,tp)
 		if sg and #sg>0 then
-			return sg,s.fcheck
+			return sg,s.envfcheck
 		end
 	end
 	local sg=Duel.GetMatchingGroup(s.fexfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE,0,nil,e,tp)
@@ -66,7 +66,9 @@ end
 function s.fcheck(tp,sg,fc)
 	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_GRAVE)
 end
-
+function s.envfcheck(tp,sg,fc)
+	return sg:FilterCount(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_MZONE+LOCATION_PZONE)
+end
 
 --Extra Filters
 function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -76,17 +78,11 @@ end
 
 
 function s.extraop(e,tc,tp,sg)
-	local rg=sg:Filter(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_GRAVE)
-	local rg2=sg:Filter(Card.IsLocation,nil,LOCATION_MZONE+LOCATION_PZONE)
-	local g=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,e:GetHandler())
-	if #rg<0 or #rg2<0 then return false end 
+	local rg=sg:Filter(Card.IsLocation,nil,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_MZONE+LOCATION_PZONE)
+	if #rg<0 then return false end 
 	if #rg>0 then
 		Duel.Remove(rg,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
 		sg:Sub(rg)
-	end
-	if #rg2>0 then
-		Duel.Destroy(rg2,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
-		sg:Sub(rg2)
 	end
 end
 --Set self

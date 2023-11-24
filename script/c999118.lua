@@ -53,8 +53,8 @@ function s.fieldfilter(c,ignore)
 	return c:IsSetCard(0x12A7) and c:IsType(TYPE_FIELD) and c:IsSSetable(ignore)
 end
 function s.cfilter(c,tp)
-	if not (c:IsSetCard(0x12A7) and c:IsOriginalType(TYPE_PENDULUM)) then return false end
-	if not c:IsLocation(LOCATION_SZONE) then
+	if not (c:IsSetCard(0x12A7) and c:IsFaceup()) then return false end
+	if not c:IsLocation(LOCATION_SZONE) or c:IsControler(1-tp) then
 		return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil,true)
 	else
 		return c:IsFaceup() and Duel.GetLocationCount(tp,LOCATION_SZONE)>-1 
