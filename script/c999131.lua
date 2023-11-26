@@ -103,7 +103,7 @@ function s.hsptg(e,tp,eg,ep,ev,re,r,rp,c)
 end
 function s.hspop(e,tp,eg,ep,ev,re,r,rp,c)
 	local sg=e:GetLabelObject()
-	Duel.Destroy(sg,REASON_COST)
+	Duel.Destroy(sg,REASON_COST+REASON_FUSION+REASON_MATERIAL)
 	c:SetMaterial(sg)
 	sg:DeleteGroup()
 end
