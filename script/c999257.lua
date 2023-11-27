@@ -34,7 +34,7 @@ function s.initial_effect(c)
 	e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_DAMAGE_STEP)
 	e2:SetCondition(aux.exccon)
 	e2:SetCountLimit(1,{id,1})
-	e2:SetCost(s.pccost)
+	e2:SetCost(aux.bfgcost)
 	e2:SetTarget(s.pctg)
 	e2:SetOperation(s.pcop)
 	c:RegisterEffect(e2)
@@ -136,19 +136,16 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.pcfilter(c)
-	return c:IsType(TYPE_PENDULUM) and c:IsSetCard(0x718) and not c:IsForbidden() and ((c:IsFaceup() and c:IsLocation(LOCATION_EXTRA)) or (c:IsLocation(LOCATION_HAND) or c:IsLocation(LOCATION_GRAVE)))
-end
-function s.pccost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) end
+	return c:IsType(TYPE_PENDULUM) and c:IsSetCard(0x718) and not c:IsForbidden() and ((c:IsFaceup() and (c:IsLocation(LOCATION_EXTRA) or c:IsLocation(LOCATION_REMOVED))) or (c:IsLocation(LOCATION_HAND)))
 end
 function s.pctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return (Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1))
-		and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_HAND,0,1,nil) end
+		and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_EXTRA+LOCATION_REMOVED+LOCATION_HAND,0,1,nil) end
 end
 function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	local g=Duel.SelectMatchingCard(tp,s.pcfilter,tp,LOCATION_EXTRA+LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,s.pcfilter,tp,LOCATION_EXTRA+LOCATION_REMOVED+LOCATION_HAND,0,1,1,nil)
 	if #g>0 then
 		Duel.MoveToField(g:GetFirst(),tp,tp,LOCATION_PZONE,POS_FACEUP,true)
 	end

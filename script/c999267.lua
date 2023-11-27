@@ -52,7 +52,7 @@ end
 
 
 function s.fgfilter(c)
-	return c:IsSetCard(0x718) and ((c:IsLocation(LOCATION_PZONE)) or (c:IsType(TYPE_XYZ) or c:IsType(TYPE_RITUAL))) 
+	return c:IsSetCard(0x718) and ((c:IsLocation(LOCATION_PZONE)) or (c:IsType(TYPE_XYZ) or c:IsType(TYPE_RITUAL) or c:IsType(TYPE_FUSION))) 
 end
 
 function s.rmtarget(e,c)

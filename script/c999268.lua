@@ -130,5 +130,5 @@ function s.efilter(e,ct)
 	local tc=te:GetHandler()
 	local cg=tc:GetColumnGroup(1,1)
 	return p==tp and tc:IsSetCard(0x718) and tc:GetControler()==tp and tc:IsFaceup() and cg:IsExists(Card.IsControler,1,nil,1-tp)
-	and ((((tc:IsType(TYPE_XYZ) or tc:IsType(TYPE_RITUAL)) and tc:IsMonster()) or (tc:IsLocation(LOCATION_PZONE))) and (te:IsHasCategory(CATEGORY_SPECIAL_SUMMON) or te:IsActiveType(TYPE_MONSTER)))
+	and ((((tc:IsType(TYPE_XYZ) or tc:IsType(TYPE_RITUAL) or tc:IsType(TYPE_FUSION)) and tc:IsMonster()) or (tc:IsLocation(LOCATION_PZONE))) and (te:IsHasCategory(CATEGORY_SPECIAL_SUMMON) or te:IsActiveType(TYPE_MONSTER)))
 end

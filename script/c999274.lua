@@ -16,7 +16,7 @@ function s.rtfilter(c,tp)
 	return c:GetColumnGroup():IsExists(s.cfilter,1,nil,tp)
 end
 function s.cfilter(c,tp)
-	return ((c:IsFaceup() and c:IsLocation(LOCATION_MZONE) and (c:IsType(TYPE_XYZ) or c:IsType(TYPE_RITUAL))) 
+	return ((c:IsFaceup() and c:IsLocation(LOCATION_MZONE) and (c:IsType(TYPE_XYZ) or c:IsType(TYPE_RITUAL) or c:IsType(TYPE_FUSION))) 
 	or (c:IsFaceup() and c:IsLocation(LOCATION_PZONE))) and c:IsSetCard(0x718) and c:IsControler(tp)
 end
 function s.rmfilter(c)
