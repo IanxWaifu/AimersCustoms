@@ -47,6 +47,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetValue(s.cnvalue)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 		tc:RegisterEffect(e2,true)
+		--Increase ATK
+		local e3=Effect.CreateEffect(e:GetHandler())
+		e3:SetType(EFFECT_TYPE_SINGLE)
+		e3:SetCode(EFFECT_UPDATE_ATTACK)
+		e3:SetValue(1000)
+		e3:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e3)
 	end
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,2))
@@ -68,24 +75,20 @@ function s.checkfilter(c)
 end
 
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-	if rp==tp or not re:IsActiveType(TYPE_SPELL+TYPE_TRAP) or not Duel.IsExistingMatchingCard(s.checkfilter,tp,LOCATION_ONFIELD,0,1,nil) then
-		return false
-	end
-	local rg=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_ONFIELD,0,nil)
-	local rc=re:GetHandler()
-	local te, p, loc, seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	local tc = te:GetHandler()
-	local cg = tc:GetColumnGroup(1, 1)
-	local cg2 = tc:GetColumnGroup()
-	-- Iterate over each card in rg
-	local g = rg:GetFirst()
-	while g do
-		if (cg:IsContains(g) or cg2:IsContains(g)) then
-			return false
-		end
-		g = rg:GetNext()
-	end
-	return loc==LOCATION_SZONE
+    if rp==tp or not re:IsActiveType(TYPE_SPELL+TYPE_TRAP) or not Duel.IsExistingMatchingCard(s.checkfilter,tp,LOCATION_ONFIELD,0,1,nil) then
+        return false
+    end
+    local rg=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_ONFIELD,0,nil)
+    local te,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
+    local tc,cg,cg2=te:GetHandler(),tc:GetColumnGroup(1,1),tc:GetColumnGroup()
+    for g in aux.Next(rg) do
+        if (cg:IsContains(g) or cg2:IsContains(g)) or
+           (g:IsLocation(LOCATION_SZONE) and (loc==LOCATION_SZONE or loc==LOCATION_FZONE or Duel.GetFlagEffect(tp,g:GetFieldID())>0)) or
+           (g:IsLocation(LOCATION_PZONE) and loc==LOCATION_PZONE and Duel.GetFlagEffect(tp,g:GetFieldID())>0) then
+            return false
+        end
+    end
+    return true
 end
 
 function s.disop(e,tp,eg,ep,ev,re,r,rp)

@@ -119,7 +119,7 @@ function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
 function s.setfilter(c)
-	return --[[(c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and--]] c:IsSpellTrap() and c:IsSSetable()
+	return (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:IsSpellTrap() and c:IsSSetable()
 end
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end

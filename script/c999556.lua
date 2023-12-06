@@ -85,7 +85,7 @@ s.listed_series = {SET_VOLTAIC}
 
 
 function s.spcfilter(c, tp)
-    return c:IsSetCard(SET_VOLTAIC) and c:IsOriginalType(TYPE_MONSTER) and ((not ((c:GetPreviousPosition() & POS_FACEUP) == 0)) and c:IsFacedown())
+    return c:IsSetCard(SET_VOLTAIC) and c:IsOriginalType(TYPE_MONSTER) and ((not ((c:GetPreviousPosition() & POS_FACEUP) == 0)) and c:IsFacedown()) and c:IsControler(tp)
 end
 
 function s.spcon(e, tp, eg, ep, ev, re, r, rp)
@@ -116,7 +116,7 @@ end
 
 
 function s.spcfilter2(c, tp)
-    return c:IsSetCard(SET_VOLTAIC) and c:IsOriginalType(TYPE_MONSTER) and ((not ((c:GetPreviousPosition() & POS_FACEDOWN) == 0)) and c:IsFaceup())
+    return c:IsSetCard(SET_VOLTAIC) and c:IsOriginalType(TYPE_MONSTER) and ((not ((c:GetPreviousPosition() & POS_FACEDOWN) == 0)) and c:IsFaceup()) and c:IsControler(tp)
 end
 
 function s.spcon2(e, tp, eg, ep, ev, re, r, rp)
@@ -128,13 +128,13 @@ function s.spcon2(e, tp, eg, ep, ev, re, r, rp)
         
         if prevPos & POS_FACEUP > 0 then
             if card:IsLocation(LOCATION_PZONE) then
-                combinedPositions = combinedPositions | POS_FACEUP
+                combinedPositions = combinedPositions | POS_FACEUP_ATTACK
             elseif not card:IsLocation(LOCATION_PZONE) then
                 combinedPositions = combinedPositions | POS_FACEUP_DEFENSE
             end
         elseif prevPos & POS_FACEDOWN > 0 then
             if card:IsLocation(LOCATION_PZONE) then
-                combinedPositions = combinedPositions | POS_FACE_DEFENSE
+                combinedPositions = combinedPositions | POS_FACEDOWN_DEFENSE
             elseif not card:IsLocation(LOCATION_PZONE) then
                 combinedPositions = combinedPositions | POS_FACEDOWN_DEFENSE
             end
@@ -201,23 +201,48 @@ end
 function s.gtg_op(e,tp,eg,ep,ev,re,r,rp)
 	local g=eg:Filter(s.checkfilter,nil,id)
 	local c=g:GetFirst()
+	local p=c:GetControler()
+	if Duel.GetFlagEffect(p,999555)>0 then return end
 	while c do
-		local p=c:GetControler()
-		if Duel.GetFlagEffect(p,id)>0 then return false end
 		if not Duel.CheckLocation(p,LOCATION_PZONE,0) and not Duel.CheckLocation(p,LOCATION_PZONE,1) then return end
-		if Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
-			Duel.Hint(HINT_CARD,0,id)
-			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-			local g=Duel.SelectMatchingCard(p,s.pcfilter,p,LOCATION_DECK,0,1,1,nil)
-			if #g>0 then
-				Duel.MoveToField(g:GetFirst(),p,p,LOCATION_PZONE,POS_FACEUP,true)
-				local fid=c:GetFieldID()
-				Duel.RegisterFlagEffect(p,id,RESET_EVENT+PHASE_END,0,0,fid)
-			end
-		end
+		    local e1=Effect.CreateEffect(c)
+		    e1:SetType(EFFECT_TYPE_QUICK_O)
+		    e1:SetCode(EVENT_FREE_CHAIN)
+		    e1:SetHintTiming(TIMINGS_CHECK_MONSTER_E,TIMINGS_CHECK_MONSTER_E)
+		    e1:SetCountLimit(1)
+		    e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+		    e1:SetRange(LOCATION_MZONE)
+		    e1:SetLabelObject(c)
+		    e1:SetCondition(s.facon)
+		    e1:SetOperation(s.faop)
+		    c:RegisterEffect(e1)
+		    c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+		break
 	end
 	c=g:GetNext()
 end
+
+
+function s.facon(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetLabelObject()
+	return tc:GetFlagEffect(id)~=0
+end
+function s.faop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if not tc then return end
+    local tep=tc:GetControler()
+    tc:RegisterFlagEffect(999555,RESET_PHASE+PHASE_END,0,0)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local g=Duel.SelectMatchingCard(tp,s.pcfilter,tp,LOCATION_DECK,0,1,1,nil)
+	if #g>0 and (Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1)) then
+        Duel.MoveToField(g:GetFirst(),tp,tp,LOCATION_PZONE,POS_FACEUP,true)
+        Duel.BreakEffect()
+        tc:ResetFlagEffect(id)
+    end
+    e:Reset()
+end
+
+
 
 function s.pcfilter(c)
 	return c:IsType(TYPE_PENDULUM) and c:IsSetCard(SET_VOLTAIC) and not c:IsForbidden()
@@ -234,6 +259,7 @@ function s.repfilter(c,tp)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
+	if not c:IsDisabled() then return false end
 	if chk==0 then return c:IsCanTurnSet() and eg:IsExists(s.repfilter,1,nil,tp) end
 	return Duel.SelectEffectYesNo(tp,c,96)
 end

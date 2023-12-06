@@ -44,13 +44,13 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
-		local g=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_PZONE,LOCATION_PZONE,nil,e)
-		if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+		local dg=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_PZONE,LOCATION_PZONE,nil,e)
+		if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-			local dg=g:Select(tp,1,1,nil)
-			Duel.HintSelection(dg)
-			Duel.Destroy(dg,REASON_EFFECT)
+			local dg2=dg:Select(tp,1,1,nil)
+			Duel.HintSelection(dg2)
+			Duel.Destroy(dg2,REASON_EFFECT)
 		end
 	end
 end

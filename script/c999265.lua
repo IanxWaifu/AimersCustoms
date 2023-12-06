@@ -208,6 +208,8 @@ function s.thop(e, tp, eg, ep, ev, re, r, rp)
 	    if tg then
 	        Duel.MoveToField(tg,tp,tp,LOCATION_SZONE,POS_FACEDOWN,true,stzone)
 	        Duel.ConfirmCards(1-tp,tg)
+	        tg:SetStatus(STATUS_ACTIVATE_DISABLED,false)
+			tg:SetStatus(STATUS_SET_TURN,true)
 	        Duel.RaiseEvent(tg,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
 			-- Banish it if it leaves the field
 			local e1=Effect.CreateEffect(c)

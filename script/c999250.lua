@@ -85,7 +85,7 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,#g,0,0)
 end
 function s.dgfilter(c)
-	return c:IsSetCard(0x719) and  c:IsSpellTrap() --[[and c:IsSSetable(ignore)--]] and not c:IsType(TYPE_FIELD)
+	return c:IsSetCard(0x719) and  c:IsSpellTrap() and not c:IsType(TYPE_FIELD)
 end
 function s.cfilter(c,e)
 	return c:IsLocation(LOCATION_REMOVED) and c:IsRelateToEffect(e)
@@ -95,26 +95,26 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
     local dg=Duel.GetMatchingGroup(s.dgfilter,tp,LOCATION_DECK,0,nil,false)
     local ct=Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
     local og=Duel.GetOperatedGroup()
-    local cg=og:Filter(Card.IsLocation,nil,LOCATION_REMOVED)
-    if ct>0 and #dg>=ct then
-        if ct==0 or Duel.GetLocationCount(tp,LOCATION_SZONE)<=-ct then return end
+    local cg=og:Filter(Card.IsLocation,nil,LOCATION_REMOVED) 
+    if ct>0 and #dg>=ct and ct>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>-ct then
         if aux.SelectUnselectGroup(dg,e,tp,ct,ct,aux.dncheck,0) then
             local sg=aux.SelectUnselectGroup(dg,e,tp,ct,ct,aux.dncheck,1,tp,HINTMSG_SET)
-            local tc=sg:GetFirst()
-            repeat
+            for tc in aux.Next(sg) do
+                local pos = (1<<0|1<<4)
                 if #sg==1 then
-                    Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEDOWN,true,1<<og:GetFirst():GetPreviousSequence())
-                    Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
-                    Duel.ConfirmCards(1-tp,tc)
+                    pos = 1<<og:GetFirst():GetPreviousSequence()
                 end
-                Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEDOWN,true,(1<<0|1<<4))
+                Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEDOWN,true,pos)
+                tc:SetStatus(STATUS_ACTIVATE_DISABLED,false)
+                tc:SetStatus(STATUS_SET_TURN,true)
                 Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
                 Duel.ConfirmCards(1-tp,tc)
-                tc=sg:GetNext()
-            until not tc
+            end
         end
     end
 end
+
+
 --Opponents Battling Monster
 function s.rmtg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local tc=e:GetHandler():GetBattleTarget()

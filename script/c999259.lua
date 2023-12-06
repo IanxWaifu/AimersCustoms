@@ -131,7 +131,7 @@ end
 function s.xyzcon(e,c,og)
 	if not c then return true end
 	local tp=c:GetControler()
-	return Duel.IsExistingMatchingCard(s.ovfilter,tp,LOCATION_REMOVED,0,2,nil)
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.ovfilter,tp,LOCATION_REMOVED,0,2,nil)
 end
 
 function s.xyzop(e,tp,eg,ep,ev,re,r,rp,c,og)

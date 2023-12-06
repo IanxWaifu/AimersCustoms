@@ -11,25 +11,32 @@ end
 
 --Common use Events
 EVENT_PENDULUM_ZONE_CHANGE = EVENT_CUSTOM + 3200
+EVENT_ROVARIK = EVENT_CUSTOM + 3201
 
 --Common used cards
 CARD_ZORGA = 999415
 
+--Enviroment ids
+VOLTAICPENDQ = 999563
+VOLTAICMONQ = 999564
+VOLTAICEQUQ = 999565
+
 --Common Setcards
 SET_VOLTAIC = 0x2A1
 SET_VOLDRAGO = 0x2A2
+SET_VOLTAIC_ARTIFACT = 0x12A1
 
 
 
 -- Gets cards Attribute countFunction to get the count of set bits (1s) in a card's attribute
 function Aimer.GetAttributeCount(card)
-    local att = card:GetAttribute()
-    local count = 0
-    while att > 0 do
-        if att & 0x1 ~= 0 then
-            count = count + 1
+    local att=card:GetAttribute()
+    local count=0
+    while att>0 do
+        if att & 0x1~=0 then
+            count=count+1
         end
-        att = att >> 1
+        att=att>>1
     end
     return count
 end
@@ -44,7 +51,7 @@ end
 
 -- Utility filter and function to check if a card can be placed in the appropriate zone
 function Aimer.CanMoveCardToAppropriateZone(c,p,checkOpponent)
-    if checkOpponent == true then
+    if checkOpponent==true then
         p=1-p -- If checking opponent, change the player ID
     end
     if c:IsMonster() then
@@ -74,6 +81,62 @@ function Aimer.MoveCardToAppropriateZone(tc,p,zoneType)
     if seq>=0 then
         Duel.MoveSequence(tc,seq,zoneType)
     end
+end
+
+-- Add Voltaic Equip Per Chain Effect
+function Aimer.AddVoltaicEquipEffect(c,id)
+    --Apply Flag for One Name per Turn
+    local function hdexcost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.GetFlagEffect(tp,id)==0 end
+    Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
+    end
+    -- Check if there are "Voltaic" monsters on the field
+    local function hdexfilter(c,tp)
+        return c:IsType(TYPE_MONSTER) and c:IsSetCard(SET_VOLTAIC) and not c:IsCode(id) and c:IsControler(tp) and c:IsFaceup()
+    end
+    local function hdexcon(e,tp,eg,ep,ev,re,r,rp)
+        local g=eg:Filter(hdexfilter,nil,tp)
+        return #g>0
+    end
+    -- Targeting condition for the Equip effect
+    local function hdextg(e,tp,eg,ep,ev,re,r,rp,chk)
+        local c=e:GetHandler()
+        if chk==0 then
+            return Duel.GetFlagEffect(tp,999556)==0 and #eg>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:CheckUniqueOnField(tp) and not c:IsForbidden()
+        end
+        Duel.RegisterFlagEffect(tp,999556,RESET_EVENT|RESETS_STANDARD|RESET_CHAIN,0,1)
+        local g=eg:Filter(hdexfilter,nil,tp)
+        Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,tp,0)
+    end
+    -- Equip operation for the added effect
+    local function hdexop(e,tp,eg,ep,ev,re,r,rp)
+        local c=e:GetHandler()
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
+        local g=eg:FilterSelect(tp,hdexfilter,1,1,nil,tp)
+        if #g>0 then
+            Duel.HintSelection(g,true)
+            Duel.Equip(tp,c,g:GetFirst())
+        end
+    end
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(aux.Stringid(id,0))
+    e1:SetCategory(CATEGORY_EQUIP)
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+    e1:SetProperty(EFFECT_FLAG_DELAY)
+    e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e1:SetCountLimit(3,999557)
+    e1:SetRange(LOCATION_DECK)
+    e1:SetCost(hdexcost)
+    e1:SetCondition(hdexcon)
+    e1:SetTarget(hdextg)
+    e1:SetOperation(hdexop)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EVENT_SUMMON_SUCCESS)
+    c:RegisterEffect(e2)
+    local e3=e1:Clone()
+    e3:SetCode(EVENT_FLIP)
+    c:RegisterEffect(e3)
 end
 
 

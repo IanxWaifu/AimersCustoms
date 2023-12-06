@@ -25,10 +25,16 @@ function s.initial_effect(c)
     e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
     e5:SetRange(LOCATION_PZONE)
     e5:SetCountLimit(1,id)
+    e5:SetCondition(s.pcon1)
     e5:SetCost(s.pcost)
     e5:SetTarget(s.ptg)
     e5:SetOperation(s.pop)
     c:RegisterEffect(e5)
+    local e10=e5:Clone()
+	e10:SetType(EFFECT_TYPE_QUICK_O)
+	e10:SetCode(EVENT_FREE_CHAIN)
+	e10:SetCondition(s.pcon2)
+	c:RegisterEffect(e10)
     --Add 1 "Voldrago" monsters from the Deck to the hand
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id,2))
@@ -60,6 +66,12 @@ end
 s.listed_names = {id}
 s.listed_series = {SET_VOLTAIC, SET_VOLDRAGO}
 
+function s.pcon1(e,tp,eg,ep,ev,re,r,rp)
+	return not Duel.IsPlayerAffectedByEffect(tp,VOLTAICPENDQ)
+end
+function s.pcon2(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICPENDQ)
+end
 
 function s.scondition(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -84,7 +96,7 @@ function s.pcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RaiseEvent(e:GetHandler(),EVENT_SSET,e,REASON_COST,tp,tp,0)
 end
 function s.cfilter(c)
-	return c:IsFacedown() --[[and c:IsSetCard(SET_VOLTAIC)--]]
+	return c:IsFacedown() and c:IsSetCard(SET_VOLTAIC)
 end
 function s.ptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -126,8 +138,8 @@ end
 
 
 function s.spcfilter(c,tp)
-    if c:GetControler()==1-tp --[[or not (c:IsSetCard(0x2A1) or c:IsType(TYPE_EQUIP))--]] then return false end
-    if --[[c:IsSetCard(0x2A1) and--]] c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD) 
+    if c:GetControler()==1-tp or not (c:IsSetCard(SET_VOLTAIC) or c:IsType(TYPE_EQUIP)) then return false end
+    if c:IsSetCard(SET_VOLTAIC) and c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD) 
     	and (c:GetDestination()==LOCATION_GRAVE or c:GetDestination()==LOCATION_REMOVED) then
         return true
     end
@@ -188,7 +200,7 @@ end
 function s.movecost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN)
+	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
 

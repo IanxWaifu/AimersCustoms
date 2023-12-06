@@ -44,7 +44,7 @@ function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
 function s.thfilter(c)
-	return --[[c:IsSetCard(0x2A1) and--]] c:IsSpellTrap() and c:IsAbleToHand()
+	return c:IsSetCard(SET_VOLTAIC) and c:IsSpellTrap() and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end

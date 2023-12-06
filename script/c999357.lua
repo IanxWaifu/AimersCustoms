@@ -161,13 +161,13 @@ function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local opt=0
 	if chk==0 then return (xyz1 and b1) or (xyz2 and b2) end
 	if ((xyz1 and b1) and (xyz2 and b2)) then
-		opt=Duel.SelectOption(1-tp,aux.Stringid(id,0),aux.Stringid(id,1))
+		opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
 		e:SetLabel(opt)
 	elseif (xyz1 and b1) then
-		opt=Duel.SelectOption(1-tp,aux.Stringid(id,0))
+		opt=Duel.SelectOption(tp,aux.Stringid(id,0))
 		e:SetLabel(opt)
 	elseif (xyz2 and b2) then
-		opt=Duel.SelectOption(1-tp,aux.Stringid(id,1))+1
+		opt=Duel.SelectOption(tp,aux.Stringid(id,1))+1
 		e:SetLabel(opt)
 	else return end		
 		if opt==0 then
