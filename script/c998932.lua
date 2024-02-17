@@ -24,8 +24,12 @@ function s.initial_effect(c)
 	e2:SetOperation(s.tgop)
 	c:RegisterEffect(e2)
 end
+
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+	return c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -48,7 +52,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetTarget(s.splimit)
 		e1:SetReset(RESET_PHASE+PHASE_END)
 		Duel.RegisterEffect(e1,tp)
-		if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x1A0),tp,LOCATION_MZONE,0,1,nil) then
+		if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x12EC),tp,LOCATION_MZONE,0,1,nil) then
 		tg:RegisterFlagEffect(998932,RESET_EVENT+RESETS_STANDARD,0,0)
 		end Duel.SpecialSummonComplete()
 		else return
@@ -56,12 +60,12 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	Duel.SpecialSummonComplete()
 end
 function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
-	return not c:IsSetCard(0x1A0)
+	return not c:IsSetCard(0x12EC)
 end
 
 --BFG and Send
 function s.tgfilter(c)
-	return c:IsMonster() and c:IsAbleToGrave() and c:IsSetCard(0x1A0)
+	return c:IsMonster() and c:IsAbleToGrave() and c:IsSetCard(0x12EC)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end

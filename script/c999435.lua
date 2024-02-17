@@ -51,17 +51,18 @@ end
 
 function s.operation(e, tp, eg, ep, ev, re, r, rp)
 	if not e:GetHandler():IsRelateToEffect(e)  then return end
-    local c = e:GetHandler()
-    local g = Duel.GetMatchingGroup(s.thcostfilter, tp, LOCATION_DECK, 0, nil, tp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(s.thcostfilter,tp,LOCATION_DECK,0,nil,tp)
     if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then 
-    local tc = Duel.GetMatchingGroup(s.thcostfilter, tp, LOCATION_DECK, 0, nil, tp):Select(tp, 1, 1, nil):GetFirst()
+    local tc=Duel.GetMatchingGroup(s.thcostfilter,tp,LOCATION_DECK,0,nil,tp):Select(tp,1,1,nil):GetFirst()
     if tc and Duel.SendtoHand(tc, nil, REASON_EFFECT) ~= 0 then
-        local code = tc:GetCode()
-        local tg = Duel.GetMatchingGroup(s.tgfilter, tp, LOCATION_DECK, 0, nil, code)
-        if #tg > 0 then
-            local dg = tg:Select(tp, 1, 1, nil)
+    	Duel.ConfirmCards(1-tp,tc)
+        local code=tc:GetCode()
+        local tg=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil,code)
+        if #tg>0 then
+            local dg=tg:Select(tp,1,1,nil)
             Duel.BreakEffect()
-            Duel.SendtoGrave(dg, REASON_EFFECT)
+            Duel.SendtoGrave(dg,REASON_EFFECT)
         end
         end
     end

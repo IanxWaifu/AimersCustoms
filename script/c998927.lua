@@ -9,7 +9,7 @@ function s.initial_effect(c)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
 	e1:SetRange(LOCATION_HAND)
-	--[[e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)--]]
+	e1:SetCountLimit(1,id)
 	e1:SetCondition(s.spcon)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
@@ -47,7 +47,7 @@ function s.initial_effect(c)
 	end)
 end
 
-s.listed_series={0x1A0}
+s.listed_series={0x12EC}
 s.listed_names={id}
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
@@ -55,13 +55,13 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local p1=false
 	for tc in aux.Next(eg) do
 		if tc:IsPreviousLocation(LOCATION_MZONE) then
-			if tc:IsSetCard(0x1A0) then p1=true end
+			if tc:IsSetCard(0x12EC) then p1=true end
 		end
 	end
 	if p1 then Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1) end
 end
 function s.spfilter(c,ft)
-	return c:IsFaceup() and c:IsSetCard(0x1A0) and not c:IsCode(id) and c:IsAbleToHandAsCost()
+	return c:IsFaceup() and c:IsSetCard(0x12EC) and not c:IsCode(id) and c:IsAbleToHandAsCost()
 		and (ft>0 or c:GetSequence()<5)
 end
 function s.spcon(e,c)
@@ -214,7 +214,7 @@ end
 
 --BFG Draw
 function s.tgcostfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsAbleToGraveAsCost() and ((c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD)) or c:IsLocation(LOCATION_HAND))
+	return c:IsSetCard(0x12EC) and c:IsAbleToGraveAsCost() and ((c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD)) or c:IsLocation(LOCATION_HAND))
 end
 function s.tgcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) end

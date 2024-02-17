@@ -49,33 +49,28 @@ function s.cfilter(c,tp)
            (c:IsLocation(LOCATION_MZONE) and c:IsControler(tp) and c:IsCanBeFusionMaterial())
 end
 
-function s.filter(c, tp)
-    -- To check opponent's monster zone and graveyard
-    local oppAttributes = Aimer.GetUniqueAttributesByLocation(tp, LOCATION_MZONE + LOCATION_GRAVE, LOCATION_MZONE, 
-        function(c) return c:IsFaceup() end, 
-        function(c) return c:IsFaceup() end )
-    
-    -- Check if the card is in your opponent's graveyard and has at least one attribute you do not control
-    if c:IsControler(1 - tp) and c:IsAbleToRemove() and c:IsFaceup() then
-        local att = c:GetAttribute()
+function s.filter(c,tp)
+    -- To check opponent's monster zone
+    local oppAttributes=Aimer.GetUniqueAttributesByLocation(tp,LOCATION_MZONE|LOCATION_GRAVE,LOCATION_MZONE, function(c) return c:IsFaceup() end, function(c) return c:IsFaceup() end)
+    -- Check if the card is in your opponent's monster zone and has at least one attribute you do not control
+    if c:IsControler(1-tp) and c:IsFaceup() and c:IsAbleToRemove() then
+        local att=c:GetAttribute()
         for _, uniqueAtt in ipairs(oppAttributes) do
-            if att & uniqueAtt > 0 then
+            if att&uniqueAtt~=0 and att&uniqueAtt~=att then
                 return true
             end
         end
     end
-
     return false
 end
-
 
 --Check for My GY and Fusion Monster
 function s.checkmat(tp,sg,fc)
     return fc:IsType(TYPE_FUSION) or not sg:IsExists(Card.IsLocation,1,nil,LOCATION_GRAVE)
 end
-function s.fcheck(tp, sg, fc)
+function s.fcheck(tp,sg,fc)
     return sg:FilterCount(function(c)
-        return c:IsControler(1 - tp) and c:IsLocation(LOCATION_MZONE|LOCATION_GRAVE) end, nil) <= 1
+        return c:IsControler(1-tp) and c:IsLocation(LOCATION_MZONE|LOCATION_GRAVE) end, nil)<=1
 end
 
 
@@ -93,8 +88,7 @@ end
 
 --Remove Materials
 function s.extraop(e,tc,tp,sg)
-    local rg1=sg:Filter(function(c)
-        return c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE) end, nil)
+    local rg1=sg:Filter(function(c) return c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE) end, nil)
     local rg2=sg:Filter(function(c) return c:IsControler(1-tp) and c:IsLocation(LOCATION_GRAVE|LOCATION_MZONE) end, nil)
     -- Merge the two groups into one
     rg1:Merge(rg2)

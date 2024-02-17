@@ -53,7 +53,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-s.listed_series={0x1A0}
+s.listed_series={0x12EC}
 s.listed_names={id}
 
 function s.spfilter(c)
@@ -100,7 +100,7 @@ end
 
 --Place to Szone
 function s.tffilter(c)
-	return c:IsSetCard(0x1A0) and not c:IsForbidden() and c:IsType(TYPE_CONTINUOUS) and c:IsSpellTrap()
+	return c:IsSetCard(0x12EC) and not c:IsForbidden() and c:IsType(TYPE_CONTINUOUS) and c:IsSpellTrap()
 end
 function s.tftg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tffilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil)
@@ -128,7 +128,7 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 end
 function s.dgfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.NegateEffect(ev) and re:GetHandler():IsRelateToEffect(re) then
@@ -151,11 +151,11 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoDeck(e:GetHandler(),nil,2,REASON_COST)
 end
 function s.spfilter1(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCode(998920,998921,998922,998923) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x12EC) and c:IsCode(998920,998921,998922,998923) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 		and Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,c:GetCode())
 end
 function s.spfilter2(c,e,tp,code)
-	return c:IsSetCard(0x1A0) and c:IsCode(998920,998921,998922,998923) and not c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x12EC) and c:IsCode(998920,998921,998922,998923) and not c:IsCode(code) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then

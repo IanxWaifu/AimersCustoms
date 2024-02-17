@@ -37,7 +37,7 @@ function s.checkfilter(c,e)
 	return c:IsMonster() and not c:IsImmuneToEffect(e)
 end
 function s.attfilter2(c)
-	return c:IsSetCard(0x29f) and c:IsFaceup()
+	return c:IsSetCard(0x29f) and c:IsFaceup() and c:IsAbleToGraveAsCost()
 end
 function s.attcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local g=Group.CreateGroup()
@@ -50,7 +50,7 @@ function s.attcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return #g>0 end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVEXYZ)
 	local sg=g:Select(tp,1,1,nil)
-	if sg:IsLocation(LOCATION_OVERLAY) then 
+	if sg:GetFirst():IsLocation(LOCATION_OVERLAY) then 
 		Duel.SendtoGrave(sg,REASON_COST)
 		Duel.RaiseSingleEvent(sg:GetFirst(),EVENT_DETACH_MATERIAL,e,0,0,0,0)
 	else 
@@ -77,7 +77,7 @@ function s.attop(e,tp,eg,ep,ev,re,r,rp)
 
     local race = 0
     local att = 0
-    if attCount == 1 then
+    if raceCount == 1 then
         -- If there's only one unique race, exclude it from the selection
         local allRaces = RACE_ALL
         excludedRace = ~excludedRace -- Get the complement of excludedRace

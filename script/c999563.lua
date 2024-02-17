@@ -32,12 +32,22 @@ function s.initial_effect(c)
 	e3:SetTargetRange(1,0)
 	c:RegisterEffect(e3)
 	--once per turn quick monster
-	local e4=e3:Clone()
+	local e4=Effect.CreateEffect(c)
+	e4:SetType(EFFECT_TYPE_FIELD)
+	e4:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e4:SetCode(VOLTAICMONQ)
+	e4:SetRange(LOCATION_FZONE)
+	e4:SetTargetRange(1,0)
+	e4:SetCondition(s.monqcon)
 	c:RegisterEffect(e4)
 	--once per turn quick equip
-	local e5=e3:Clone()
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
 	e5:SetCode(VOLTAICEQUQ)
+	e5:SetRange(LOCATION_FZONE)
+	e5:SetTargetRange(1,0)
+	e5:SetCondition(s.eqcon)
 	c:RegisterEffect(e5)
 end
 s.listed_names = {id}
@@ -107,4 +117,11 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
 	end
+end
+
+function s.monqcon(e)
+	return Duel.GetFlagEffect(e:GetHandlerPlayer(),999563)==0
+end
+function s.eqcon(e)
+	return Duel.GetFlagEffect(e:GetHandlerPlayer(),999564)==0
 end

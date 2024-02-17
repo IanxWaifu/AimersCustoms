@@ -88,7 +88,7 @@ function s.initial_effect(c)
 	end)
 end
 
-s.listed_series={0x1A0}
+s.listed_series={0x12EC}
 s.listed_names={id}
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
@@ -207,7 +207,7 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:GetHandler():RemoveOverlayCard(tp,1,1,REASON_COST)
 end
 function s.thfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsAbleToHand()
+	return c:IsSetCard(0x12EC) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) end

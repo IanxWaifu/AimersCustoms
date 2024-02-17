@@ -72,7 +72,7 @@ function s.initial_effect(c)
 		Duel.RegisterEffect(ge1,0)
 		local ge2=Effect.CreateEffect(c)
 		ge2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge2:SetCode(EVENT_SPSUMMON_SUCCESS)
+		ge2:SetCode(EVENT_MOVE)
 		ge2:SetCondition(s.gtg_cd)
 		ge2:SetTarget(s.gtg_tg)
 		ge2:SetOperation(s.gtg_op)
@@ -199,33 +199,32 @@ function s.gtg_cd(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.checkfilter,1,nil,id) 
 end
 function s.gtg_op(e,tp,eg,ep,ev,re,r,rp)
-	local g=eg:Filter(s.checkfilter,nil,id)
-	local c=g:GetFirst()
-	local p=c:GetControler()
-	if Duel.GetFlagEffect(p,999555)>0 then return end
-	while c do
-		if not Duel.CheckLocation(p,LOCATION_PZONE,0) and not Duel.CheckLocation(p,LOCATION_PZONE,1) then return end
-		    local e1=Effect.CreateEffect(c)
-		    e1:SetType(EFFECT_TYPE_QUICK_O)
-		    e1:SetCode(EVENT_FREE_CHAIN)
-		    e1:SetHintTiming(TIMINGS_CHECK_MONSTER_E,TIMINGS_CHECK_MONSTER_E)
-		    e1:SetCountLimit(1)
-		    e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
-		    e1:SetRange(LOCATION_MZONE)
-		    e1:SetLabelObject(c)
-		    e1:SetCondition(s.facon)
-		    e1:SetOperation(s.faop)
-		    c:RegisterEffect(e1)
-		    c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
-		break
-	end
-	c=g:GetNext()
+    local g=eg:Filter(s.checkfilter,nil,id)
+    local c=g:GetFirst()
+    if not c then return end
+    local p=c:GetControler()
+    if Duel.GetFlagEffect(p,999555)>0 then return end
+    if not Duel.CheckLocation(p,LOCATION_PZONE,0) and not Duel.CheckLocation(p,LOCATION_PZONE,1) then return end
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_QUICK_O)
+    e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e1:SetHintTiming(TIMINGS_CHECK_MONSTER_E,TIMINGS_CHECK_MONSTER_E)
+    e1:SetCountLimit(1,{id,2})
+    e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetLabelObject(c)
+    e1:SetCondition(s.facon)
+    e1:SetOperation(s.faop)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EVENT_CHANGE_POS)
+    c:RegisterEffect(e2)
+    c:RegisterFlagEffect(id,0,0,1)
 end
-
 
 function s.facon(e,tp,eg,ep,ev,re,r,rp)
 	local tc=e:GetLabelObject()
-	return tc:GetFlagEffect(id)~=0
+	return tc:GetFlagEffect(id)~=0 and tc:IsLocation(LOCATION_MZONE) and eg:IsContains(e:GetHandler()) and tc:IsFacedown()
 end
 function s.faop(e,tp,eg,ep,ev,re,r,rp)
     local tc=e:GetLabelObject()

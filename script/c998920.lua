@@ -57,7 +57,7 @@ function s.initial_effect(c)
 	end
 	return e3,e4,table.unpack(feffs)
 end
-s.listed_series={0x1A0}
+s.listed_series={0x12EC}
 s.ordinal_scale={998921,998923}
 Spirit={}
 FLAG_SPIRIT_RETURN=2
@@ -107,7 +107,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spfilter(c,e,tp)
-	return c:IsCode(998920,998921,998923) and c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsCode(998920,998921,998923) and c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

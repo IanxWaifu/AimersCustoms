@@ -7,7 +7,7 @@ function s.initial_effect(c)
 	Aimer.AddVoltaicEquipEffect(c,id)
 	-- Negate Effects of Equipped Monster
 	local e1=Effect.CreateEffect(c)
-	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetDescription(aux.Stringid(id,3))
 	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_SZONE)
 	e1:SetCountLimit(1,{id,1})
@@ -26,11 +26,13 @@ end
 s.listed_names = {id}
 s.listed_series = {SET_VOLTAIC_ARTIFACT}
 
+
 function s.pcon1(e,tp,eg,ep,ev,re,r,rp)
-	return not Duel.IsPlayerAffectedByEffect(tp,VOLTAICEQUQ)
+	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
 end
 function s.pcon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICEQUQ)
+	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICEQUQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
+	and Duel.GetFlagEffect(tp,999564)==0
 end
 
 function s.setcost1(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -57,8 +59,8 @@ function s.setcost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local tc=c:GetEquipTarget()
 	if tc==nil then return false end
-	if not tc:IsFaceup() or tc:IsDisabled() or Duel.GetFlagEffect(tp,VOLTAICEQUQ)>0 then return false end
-	if chk==0 then return tc:IsFaceup() and not tc:IsDisabled() and Duel.GetFlagEffect(tp,VOLTAICEQUQ)==0 end
+	if not tc:IsFaceup() or tc:IsDisabled() then return false end
+	if chk==0 then return tc:IsFaceup() and not tc:IsDisabled() end
 	Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetType(EFFECT_TYPE_SINGLE)
@@ -71,7 +73,7 @@ function s.setcost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	e2:SetValue(RESET_TURN_SET)
 	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 	tc:RegisterEffect(e2)
-	Duel.RegisterFlagEffect(tp,VOLTAICEQUQ,RESET_PHASE+PHASE_END,0,1)
+	Duel.RegisterFlagEffect(tp,999564,RESET_PHASE+PHASE_END,0,1)
 end
 
 

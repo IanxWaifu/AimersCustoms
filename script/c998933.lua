@@ -34,23 +34,26 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.repfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:GetDestination()==LOCATION_HAND and c:IsMonster()
+	return c:IsSetCard(0x12EC) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:GetDestination()==LOCATION_HAND and c:IsMonster()
 	and  Duel.IsExistingMatchingCard(s.chkfilter,tp,LOCATION_MZONE,0,1,nil,e,tp)
 end
 function s.chkfilter(c,e,tp)
-	return c:IsFaceup() and c:IsSetCard(0x1A0) and c:IsCanBeEffectTarget(e) and c:GetLevel()==7
+	return c:IsFaceup() and c:IsSetCard(0x12EC) and c:IsCanBeEffectTarget(e) and c:GetLevel()==7
 end
 function s.spfilter(c,e,tp,codes)
-	return c:IsSetCard(0x1A0) and c:GetLevel()==7 and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE) and c:IsCode(table.unpack(codes))
+	return c:IsSetCard(0x12EC) and c:GetLevel()==7 and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE) and c:IsCode(table.unpack(codes))
 end
 function s.reptestfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsCanBeEffectTarget(e) and c:IsMonster() and c:GetLevel()==7
+	return c:IsSetCard(0x12EC) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsCanBeEffectTarget(e) and c:IsMonster() and c:GetLevel()==7
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) end
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and (r&REASON_EFFECT+REASON_COST)~=0 and re and re:IsActiveType(TYPE_MONSTER)
-		and re:GetHandler():IsSetCard(0x1A0) and eg:IsExists(s.repfilter,1,nil,e,tp) end
+		and re:GetHandler():IsSetCard(0x12EC) and eg:IsExists(s.repfilter,1,nil,e,tp) end
 	local g=Duel.GetMatchingGroup(s.reptestfilter,tp,LOCATION_MZONE,0,nil,e,tp)
 	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 		Duel.Hint(HINT_CARD,0,id)
@@ -76,13 +79,13 @@ end
 
 --Banish and Search
 function s.cfilter(c)
-	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsType(TYPE_MONSTER) and c:IsSetCard(0x1A0)
+	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsType(TYPE_MONSTER) and c:IsSetCard(0x12EC)
 end
 function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return eg:IsExists(s.cfilter,1,nil) 
 end
 function s.thfilter(c)
-	return c:IsLevel(4) and c:IsSetCard(0x1A0) and c:IsAbleToHand()
+	return c:IsLevel(4) and c:IsSetCard(0x12EC) and c:IsAbleToHand()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end

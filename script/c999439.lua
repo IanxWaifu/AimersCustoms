@@ -34,7 +34,7 @@ function s.tgfilter2(c,code)
 end
 function s.tgfilter(c,tp,cd)
 	return c:IsSetCard(0x129f) and c:IsMonster() and c:IsAbleToGrave() 
-		and not Duel.IsExistingMatchingCard(s.tgfilter2,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,c:GetCode()) and not c:IsCode(cd)
+		and not Duel.IsExistingMatchingCard(s.tgfilter2,tp,LOCATION_ONFIELD+LOCATION_GRAVE,0,1,nil,c:GetCode()) and not c:IsCode(cd) --might need to delete cd
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)

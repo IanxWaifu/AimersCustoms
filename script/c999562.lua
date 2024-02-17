@@ -24,11 +24,11 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 s.listed_names = {id}
-s.listed_series = {SET_VOLTAIC}
+s.listed_series = {SET_VOLTAIC,SET_VOLDRAGO}
 
 --Search Voltaic Monster
 function s.filter(c)
-	return c:IsSetCard(SET_VOLTAIC) and c:IsMonster() and c:IsAbleToHand()
+	return (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:IsMonster() and c:IsAbleToHand()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_DECK,0,1,nil) end
@@ -109,7 +109,6 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
-		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)
 		local e2=e1:Clone()

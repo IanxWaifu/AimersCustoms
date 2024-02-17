@@ -25,10 +25,14 @@ function s.initial_effect(c)
 	e2:SetOperation(s.negop2)
 	c:RegisterEffect(e2)
 end
+
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 --Negate S/T Effects
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep==1-tp and re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and Duel.IsChainNegatable(ev)
-		and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x1A0)
+		and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x12EC)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -64,7 +68,7 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 end
 --Negate Monsters Effects
 function s.negcon2(e,tp,eg,ep,ev,re,r,rp)
-	return ep==1-tp and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x1A0)
+	return ep==1-tp and Duel.IsExistingMatchingCard(Card.IsSetCard,tp,LOCATION_MZONE,0,1,nil,0x12EC)
 end
 function s.negfilter(c,tp)
 	return not c:IsSummonPlayer(tp) and c:IsLocation(LOCATION_MZONE)

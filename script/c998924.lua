@@ -19,26 +19,30 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_PHASE_START+PHASE_MAIN2)
 	c:RegisterEffect(e2)
 end
+
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return not Duel.CheckPhaseActivity()
 end
 --return to hand
 function s.rtfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
+	return c:IsSetCard(0x12EC) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand()
 end
 --to grave
 function s.tgfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsAbleToGrave()
+	return c:IsSetCard(0x12EC) and c:IsAbleToGrave()
 end
 --special summon/set
 function s.tffilter1(c,e,tp)
-	return c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x1A0)
+	return c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x12EC)
 end
 function s.tffilter2(c)
-	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable(true) and c:IsSetCard(0x1A0)
+	return c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable(true) and c:IsSetCard(0x12EC)
 end
 function s.tffilter3(c,e,tp)
-	return (c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x1A0)) or (c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable() and c:IsSetCard(0x1A0))
+	return (c:IsType(TYPE_MONSTER) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsSetCard(0x12EC)) or (c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsSSetable() and c:IsSetCard(0x12EC))
 end
 function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

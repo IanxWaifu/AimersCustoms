@@ -25,12 +25,15 @@ function s.initial_effect(c)
 	c:RegisterEffect(e2)
 end
 
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.thcostfilter(c,tp)
-	return c:IsSetCard(0x1A0) and not c:IsPublic()
+	return c:IsSetCard(0x12EC) and not c:IsPublic()
 	and Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil,c:GetCode())
 end
 function s.tgfilter(c,code)
-	return c:IsSetCard(0x1A0) and c:IsAbleToHand() and not c:IsCode(code) 
+	return c:IsSetCard(0x12EC) and c:IsAbleToHand() and not c:IsCode(code) 
 end
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -50,7 +53,7 @@ function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK)
 end
 function s.codfilter(c,codes)
-	return c:IsSetCard(0x1A0) and c:IsAbleToGrave() and c:IsLevel(7) and c:IsCode(table.unpack(codes))
+	return c:IsSetCard(0x12EC) and c:IsAbleToGrave() and c:IsLevel(7) and c:IsCode(table.unpack(codes))
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()

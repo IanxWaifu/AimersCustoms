@@ -11,10 +11,16 @@ end
 
 --Common use Events
 EVENT_PENDULUM_ZONE_CHANGE = EVENT_CUSTOM + 3200
-EVENT_ROVARIK = EVENT_CUSTOM + 3201
+EVENT_ROVARIK = EVENT_CUSTOM + 3200
 
 --Common used cards
 CARD_ZORGA = 999415
+
+--Common used Tokens
+TOKEN_LEGION_F = 999611
+TOKEN_LEGION_P = 999612
+TOKEN_LEGION_Z = 999613
+
 
 --Enviroment ids
 VOLTAICPENDQ = 999563
@@ -25,6 +31,8 @@ VOLTAICEQUQ = 999565
 SET_VOLTAIC = 0x2A1
 SET_VOLDRAGO = 0x2A2
 SET_VOLTAIC_ARTIFACT = 0x12A1
+SET_DEATHRALL = 0x2A3
+SET_LEGION_TOKEN = 0x2A4
 
 
 
@@ -102,9 +110,9 @@ function Aimer.AddVoltaicEquipEffect(c,id)
     local function hdextg(e,tp,eg,ep,ev,re,r,rp,chk)
         local c=e:GetHandler()
         if chk==0 then
-            return Duel.GetFlagEffect(tp,999556)==0 and #eg>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:CheckUniqueOnField(tp) and not c:IsForbidden()
+            return Duel.GetFlagEffect(tp,999566)==0 and #eg>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:CheckUniqueOnField(tp) and not c:IsForbidden()
         end
-        Duel.RegisterFlagEffect(tp,999556,RESET_EVENT|RESETS_STANDARD|RESET_CHAIN,0,1)
+        Duel.RegisterFlagEffect(tp,999566,RESET_EVENT|RESETS_STANDARD|RESET_CHAIN,0,1)
         local g=eg:Filter(hdexfilter,nil,tp)
         Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,tp,0)
     end
@@ -254,20 +262,401 @@ function Aimer.VoltaicSynchroAddProcedure(c,...)
     e1:SetProperty(EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SPSUM_PARAM)
     e1:SetRange(LOCATION_EXTRA)
     e1:SetTargetRange(POS_FACEDOWN_DEFENSE+POS_FACEUP,0)
-    e1:SetCondition(Synchro.Condition(...))
-    e1:SetTarget(Synchro.Target(...))
+    e1:SetCondition(Aimer.VoltaicSynchroCondition(...))
+    e1:SetTarget(Aimer.VoltaicSynchroTarget(...))
     e1:SetOperation(Aimer.VoltaicSynchroOperation())
     e1:SetValue(SUMMON_TYPE_SYNCHRO)
     c:RegisterEffect(e1)
 end
+
+function Aimer.VoltaicSynchroCondition(f1,min1,max1,f2,min2,max2,sub1,sub2,req1,req2,reqm)
+    return  function(e,c,smat,mg,min,max)
+                if c==nil then return true end
+                if c:IsType(TYPE_PENDULUM) and c:IsFaceup() then return false end
+                -- Check if can be synchro mat/banish
+                local function synchfilter(c)
+                    return c:IsCanBeSynchroMaterial() and ((not c:IsLocation(LOCATION_GRAVE)) or (c:IsAbleToRemove() and c:IsLocation(LOCATION_GRAVE)) or (c:IsLocation(LOCATION_PZONE) and c:IsFacedown() and c:IsAbleToHand()))
+                end
+                local tp=c:GetControler()
+                local dg
+                local lv=c:GetLevel()
+                local g
+                local mgchk
+                if sub1 then
+                    sub1=aux.OR(sub1,function(_c) return _c:IsHasEffect(30765615) and (not f1 or f1(_c,c,SUMMON_TYPE_SYNCHRO|MATERIAL_SYNCHRO,tp)) end)
+                else
+                    sub1=function(_c) return _c:IsHasEffect(30765615) and (not f1 or f1(_c,c,SUMMON_TYPE_SYNCHRO|MATERIAL_SYNCHRO,tp)) end
+                end
+                if mg then
+                    dg=mg
+                    g=mg:Filter(synchfilter,c,c)
+                    mgchk=true
+                else
+                    local function synchmatfilter(mc)
+                        local handmatfilter=mc:IsHasEffect(EFFECT_SYNCHRO_MAT_FROM_HAND)
+                        local handmatvalue=nil
+                        if handmatfilter then handmatvalue=handmatfilter:GetValue() end
+                        return (mc:IsLocation(LOCATION_MZONE) and mc:IsFaceup()
+                            and (mc:IsControler(tp) or mc:IsCanBeSynchroMaterial(c)))
+                            or (handmatfilter and handmatfilter:CheckCountLimit(tp) and handmatvalue(handmatfilter,mc,c))
+                    end
+                    dg=Duel.GetMatchingGroup(synchmatfilter,tp,LOCATION_MZONE|LOCATION_HAND|LOCATION_GRAVE|LOCATION_PZONE,LOCATION_MZONE,c)
+                    g=dg:Filter(synchfilter,nil,c)
+                    mgchk=false
+                end
+                local pg=Auxiliary.GetMustBeMaterialGroup(tp,dg,tp,c,g,REASON_SYNCHRO)
+                if not g:Includes(pg) or pg:IsExists(aux.NOT(synchfilter),1,nil,c) then return false end
+                if smat then
+                    if smat:IsExists(aux.NOT(synchfilter),1,nil,c) then return false end
+                    pg:Merge(smat)
+                    g:Merge(smat)
+                end
+                if g:IsExists(Synchro.CheckFilterChk,1,nil,f1,f2,sub1,sub2,c,tp) then
+                    --if there is a monster with EFFECT_SYNCHRO_CHECK (Genomix Fighter/Mono Synchron)
+                    local g2=g:Clone()
+                    if not mgchk then
+                        local hg=Duel.GetMatchingGroup(synchfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,c,c)
+                        for thc in g:Iter() do
+                            local te=thc:GetCardEffect(EFFECT_HAND_SYNCHRO)
+                            if te then
+                                local val=te:GetValue()
+                                local ag=hg:Filter(function(mc) return val(te,mc,c) end,nil) --tuner
+                                g2:Merge(ag)
+                            end
+                        end
+                    end
+                    local res=g2:IsExists(Synchro.CheckP31,1,nil,g2,Group.CreateGroup(),Group.CreateGroup(),Group.CreateGroup(),f1,sub1,f2,sub2,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                    local hg=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil,EFFECT_HAND_SYNCHRO+EFFECT_SYNCHRO_CHECK)
+                    aux.ResetEffects(hg,EFFECT_HAND_SYNCHRO+EFFECT_SYNCHRO_CHECK)
+                    Duel.AssumeReset()
+                    return res
+                else
+                    --no race change
+                    local tg
+                    local ntg
+                    if mgchk then
+                        tg=g:Filter(Synchro.TunerFilter,nil,f1,sub1,c,tp)
+                        ntg=g:Filter(Synchro.NonTunerFilter,nil,f2,sub2,c,tp)
+                    else
+                        tg=g:Filter(Synchro.TunerFilter,nil,f1,sub1,c,tp)
+                        ntg=g:Filter(Synchro.NonTunerFilter,nil,f2,sub2,c,tp)
+                        local thg=tg:Filter(Card.IsHasEffect,nil,EFFECT_HAND_SYNCHRO)
+                        thg:Merge(ntg:Filter(Card.IsHasEffect,nil,EFFECT_HAND_SYNCHRO))
+                        local hg=Duel.GetMatchingGroup(synchfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,c,c)
+                        for thc in aux.Next(thg) do
+                            local te=thc:GetCardEffect(EFFECT_HAND_SYNCHRO)
+                            local val=te:GetValue()
+                            local thag=hg:Filter(function(mc) return Synchro.TunerFilter(mc,f1,sub1,c,tp) and val(te,mc,c) end,nil) --tuner
+                            local nthag=hg:Filter(function(mc) return Synchro.NonTunerFilter(mc,f2,sub2,c,tp) and val(te,mc,c) end,nil) --non-tuner
+                            tg:Merge(thag)
+                            ntg:Merge(nthag)
+                        end
+                    end
+                    local lv=c:GetLevel()
+                    local res=tg:IsExists(Synchro.CheckP41,1,nil,tg,ntg,Group.CreateGroup(),Group.CreateGroup(),Group.CreateGroup(),min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                    local hg=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil,EFFECT_HAND_SYNCHRO+EFFECT_SYNCHRO_CHECK)
+                    aux.ResetEffects(hg,EFFECT_HAND_SYNCHRO+EFFECT_SYNCHRO_CHECK)
+                    return res
+                end
+                return false
+            end
+end
+
+function Aimer.VoltaicSynchroTarget(f1,min1,max1,f2,min2,max2,sub1,sub2,req1,req2,reqm)
+    return function(e,tp,eg,ep,ev,re,r,rp,chk,c,smat,mg,min,max)
+            -- Check if can be synchro mat/banish
+            local function synchfilter(c)
+                return c:IsCanBeSynchroMaterial() and ((not c:IsLocation(LOCATION_GRAVE)) or (c:IsAbleToRemove() and c:IsLocation(LOCATION_GRAVE)) or (c:IsLocation(LOCATION_PZONE) and c:IsFacedown() and c:IsAbleToHand()))
+            end
+                local sg=Group.CreateGroup()
+                local lv=c:GetLevel()
+                local mgchk
+                local g
+                local dg
+                if sub1 then
+                    sub1=aux.OR(sub1,function(_c) return _c:IsHasEffect(30765615) and (not f1 or f1(_c,c,SUMMON_TYPE_SYNCHRO|MATERIAL_SYNCHRO,tp)) end)
+                else
+                    sub1=function(_c) return _c:IsHasEffect(30765615) and (not f1 or f1(_c,c,SUMMON_TYPE_SYNCHRO|MATERIAL_SYNCHRO,tp)) end
+                end
+                if mg then
+                    mgchk=true
+                    dg=mg
+                    g=mg:Filter(synchfilter,c,c)
+                else
+                    mgchk=false
+                    local function synchmatfilter(mc)
+                        local handmatfilter=mc:IsHasEffect(EFFECT_SYNCHRO_MAT_FROM_HAND)
+                        local handmatvalue=nil
+                        if handmatfilter then handmatvalue=handmatfilter:GetValue() end
+                        return (mc:IsLocation(LOCATION_MZONE) and mc:IsFaceup()
+                            and (mc:IsControler(tp) or mc:IsCanBeSynchroMaterial(c)))
+                            or (handmatfilter and handmatfilter:CheckCountLimit(tp) and handmatvalue(handmatfilter,mc,c))
+                    end
+                    dg=Duel.GetMatchingGroup(synchmatfilter,tp,LOCATION_MZONE|LOCATION_HAND|LOCATION_GRAVE|LOCATION_PZONE,LOCATION_MZONE,c)
+                    g=dg:Filter(synchfilter,nil,c)
+                end
+                local pg=Auxiliary.GetMustBeMaterialGroup(tp,dg,tp,c,g,REASON_SYNCHRO)
+                if smat then
+                    pg:Merge(smat)
+                    g:Merge(smat)
+                end
+                local tg
+                local ntg
+                if mgchk then
+                    tg=g:Filter(Synchro.TunerFilter,nil,f1,sub1,c,tp)
+                    ntg=g:Filter(Synchro.NonTunerFilter,nil,f2,sub2,c,tp)
+                else
+                    tg=g:Filter(Synchro.TunerFilter,nil,f1,sub1,c,tp)
+                    ntg=g:Filter(Synchro.NonTunerFilter,nil,f2,sub2,c,tp)
+                    local thg=tg:Filter(Card.IsHasEffect,nil,EFFECT_HAND_SYNCHRO)
+                    thg:Merge(ntg:Filter(Card.IsHasEffect,nil,EFFECT_HAND_SYNCHRO))
+                    local hg=Duel.GetMatchingGroup(synchfilter,tp,LOCATION_HAND+LOCATION_GRAVE,0,c,c)
+                    for thc in aux.Next(thg) do
+                        local te=thc:GetCardEffect(EFFECT_HAND_SYNCHRO)
+                        local val=te:GetValue()
+                        local thag=hg:Filter(function(mc) return Synchro.TunerFilter(mc,f1,sub1,c,tp) and val(te,mc,c) end,nil) --tuner
+                        local nthag=hg:Filter(function(mc) return Synchro.NonTunerFilter(mc,f2,sub2,c,tp) and val(te,mc,c) end,nil) --non-tuner
+                        tg:Merge(thag)
+                        ntg:Merge(nthag)
+                    end
+                end
+                local lv=c:GetLevel()
+                local tsg=Group.CreateGroup()
+                local selectedastuner=Group.CreateGroup()
+                if g:IsExists(Synchro.CheckFilterChk,1,nil,f1,f2,sub1,sub2,c,tp) then
+                    local ntsg=Group.CreateGroup()
+                    local tune=true
+                    local g2=Group.CreateGroup()
+                    while #ntsg<max2 do
+                        local cancel=false
+                        local finish=false
+                        if tune then
+                            cancel=not mgchk and Duel.IsSummonCancelable() and #tsg==0
+                            local g3=ntg:Filter(Synchro.CheckP32,sg,g,tsg,ntsg,sg,f2,sub2,min2,max2,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            g2=g:Filter(Synchro.CheckP31,sg,g,tsg,ntsg,sg,f1,sub1,f2,sub2,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            if #g3>0 and #tsg>=min1 and tsg:IsExists(Synchro.TunerFilter,#tsg,nil,f1,sub1,c,tp) and (not req1 or req1(tsg,c,tp)) then
+                                g2:Merge(g3)
+                            end
+                            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SMATERIAL)
+                            local tc=Group.SelectUnselect(g2,sg,tp,false,cancel)
+                            if not tc then
+                                if #tsg>=min1 and tsg:IsExists(Synchro.TunerFilter,#tsg,nil,f1,sub1,c,tp) and (not req1 or req1(tsg,c,tp))
+                                    and ntg:Filter(Synchro.CheckP32,sg,g,tsg,ntsg,sg,f2,sub2,min2,max2,req2,reqm,lv,c,tp,pg,mgchk,min,max):GetCount()>0 then tune=false
+                                else
+                                    return false
+                                end
+                            end
+                            if not sg:IsContains(tc) then
+                                if g3:IsContains(tc) then
+                                    ntsg:AddCard(tc)
+                                    tune = false
+                                else
+                                    tsg:AddCard(tc)
+                                end
+                                selectedastuner:AddCard(tc)
+                                sg:AddCard(tc)
+                                for _, te in ipairs({tc:GetCardEffect(EFFECT_SYNCHRO_CHECK)}) do
+                                    local val=te:GetValue()
+                                    for mc in g:Iter() do
+                                        val(te,mc)
+                                    end
+                                end
+                            else
+                                selectedastuner:RemoveCard(tc)
+                                tsg:RemoveCard(tc)
+                                sg:RemoveCard(tc)
+                                if not sg:IsExists(Card.IsHasEffect,1,nil,EFFECT_SYNCHRO_CHECK) then
+                                    Duel.AssumeReset()
+                                end
+                            end
+                            if g:FilterCount(Synchro.CheckP31,sg,g,tsg,ntsg,sg,f1,sub1,f2,sub2,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)==0 or #tsg>=max1 then
+                                tune=false
+                            end
+                        else
+                            if (#ntsg>=min2 and (not req2 or req2(ntsg,c,tp)) and (not reqm or reqm(sg,c,tp))
+                                and ntsg:IsExists(Synchro.NonTunerFilter,#ntsg,nil,f2,sub2,c,tp)
+                                and sg:Includes(pg) and Synchro.CheckP43(tsg,ntsg,sg,lv,c,tp)) then
+                                    finish=true
+                            end
+                            cancel = (not mgchk and Duel.IsSummonCancelable()) and #sg==0
+                            g2=g:Filter(Synchro.CheckP32,sg,g,tsg,ntsg,sg,f2,sub2,min2,max2,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            if #g2==0 then break end
+                            local g3=g:Filter(Synchro.CheckP31,sg,g,tsg,ntsg,sg,f1,sub1,f2,sub2,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            if #g3>0 and #(ntsg-selectedastuner)==0 and #tsg<max1 then
+                                g2:Merge(g3)
+                            end
+                            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SMATERIAL)
+                            local tc=Group.SelectUnselect(g2,sg,tp,finish,cancel)
+                            if not tc then
+                                if #ntsg>=min2 and (not req2 or req2(ntsg,c,tp)) and (not reqm or reqm(sg,c,tp))
+                                    and sg:Includes(pg) and Synchro.CheckP43(tsg,ntsg,sg,lv,c,tp) then break end
+                                return false
+                            end
+                            if not selectedastuner:IsContains(tc) then
+                                if not sg:IsContains(tc) then
+                                    ntsg:AddCard(tc)
+                                    sg:AddCard(tc)
+                                    for _,te in ipairs({tc:GetCardEffect(EFFECT_SYNCHRO_CHECK)}) do
+                                        local val=te:GetValue()
+                                        for mc in g:Iter() do
+                                            val(te,mc)
+                                        end
+                                    end
+                                else
+                                    ntsg:RemoveCard(tc)
+                                    sg:RemoveCard(tc)
+                                    if not sg:IsExists(Card.IsHasEffect,1,nil,EFFECT_SYNCHRO_CHECK) then
+                                        Duel.AssumeReset()
+                                    end
+                                end
+                            elseif #(ntsg-selectedastuner)==0 then
+                                tune=true
+                                selectedastuner:RemoveCard(tc)
+                                ntsg:RemoveCard(tc)
+                                tsg:RemoveCard(tc)
+                                sg:RemoveCard(tc)
+                            end
+                        end
+                    end
+                    Duel.AssumeReset()
+                else
+                    local ntsg=Group.CreateGroup()
+                    local tune=true
+                    local g2=Group.CreateGroup()
+                    while #ntsg<max2 do
+                        local cancel=false
+                        local finish=false
+                        if tune then
+                            cancel=not mgchk and Duel.IsSummonCancelable() and #tsg==0
+                            local g3=ntg:Filter(Synchro.CheckP42,sg,ntg,tsg,ntsg,sg,min2,max2,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            g2=tg:Filter(Synchro.CheckP41,sg,tg,ntg,tsg,ntsg,sg,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            if #g3>0 and #tsg>=min1 and (not req1 or req1(tsg,c,tp)) then
+                                g2:Merge(g3)
+                            end
+                            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SMATERIAL)
+                            local tc=Group.SelectUnselect(g2,sg,tp,finish,cancel)
+                            if not tc then
+                                if #tsg>=min1 and (not req1 or req1(tsg,c,tp))
+                                    and ntg:Filter(Synchro.CheckP42,sg,ntg,tsg,ntsg,sg,min2,max2,req2,reqm,lv,c,tp,pg,mgchk,min,max):GetCount()>0 then tune=false
+                                else
+                                    return false
+                                end
+                            else
+                                if not sg:IsContains(tc) then
+                                    if g3:IsContains(tc) then
+                                        ntsg:AddCard(tc)
+                                        tune = false
+                                    else
+                                        tsg:AddCard(tc)
+                                    end
+                                    selectedastuner:AddCard(tc)
+                                    sg:AddCard(tc)
+                                else
+                                    selectedastuner:RemoveCard(tc)
+                                    tsg:RemoveCard(tc)
+                                    sg:RemoveCard(tc)
+                                end
+                            end
+                            if tg:FilterCount(Synchro.CheckP41,sg,tg,ntg,tsg,ntsg,sg,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)==0 or #tsg>=max1 then
+                                tune=false
+                            end
+                        else
+                            if #ntsg>=min2 and (not req2 or req2(ntsg,c,tp)) and (not reqm or reqm(sg,c,tp))
+                                and sg:Includes(pg) and Synchro.CheckP43(tsg,ntsg,sg,lv,c,tp) then
+                                finish=true
+                            end
+                            cancel=not mgchk and Duel.IsSummonCancelable() and #sg==0
+                            g2=ntg:Filter(Synchro.CheckP42,sg,ntg,tsg,ntsg,sg,min2,max2,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            if #g2==0 then break end
+                            local g3=tg:Filter(Synchro.CheckP41,sg,tg,ntg,tsg,ntsg,sg,min1,max1,min2,max2,req1,req2,reqm,lv,c,tp,pg,mgchk,min,max)
+                            if #g3>0 and #(ntsg-selectedastuner)==0 and #tsg<max1 then
+                                g2:Merge(g3)
+                            end
+                            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SMATERIAL)
+                            local tc=Group.SelectUnselect(g2,sg,tp,finish,cancel)
+                            if not tc then
+                                if #ntsg>=min2 and (not req2 or req2(ntsg,c,tp)) and (not reqm or reqm(sg,c,tp))
+                                    and sg:Includes(pg) and Synchro.CheckP43(tsg,ntsg,sg,lv,c,tp) then break end
+                                return false
+                            end
+                            if not selectedastuner:IsContains(tc) then
+                                if not sg:IsContains(tc) then
+                                    ntsg:AddCard(tc)
+                                    sg:AddCard(tc)
+                                else
+                                    ntsg:RemoveCard(tc)
+                                    sg:RemoveCard(tc)
+                                end
+                            elseif #(ntsg-selectedastuner)==0 then
+                                tune=true
+                                selectedastuner:RemoveCard(tc)
+                                ntsg:RemoveCard(tc)
+                                tsg:RemoveCard(tc)
+                                sg:RemoveCard(tc)
+                            end
+                        end
+                    end
+                end
+                local hg=Duel.GetMatchingGroup(Card.IsHasEffect,tp,LOCATION_HAND+LOCATION_GRAVE,0,nil,EFFECT_HAND_SYNCHRO+EFFECT_SYNCHRO_CHECK)
+                aux.ResetEffects(hg,EFFECT_HAND_SYNCHRO+EFFECT_SYNCHRO_CHECK)
+                if sg then
+                    local subtsg=tsg:Filter(function(_c) return sub1 and sub1(_c,c,SUMMON_TYPE_SYNCHRO|MATERIAL_SYNCHRO,tp) and ((f1 and not f1(_c,c,SUMMON_TYPE_SYNCHRO|MATERIAL_SYNCHRO,tp)) or not _c:IsType(TYPE_TUNER)) end,nil)
+                    local subc=subtsg:GetFirst()
+                    while subc do
+                        local e1=Effect.CreateEffect(c)
+                        e1:SetType(EFFECT_TYPE_SINGLE)
+                        e1:SetCode(EFFECT_ADD_TYPE)
+                        e1:SetValue(TYPE_TUNER)
+                        e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+                        subc:RegisterEffect(e1,true)
+                        subc=subtsg:GetNext()
+                    end
+                    sg:KeepAlive()
+                    e:SetLabelObject(sg)
+                    return true
+                else return false end
+            end
+    
+end
+
+
+
+
+
 function Aimer.VoltaicSynchroOperation()
     return function(e,tp,eg,ep,ev,re,r,rp,c,smat,mg)
         local g=e:GetLabelObject()
         c:SetMaterial(g)
+        --Execute the operation function of the Synchro Monster's "EFFECT_MATERIAL_CHECK" effect, if it exists ("Cupid Pitch")
+        local mat_check_eff=c:IsHasEffect(EFFECT_MATERIAL_CHECK)
+        if mat_check_eff then
+            local mat_check_op=mat_check_eff:GetOperation()
+            if mat_check_op then mat_check_op(mat_check_eff,c) end
+        end
+        --Use up the count limit of any "EFFECT_SYNCHRO_MAT_FROM_HAND" effect in the material group ("Revolution Synchron")
+        for mc in g:Iter() do
+            local handmatfilter=mc:IsHasEffect(EFFECT_SYNCHRO_MAT_FROM_HAND)
+            if handmatfilter and handmatfilter:GetValue(handmatfilter,mc,c) then
+                
+                handmatfilter:UseCountLimit(tp)
+            end
+        end
         local tg=g:Filter(Auxiliary.TatsunecroFilter,nil)
         if #tg>0 then
             Synchro.Send=2
             for tc in aux.Next(tg) do tc:ResetFlagEffect(3096468) end
+        end
+        local sg=g:Filter(Card.IsLocation,nil,LOCATION_GRAVE)
+        -- Remove GY Voldragos
+        if #sg>0 then
+            Duel.Remove(sg,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_SYNCHRO)
+            g:Sub(sg)
+        end
+        local rg=g:Filter(Card.IsLocation,nil,LOCATION_PZONE)
+        -- Return FD PendZone Voltaics
+        if #rg>0 then
+            Duel.SendtoHand(rg,nil,REASON_EFFECT+REASON_MATERIAL+REASON_SYNCHRO)
+            g:Sub(rg)
         end
         if Synchro.Send==1 then
             Duel.SendtoGrave(g,REASON_MATERIAL+REASON_SYNCHRO+REASON_RETURN)
@@ -284,7 +673,6 @@ function Aimer.VoltaicSynchroOperation()
         else
             Duel.SendtoGrave(g,REASON_MATERIAL+REASON_SYNCHRO)
         end
-        
         Synchro.Send=0
         Synchro.CheckAdditional=nil
         g:DeleteGroup()
@@ -405,187 +793,30 @@ function Aimer.GetUniqueAttributesByLocation(handler, oppLocations, playerLocati
     for location, flags in pairs(locations) do
         if (oppLocations & location) == location and flags.opp then
             for p = 0, 1 do
-                if (location == LOCATION_GRAVE) then
-                    local ct=Duel.GetFieldGroupCount(player,0,LOCATION_GRAVE)
-                    for i = 0, ct do
-                        local zone = Duel.GetFieldCard(player, 0, LOCATION_GRAVE)
-                        if zone and oppFilter(zone) then
-                            local att = zone:GetAttribute()
-                            while att > 0 do
-                                local bitPos = att & -att
-                                attributes[bitPos] = true
-                                att = att - bitPos
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if (playerLocations & location) == location and flags.player then
-            if (location == LOCATION_GRAVE) then
-                local ct=Duel.GetFieldGroupCount(player,LOCATION_GRAVE,0)
-                for i = 0, ct do
-                    local zone = Duel.GetFieldCard(player, LOCATION_GRAVE, 0)
-                    if zone and playerFilter(zone) then
-                        local att = zone:GetAttribute()
-                        while att > 0 do
-                            local bitPos = att & -att
-                            attributes[bitPos] = nil
-                            att = att - bitPos
-                        end
+            local ct=Duel.GetFieldGroupCount(p, location, 0)
+            for i = 0, ct - 1 do
+                local zone = Duel.GetFieldCard(p, location, i)
+                if zone and oppFilter(zone) then
+                    local att = zone:GetAttribute()
+                    while att > 0 do
+                        local bitPos = att & -att
+                        attributes[bitPos] = true
+                        att = att - bitPos
                     end
                 end
             end
         end
     end
-    -- Iterate through locations based on flags
-    for location, flags in pairs(locations) do
-        if (oppLocations & location) == location and flags.opp then
-            for p = 0, 1 do
-                if (location == LOCATION_EXTRA) then
-                    local ct=Duel.GetFieldGroupCount(player,0,LOCATION_EXTRA)
-                    for i = 0, ct do
-                        local zone = Duel.GetFieldCard(player, 0, LOCATION_EXTRA)
-                        if zone and oppFilter(zone) then
-                            local att = zone:GetAttribute()
-                            while att > 0 do
-                                local bitPos = att & -att
-                                attributes[bitPos] = true
-                                att = att - bitPos
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
         if (playerLocations & location) == location and flags.player then
-            if (location == LOCATION_EXTRA) then
-                local ct=Duel.GetFieldGroupCount(player,LOCATION_EXTRA,0)
-                for i = 0, ct do
-                    local zone = Duel.GetFieldCard(player, LOCATION_EXTRA, 0)
-                    if zone and playerFilter(zone) then
-                        local att = zone:GetAttribute()
-                        while att > 0 do
-                            local bitPos = att & -att
-                            attributes[bitPos] = nil
-                            att = att - bitPos
-                        end
-                    end
-                end
-            end
-        end
-    end
-    -- Iterate through locations based on flags
-    for location, flags in pairs(locations) do
-        if (oppLocations & location) == location and flags.opp then
-            for p = 0, 1 do
-                if (location == LOCATION_DECK) then
-                    local ct=Duel.GetFieldGroupCount(player,0,LOCATION_DECK)
-                    for i = 0, ct do
-                        local zone = Duel.GetFieldCard(player, 0, LOCATION_DECK)
-                        if zone and oppFilter(zone) then
-                            local att = zone:GetAttribute()
-                            while att > 0 do
-                                local bitPos = att & -att
-                                attributes[bitPos] = true
-                                att = att - bitPos
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if (playerLocations & location) == location and flags.player then
-            if (location == LOCATION_DECK) then
-                local ct=Duel.GetFieldGroupCount(player,LOCATION_DECK,0)
-                for i = 0, ct do
-                    local zone = Duel.GetFieldCard(player, LOCATION_DECK, 0)
-                    if zone and playerFilter(zone) then
-                        local att = zone:GetAttribute()
-                        while att > 0 do
-                            local bitPos = att & -att
-                            attributes[bitPos] = nil
-                            att = att - bitPos
-                        end
-                    end
-                end
-            end
-        end
-    end
-    -- Iterate through locations based on flags
-    for location, flags in pairs(locations) do
-        if (oppLocations & location) == location and flags.opp then
-            for p = 0, 1 do
-                if (location == LOCATION_REMOVED) then
-                    local ct=Duel.GetFieldGroupCount(player,0,LOCATION_REMOVED)
-                    for i = 0, ct do
-                        local zone = Duel.GetFieldCard(player, 0, LOCATION_REMOVED)
-                        if zone and oppFilter(zone) then
-                            local att = zone:GetAttribute()
-                            while att > 0 do
-                                local bitPos = att & -att
-                                attributes[bitPos] = true
-                                att = att - bitPos
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if (playerLocations & location) == location and flags.player then
-            if (location == LOCATION_REMOVED) then
-                local ct=Duel.GetFieldGroupCount(player,LOCATION_REMOVED,0)
-                for i = 0, ct do
-                    local zone = Duel.GetFieldCard(player, LOCATION_REMOVED, 0)
-                    if zone and playerFilter(zone) then
-                        local att = zone:GetAttribute()
-                        while att > 0 do
-                            local bitPos = att & -att
-                            attributes[bitPos] = nil
-                            att = att - bitPos
-                        end
-                    end
-                end
-            end
-        end
-    end
-    -- Iterate through locations based on flags
-    for location, flags in pairs(locations) do
-        if (oppLocations & location) == location and flags.opp then
-            for p = 0, 1 do
-                if (location == LOCATION_HAND) then
-                    local ct=Duel.GetFieldGroupCount(player,0,LOCATION_HAND)
-                    for i = 0, ct do
-                        local zone = Duel.GetFieldCard(player, 0, LOCATION_HAND)
-                        if zone and oppFilter(zone) then
-                            local att = zone:GetAttribute()
-                            while att > 0 do
-                                local bitPos = att & -att
-                                attributes[bitPos] = true
-                                att = att - bitPos
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if (playerLocations & location) == location and flags.player then
-            if (location == LOCATION_HAND) then
-                local ct=Duel.GetFieldGroupCount(player,LOCATION_HAND,0)
-                for i = 0, ct do
-                    local zone = Duel.GetFieldCard(player, LOCATION_HAND, 0)
-                    if zone and playerFilter(zone) then
-                        local att = zone:GetAttribute()
-                        while att > 0 do
-                            local bitPos = att & -att
-                            attributes[bitPos] = nil
-                            att = att - bitPos
-                        end
+            local ct=Duel.GetFieldGroupCount(player, location, 0)
+            for i = 0, ct - 1 do
+                local zone = Duel.GetFieldCard(player, location, i)
+                if zone and oppFilter(zone) then
+                    local att = zone:GetAttribute()
+                    while att > 0 do
+                        local bitPos = att & -att
+                        attributes[bitPos] = true
+                        att = att - bitPos
                     end
                 end
             end
@@ -604,3 +835,217 @@ end
 
 
 
+--Kijin Link Procedure for Monsters/Spells/Traps onfield
+function Aimer.AddLinkProcedureMST(c,f,min,max,specialchk,desc)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    if desc then
+        e1:SetDescription(desc)
+    else
+        e1:SetDescription(1174)
+    end
+    e1:SetCode(EFFECT_SPSUMMON_PROC)
+    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+    e1:SetRange(LOCATION_EXTRA)
+    if max==nil then max=c:GetLink() end
+    e1:SetCondition(Aimer.Condition(f,min,max,specialchk))
+    e1:SetTarget(Aimer.Target(f,min,max,specialchk))
+    e1:SetOperation(Aimer.Operation(f,min,max,specialchk))
+    e1:SetValue(SUMMON_TYPE_LINK)
+    c:RegisterEffect(e1)
+end
+function Aimer.ConditionFilter(c,f,lc,tp)
+    local res1=((c:IsCanBeLinkMaterial(lc,tp)) or (c:IsAbleToGraveAsCost() and c:IsSpellTrap())) and (not f or f(c,lc,SUMMON_TYPE_LINK|MATERIAL_LINK,tp))
+    local res2=false
+    local formud_eff=c:IsHasEffect(50366775)
+    if formud_eff then
+        local label={formud_eff:GetLabel()}
+        for i=1,#label-1,2 do
+            c:AssumeProperty(label[i],label[i+1])
+        end
+        res2=((c:IsCanBeLinkMaterial(lc,tp)) or (c:IsAbleToGraveAsCost() and c:IsSpellTrap())) and (not f or f(c,lc,SUMMON_TYPE_LINK|MATERIAL_LINK,tp))
+    end
+    return res1 or res2
+end
+function Aimer.GetLinkCount(c)
+    if c:IsLinkMonster() and c:GetLink()>1 then
+        return 1+0x10000*c:GetLink()
+    else return 1 end
+end
+function Aimer.CheckRecursive(c,tp,sg,mg,lc,minc,maxc,f,specialchk,og,emt,filt)
+    if #sg>maxc then return false end
+    filt=filt or {}
+    sg:AddCard(c)
+    for _,filt in ipairs(filt) do
+        if not filt[2](c,filt[3],tp,sg,mg,lc,filt[1],1) then
+            sg:RemoveCard(c)
+            return false
+        end
+    end
+    if not og:IsContains(c) then
+        res=aux.CheckValidExtra(c,tp,sg,mg,lc,emt,filt)
+        if not res then
+            sg:RemoveCard(c)
+            return false
+        end
+    end
+    local res=Aimer.CheckGoal(tp,sg,lc,minc,f,specialchk,filt)
+        or (#sg<maxc and mg:IsExists(Aimer.CheckRecursive,1,sg,tp,sg,mg,lc,minc,maxc,f,specialchk,og,emt,{table.unpack(filt)}))
+    sg:RemoveCard(c)
+    return res
+end
+function Aimer.CheckRecursive2(c,tp,sg,sg2,secondg,mg,lc,minc,maxc,f,specialchk,og,emt,filt)
+    if #sg>maxc then return false end
+    sg:AddCard(c)
+    for _,filt in ipairs(filt) do
+        if not filt[2](c,filt[3],tp,sg,mg,lc,filt[1],1) then
+            sg:RemoveCard(c)
+            return false
+        end
+    end
+    if not og:IsContains(c) then
+        res=aux.CheckValidExtra(c,tp,sg,mg,lc,emt,filt)
+        if not res then
+            sg:RemoveCard(c)
+            return false
+        end
+    end
+    if #(sg2-sg)==0 then
+        if secondg and #secondg>0 then
+            local res=secondg:IsExists(Aimer.CheckRecursive,1,sg,tp,sg,mg,lc,minc,maxc,f,specialchk,og,emt,{table.unpack(filt)})
+            sg:RemoveCard(c)
+            return res
+        else
+            local res=Aimer.CheckGoal(tp,sg,lc,minc,f,specialchk,{table.unpack(filt)})
+            sg:RemoveCard(c)
+            return res
+        end
+    end
+    local res=Aimer.CheckRecursive2((sg2-sg):GetFirst(),tp,sg,sg2,secondg,mg,lc,minc,maxc,f,specialchk,og,emt,filt)
+    sg:RemoveCard(c)
+    return res
+end
+function Aimer.CheckGoal(tp,sg,lc,minc,f,specialchk,filt)
+    for _,filt in ipairs(filt) do
+        if not sg:IsExists(filt[2],1,nil,filt[3],tp,sg,Group.CreateGroup(),lc,filt[1],1) then
+            return false
+        end
+    end
+    return #sg>=minc and sg:CheckWithSumEqual(Aimer.GetLinkCount,lc:GetLink(),#sg,#sg)
+        and (not specialchk or specialchk(sg,lc,SUMMON_TYPE_LINK|MATERIAL_LINK,tp)) and Duel.GetLocationCountFromEx(tp,tp,sg,lc)>0
+end
+function Aimer.Condition(f,minc,maxc,specialchk)
+    return  function(e,c,must,g,min,max)
+                if c==nil then return true end
+                if c:IsType(TYPE_PENDULUM) and c:IsFaceup() then return false end
+                local tp=c:GetControler()
+                if not g then
+                    g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_ONFIELD,0,nil)
+                end
+                local mg=g:Filter(Aimer.ConditionFilter,nil,f,c,tp)
+                local mustg=Auxiliary.GetMustBeMaterialGroup(tp,g,tp,c,mg,REASON_LINK)
+                if must then mustg:Merge(must) end
+                if min and min < minc then return false end
+                if max and max > maxc then return false end
+                min = min or minc
+                max = max or maxc
+                if mustg:IsExists(aux.NOT(Aimer.ConditionFilter),1,nil,f,c,tp) or #mustg>max then return false end
+                local emt,tg=aux.GetExtraMaterials(tp,mustg+mg,c,SUMMON_TYPE_LINK)
+                tg:Match(Aimer.ConditionFilter,nil,f,c,tp)
+                local mg_tg=mg+tg
+                local res=mg_tg:Includes(mustg) and #mustg<=max
+                if res then
+                    if #mustg==max then
+                        local sg=Group.CreateGroup()
+                        res=mustg:IsExists(Aimer.CheckRecursive,1,sg,tp,sg,mg_tg,c,min,max,f,specialchk,mg,emt)
+                    elseif #mustg<max then
+                        local sg=mustg
+                        res=mg_tg:IsExists(Aimer.CheckRecursive,1,sg,tp,sg,mg_tg,c,min,max,f,specialchk,mg,emt)
+                    end
+                end
+                aux.DeleteExtraMaterialGroups(emt)
+                return res
+            end
+end
+function Aimer.Target(f,minc,maxc,specialchk)
+    return  function(e,tp,eg,ep,ev,re,r,rp,chk,c,must,g,min,max)
+                if not g then
+                    g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_ONFIELD,0,nil)
+                end
+                if min and min < minc then return false end
+                if max and max > maxc then return false end
+                min = min or minc
+                max = max or maxc
+                local mg=g:Filter(Aimer.ConditionFilter,nil,f,c,tp)
+                local mustg=Auxiliary.GetMustBeMaterialGroup(tp,g,tp,c,mg,REASON_LINK)
+                if must then mustg:Merge(must) end
+                local emt,tg=aux.GetExtraMaterials(tp,mustg+mg,c,SUMMON_TYPE_LINK)
+                tg:Match(Aimer.ConditionFilter,nil,f,c,tp)
+                local sg=Group.CreateGroup()
+                local finish=false
+                local cancel=false
+                sg:Merge(mustg)
+                local mg_tg=mg+tg
+                while #sg<max do
+                    local filters={}
+                    if #sg>0 then
+                        Aimer.CheckRecursive2(sg:GetFirst(),tp,Group.CreateGroup(),sg,mg_tg,mg_tg,c,min,max,f,specialchk,mg,emt,filters)
+                    end
+                    local cg=mg_tg:Filter(Aimer.CheckRecursive,sg,tp,sg,mg_tg,c,min,max,f,specialchk,mg,emt,{table.unpack(filters)})
+                    if #cg==0 then break end
+                    finish=#sg>=min and #sg<=max and Aimer.CheckGoal(tp,sg,c,min,f,specialchk,filters)
+                    cancel=not og and Duel.IsSummonCancelable() and #sg==0
+                    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_LMATERIAL)
+                    local tc=Group.SelectUnselect(cg,sg,tp,finish,cancel,1,1)
+                    if not tc then break end
+                    if #mustg==0 or not mustg:IsContains(tc) then
+                        if not sg:IsContains(tc) then
+                            sg:AddCard(tc)
+                        else
+                            sg:RemoveCard(tc)
+                        end
+                    end
+                end
+                if #sg>0 then
+                    local filters={}
+                    Aimer.CheckRecursive2(sg:GetFirst(),tp,Group.CreateGroup(),sg,mg_tg,mg_tg,c,min,max,f,specialchk,mg,emt,filters)
+                    sg:KeepAlive()
+                    e:SetLabelObject({sg,filters,emt})
+                    return true
+                else
+                    aux.DeleteExtraMaterialGroups(emt)
+                    return false
+                end
+            end
+end
+function Aimer.Operation(f,minc,maxc,specialchk)
+    return  function(e,tp,eg,ep,ev,re,r,rp,c,must,g,min,max)
+                local g,filt,emt=table.unpack(e:GetLabelObject())
+                for _,ex in ipairs(filt) do
+                    if ex[3]:GetValue() then
+                        ex[3]:GetValue()(1,SUMMON_TYPE_LINK,ex[3],ex[1]&g,c,tp)
+                        if ex[3]:CheckCountLimit(tp) then
+                            ex[3]:UseCountLimit(tp,1)
+                        end
+                    end
+                end
+                for tc in g:Iter() do
+                    local formud_eff=tc:IsHasEffect(50366775)
+                    if formud_eff then
+                        local res1=((tc:IsCanBeLinkMaterial(c,tp)) or (tc:IsAbleToGraveAsCost() and tc:IsSpellTrap())) and (not f or f(tc,c,SUMMON_TYPE_LINK|MATERIAL_LINK,tp))
+                        local label={formud_eff:GetLabel()}
+                        for i=1,#label-1,2 do
+                            tc:AssumeProperty(label[i],label[i+1])
+                        end
+                        local res2=((tc:IsCanBeLinkMaterial(c,tp)) or (tc:IsAbleToGraveAsCost() and tc:IsSpellTrap())) and (not f or f(tc,c,SUMMON_TYPE_LINK|MATERIAL_LINK,tp))
+                        if not res2 or (res1 and res2 and not Duel.SelectEffectYesNo(tp,tc)) then
+                            Duel.AssumeReset()
+                        end
+                    end
+                end
+                c:SetMaterial(g)
+                Duel.SendtoGrave(g,REASON_MATERIAL+REASON_LINK)
+                g:DeleteGroup()
+                aux.DeleteExtraMaterialGroups(emt)
+            end
+end

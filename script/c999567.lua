@@ -5,9 +5,9 @@ Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--fusion material
 	c:EnableReviveLimit()
-	Fusion.AddProcMixN(c,true,true,aux.FilterBoolFunctionEx(Card.IsSetCard,SET_VOLTAIC_ARTIFACT),3)
+	Fusion.AddProcMixN(c,true,true,aux.FilterBoolFunctionEx(s.matfilter),3)
 	Fusion.AddContactProc(c,s.contactfil,s.contactop,s.splimit)
-	 --Same Column Destroy
+	--Equip
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
 	e1:SetCategory(CATEGORY_EQUIP)
@@ -36,17 +36,50 @@ function s.initial_effect(c)
 	e3:SetTarget(s.target)
 	e3:SetOperation(s.operation)
 	c:RegisterEffect(e3)
+	-- Monsters same column flip face-down
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetCategory(CATEGORY_POSITION)
+	e4:SetType(EFFECT_TYPE_IGNITION)
+	e4:SetRange(LOCATION_MZONE)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetCondition(s.mqecon1)
+	e4:SetTarget(s.rthtg)
+	e4:SetOperation(s.rthop)
+	c:RegisterEffect(e4)
+	local e10=e4:Clone()
+	e10:SetType(EFFECT_TYPE_QUICK_O)
+	e10:SetCode(EVENT_FREE_CHAIN)
+	e10:SetCondition(s.mqecon2)
+	e10:SetCost(s.mqecost)
+	c:RegisterEffect(e10)	
 end
 
 s.material_setcode=SET_VOLTAIC_ARTIFACT
 s.listed_names = {id}
 s.listed_series = {SET_VOLTAIC_ARTIFACT,SET_VOLDRAGO}
+
+function s.matfilter(c)
+	return c:IsSetCard(SET_VOLTAIC_ARTIFACT) or c:IsSetCard(SET_VOLDRAGO)
+end
+
 function s.contactfil(tp)
-	return Duel.GetMatchingGroup(function(c) return c:IsType(TYPE_EQUIP) and c:IsAbleToDeckOrExtraAsCost() end,tp,LOCATION_ONFIELD+LOCATION_HAND,0,nil)
+	return Duel.GetMatchingGroup(function(c) return (c:IsType(TYPE_EQUIP) and c:IsAbleToDeckOrExtraAsCost() and c:IsLocation(LOCATION_ONFIELD+LOCATION_HAND)) or (c:IsHasEffect(EFFECT_SYNCHRO_MAT_FROM_HAND) and c:IsLocation(LOCATION_GRAVE) and c:IsSetCard(SET_VOLDRAGO) and c:IsAbleToRemove()) 
+	end,tp,LOCATION_ONFIELD+LOCATION_HAND+LOCATION_GRAVE,0,nil)
 end
 function s.contactop(g,tp)
 	Duel.ConfirmCards(1-tp,g)
-	if #g==0 or Duel.SendtoDeck(g,nil,SEQ_DECKBOTTOM,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)==0 then return end
+	if #g==0 then return end
+	local sg=g:Filter(Card.IsLocation,nil,LOCATION_GRAVE)
+    -- Merge the two groups into one
+    if #sg>0 then
+        Duel.Remove(sg,POS_FACEUP,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)
+        local tg=Duel.GetOperatedGroup()
+   		if tg:IsExists(Card.IsLocation,1,nil,LOCATION_REMOVED) then 
+        	g:Sub(sg)
+    	end
+    end
+	if Duel.SendtoDeck(g,nil,SEQ_DECKBOTTOM,REASON_EFFECT+REASON_MATERIAL+REASON_FUSION)==0 then return end
 	local dg=Duel.GetOperatedGroup():Filter(Card.IsLocation,nil,LOCATION_DECK|LOCATION_EXTRA)
 	if #dg==0 then return end
 	local ct=dg:FilterCount(Card.IsLocation,nil,LOCATION_DECK)
@@ -54,6 +87,7 @@ function s.contactop(g,tp)
 		Duel.SortDeckbottom(tp,tp,ct)
 	end
 end
+
 function s.splimit(e,se,sp,st)
 	return e:GetHandler():GetLocation()~=LOCATION_EXTRA
 end
@@ -133,4 +167,35 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e2)
 	end
+end
+
+
+--Same Column as Facedowns
+function s.rthfilter(c,e)
+	return Aimer.VoltaicSameColumns(e,c) and c:IsCanTurnSet()
+end
+function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.rthfilter,tp,0,LOCATION_MZONE,1,nil,e) end
+	local sg=Duel.GetMatchingGroup(s.rthfilter,tp,0,LOCATION_MZONE,nil,e)
+	Duel.SetOperationInfo(0,CATEGORY_POSITION,sg,#sg,0,0)
+end
+function s.rthop(e,tp,eg,ep,ev,re,r,rp)
+	local sg=Duel.GetMatchingGroup(s.rthfilter,tp,0,LOCATION_MZONE,nil,e)
+	for tc in aux.Next(sg) do
+		if tc:IsCanTurnSet() then
+			Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
+		end
+	end
+end
+
+function s.mqecon1(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
+end
+function s.mqecon2(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
+	and Duel.GetFlagEffect(tp,999563)==0
+end
+function s.mqecost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
 end

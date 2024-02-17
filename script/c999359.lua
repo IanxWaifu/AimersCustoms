@@ -93,8 +93,8 @@ function s.distg(e,tp,eg,ep,ev,re,r,rp,chk)
 		e:SetCategory(CATEGORY_DESTROY)
 		Duel.SetOperationInfo(0,CATEGORY_DESTROY,check,1,1-tp,check:GetLocation())
 	elseif op>0 then
-		e:SetCategory(CATEGORY_DISABLE)
-		Duel.SetOperationInfo(0,CATEGORY_DISABLE,check,1,1-tp,check:GetLocation())
+		e:SetCategory(CATEGORY_DISABLE+CATEGORY_DESTROY)
+		Duel.SetOperationInfo(0,CATEGORY_DISABLE+CATEGORY_DESTROY,check,1,1-tp,check:GetLocation())
 	end
 end
 
@@ -108,6 +108,8 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if b2 and opt>0 then
 		Duel.NegateEffect(ev)
+		Duel.BreakEffect()
+		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
 

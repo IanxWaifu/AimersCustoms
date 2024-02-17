@@ -1,11 +1,13 @@
 --Scripted by IanxWaifu
 --Kijin, Zetsubö no Fuka-sa
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--link summon
-	Link.AddProcedure(c,nil,2,2,s.lcheck)
+	Aimer.AddLinkProcedureMST(c,aux.FilterBoolFunctionEx(s.lfilter),2,2)
+
 	c:EnableReviveLimit()
-	--Special summon procedure
+--[[	--Special summon procedure
 	local e0=Effect.CreateEffect(c)
 	e0:SetDescription(aux.Stringid(id,0))
 	e0:SetType(EFFECT_TYPE_FIELD)
@@ -16,7 +18,7 @@ function s.initial_effect(c)
 	e0:SetCountLimit(1,id)
 	e0:SetTarget(s.sptg)
 	e0:SetOperation(s.spop)
-	c:RegisterEffect(e0)
+	c:RegisterEffect(e0)--]]
 	--Shuffle Apply
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,1))
@@ -46,9 +48,8 @@ end
 s.listed_series={0x12EA}
 s.listed_names={id}
 
---Material Check
-function s.lcheck(g,lc,sumtype,tp)
-	return g:IsExists(Card.IsSetCard,1,nil,0x12EA,lc,sumtype,tp)
+function s.lfilter(c)
+	return c:IsSetCard(0x12EA) and ((c:IsMonster()) or (c:IsSpellTrap() and c:IsType(TYPE_CONTINUOUS)))
 end
 
 --Class Check

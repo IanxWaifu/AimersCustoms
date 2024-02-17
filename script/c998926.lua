@@ -37,8 +37,12 @@ function s.initial_effect(c)
 	e3:SetOperation(function(_,_,_,_,ev)Duel.NegateEffect(ev)end)
 	c:RegisterEffect(e3)
 end
+
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.thfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand() and c:IsLevel(7)
+	return c:IsSetCard(0x12EC) and c:IsType(TYPE_MONSTER) and c:IsAbleToHand() and c:IsLevel(7)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil) end
@@ -59,7 +63,7 @@ function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(c,REASON_COST)
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -78,7 +82,7 @@ end
 --banish negate
 function s.smfilter(c,tp)
 	return c:IsFaceup() and c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
-	       and c:IsSetCard(0x1A0) and c:GetLevel()>=7
+	       and c:IsSetCard(0x12EC) and c:GetLevel()>=7
 end
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
 	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return false end

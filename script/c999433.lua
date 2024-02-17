@@ -191,7 +191,9 @@ function s.sumcon(e,tp,eg,ep,ev,re,r,rp)
     return e:GetHandler():IsSummonType(SUMMON_TYPE_FUSION)
 end
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
-	return re and re:GetHandler():IsSetCard(0x29f) and re:IsReason(REASON_EFFECT)
+	if not re then return false end
+	local rc=re:GetHandler()
+	return rc:IsSetCard(0x29f) and e:GetHandler():IsReason(REASON_EFFECT)
 end
 
 function s.sumop(e,tp,eg,ep,ev,re,r,rp)

@@ -22,8 +22,12 @@ function s.initial_effect(c)
 	e2:SetValue(s.repval)
 	c:RegisterEffect(e2)
 end
+
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.filter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsLevel(7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x12EC) and c:IsLevel(7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -67,7 +71,7 @@ end
 
 
 function s.tablefilter(c,e,tp,codes)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and codes and c:IsCode(table.unpack(codes))
+	return c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and codes and c:IsCode(table.unpack(codes))
 end
 function s.sptg2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local codes = e:GetLabelObject()
@@ -89,20 +93,20 @@ function s.spop2(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.cfilter(c)
-	return c:IsSetCard(0x1A0) and c:IsAbleToRemoveAsCost()
+	return c:IsSetCard(0x12EC) and c:IsAbleToRemoveAsCost()
 end
 
 function s.repfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:GetDestination()==LOCATION_HAND and c:IsMonster()
+	return c:IsSetCard(0x12EC) and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:GetDestination()==LOCATION_HAND and c:IsMonster()
 end
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
+	return c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE)
 end
 --Replace and Reduce
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) end
-	if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler()) 
-	and (r&REASON_EFFECT+REASON_COST)~=0 and re and re:IsActiveType(TYPE_MONSTER) and re:GetHandler():IsSetCard(0x1A0) and eg:IsExists(s.repfilter,1,nil,e,tp) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler()) 
+	and (r&REASON_EFFECT+REASON_COST)~=0 and re and re:IsActiveType(TYPE_MONSTER) and re:GetHandler():IsSetCard(0x12EC) and eg:IsExists(s.repfilter,1,nil,e,tp) end
 	if Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 		local g=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())

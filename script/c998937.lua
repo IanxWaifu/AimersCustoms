@@ -35,7 +35,7 @@ function s.initial_effect(c)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
 end
-s.listed_series={0x1A0}
+s.listed_series={0x12EC}
 s.listed_names={id}
 
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -55,19 +55,19 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return (e:GetHandler():GetFlagEffect(id)==0) or (e:GetHandler():GetFlagEffect(id)==1 and Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,998924),tp,LOCATION_ONFIELD,0,1,nil) and e:GetHandler():GetFlagEffect(id+2)==0)
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x1A0),tp,LOCATION_MZONE,0,1,nil) end
+	if chk==0 then return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x12EC),tp,LOCATION_MZONE,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,0,LOCATION_ONFIELD)
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-	local g=Duel.SelectMatchingCard(tp,aux.FaceupFilter(Card.IsSetCard,0x1A0),tp,LOCATION_MZONE,0,1,1,nil)
+	local g=Duel.SelectMatchingCard(tp,aux.FaceupFilter(Card.IsSetCard,0x12EC),tp,LOCATION_MZONE,0,1,1,nil)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 	end
 end
 
 function s.spfilter(c,e,tp)
-	return c:IsSetCard(0x1A0) and c:IsLevel(7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(0x12EC) and c:IsLevel(7) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0

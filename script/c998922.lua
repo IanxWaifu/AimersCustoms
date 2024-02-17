@@ -57,7 +57,7 @@ function s.initial_effect(c)
 	end
 	return e3,e4,table.unpack(feffs)
 end
-s.listed_series={0x1A0}
+s.listed_series={0x12EC}
 s.ordinal_scale={998921,998923}
 Spirit={}
 FLAG_SPIRIT_RETURN=2
@@ -107,7 +107,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.spfilter(c,e,tp)
-	return c:IsCode(998922,998921,998923) and  c:IsSetCard(0x1A0) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsCode(998922,998921,998923) and  c:IsSetCard(0x12EC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
@@ -150,10 +150,10 @@ function s.thcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetFlagEffect(998932)>0
 end
 function s.thfilter(c,tp)
-	return (c:IsControler(1-tp) and c:IsLocation(LOCATION_ONFIELD+LOCATION_GRAVE)) or (c:IsSetCard(0x1A0) and c:IsControler(tp) and ((c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD)) or (c:IsLocation(LOCATION_GRAVE)))) and c:IsAbleToHand()
+	return (c:IsControler(1-tp) and c:IsLocation(LOCATION_ONFIELD+LOCATION_GRAVE)) or (c:IsSetCard(0x12EC) and c:IsControler(tp) and ((c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD)) or (c:IsLocation(LOCATION_GRAVE)))) and c:IsAbleToHand()
 end
 function s.atkfilter(c)
-	return c:IsSetCard(0x1a0) and c:IsFaceup()
+	return c:IsSetCard(0x12EC) and c:IsFaceup()
 end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_ONFIELD+LOCATION_GRAVE) and s.thfilter(chkc) end

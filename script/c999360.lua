@@ -107,7 +107,7 @@ end
 
 
 function s.xyzfilter(c)
-	return c:IsMonster()
+	return c:IsMonster() and not c:IsForbidden()
 end
 
 function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -115,15 +115,20 @@ function s.xyztg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 end
 
 function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.xyzfilter,tp,LOCATION_EXTRA,LOCATION_EXTRA,nil)
-	if not e:GetHandler():IsRelateToEffect(e) then return end
-		if #g>0 then
-			local mg=g:Select(tp,1,1,nil)
-			local oc=e:GetHandler():GetOverlayTarget()
-			if Duel.Overlay(e:GetHandler(),mg,true)~=0 then
+	local g=Duel.GetFieldGroup(tp,LOCATION_EXTRA,LOCATION_EXTRA)
+	if #g<1 or not e:GetHandler():IsRelateToEffect(e) then return end
+	Duel.ConfirmCards(tp,g)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
+	local sg=g:FilterSelect(tp,s.xyzfilter,1,1,nil,tp)
+	if #sg>0 then
+		local oc=e:GetHandler():GetOverlayTarget()
+		if Duel.Overlay(e:GetHandler(),sg,true)~=0 then
+			Duel.BreakEffect()
 			e:GetHandler():RemoveOverlayCard(tp,2,2,REASON_EFFECT)
 		end
 	end
+	local p=sg:GetFirst():GetControler()
+	Duel.ShuffleExtra(p)
 end
 
 

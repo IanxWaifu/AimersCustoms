@@ -145,7 +145,7 @@ function s.attop(e, tp, eg, ep, ev, re, r, rp)
     local attCount = s.GetAttributeCount(tc)
     local removedCount = 0
     while attCount > 1 do
-         local quickatt = c:GetAttribute()
+         local quickatt = tc:GetAttribute()
         -- Set the Divine attribute bit to 0
         quickatt = quickatt & ~ATTRIBUTE_DIVINE
         -- Prompt the player to select an attribute to lose

@@ -29,8 +29,12 @@ function s.initial_effect(c)
 	e3:SetOperation(s.sumop)
 	c:RegisterEffect(e3)
 end
+
+s.listed_series={0x12EC}
+s.listed_names={id}
+
 function s.filter(c)
-	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsLevel(7) and c:IsSetCard(0x1A0) and c:IsAbleToHand()
+	return c:IsFaceup() and c:IsType(TYPE_MONSTER) and c:IsLevel(7) and c:IsSetCard(0x12EC) and c:IsAbleToHand()
 end
 function s.cfilter(c)
 	return c:IsAbleToHand() or (c:IsAbleToDeck() and c:IsLocation(LOCATION_GRAVE))
@@ -61,7 +65,7 @@ end
 
 --Normal Summon
 function s.sumfilter(c,se)
-	return c:IsSummonable(false,se) and c:IsSetCard(0x1A0)
+	return c:IsSummonable(false,se) and c:IsSetCard(0x12EC)
 end
 function s.sumtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local se=e:GetLabelObject()
