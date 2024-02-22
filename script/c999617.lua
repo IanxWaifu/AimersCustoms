@@ -145,7 +145,7 @@ end
 
 
 function s.lvfdfilter(c)
-	return c:IsLocation(LOCATION_MZONE) --[[and c:IsSetCard(SET_DEATHRALL)--]]
+	return c:IsLocation(LOCATION_MZONE) and c:IsSetCard(SET_DEATHRALL)
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(s.lvfdfilter,1,nil) then

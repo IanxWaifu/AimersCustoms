@@ -53,10 +53,10 @@ function s.filter(c,tp)
     -- To check opponent's monster zone
     local oppAttributes=Aimer.GetUniqueAttributesByLocation(tp,LOCATION_MZONE|LOCATION_GRAVE,LOCATION_MZONE, function(c) return c:IsFaceup() end, function(c) return c:IsFaceup() end)
     -- Check if the card is in your opponent's monster zone and has at least one attribute you do not control
-    if c:IsControler(1-tp) and c:IsFaceup() and c:IsAbleToRemove() then
-        local att=c:GetAttribute()
+    if c:IsControler(1-tp) and c:IsAbleToRemove() and c:IsFaceup() then
+        local att = c:GetAttribute()
         for _, uniqueAtt in ipairs(oppAttributes) do
-            if att&uniqueAtt~=0 and att&uniqueAtt~=att then
+            if att & uniqueAtt > 0 then
                 return true
             end
         end
@@ -70,7 +70,7 @@ function s.checkmat(tp,sg,fc)
 end
 function s.fcheck(tp,sg,fc)
     return sg:FilterCount(function(c)
-        return c:IsControler(1-tp) and c:IsLocation(LOCATION_MZONE|LOCATION_GRAVE) end, nil)<=1
+        return c:IsControler(1-tp) and c:IsLocation(LOCATION_MZONE+LOCATION_GRAVE) end, nil)<=1
 end
 
 
@@ -89,7 +89,7 @@ end
 --Remove Materials
 function s.extraop(e,tc,tp,sg)
     local rg1=sg:Filter(function(c) return c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE) end, nil)
-    local rg2=sg:Filter(function(c) return c:IsControler(1-tp) and c:IsLocation(LOCATION_GRAVE|LOCATION_MZONE) end, nil)
+    local rg2=sg:Filter(function(c) return c:IsControler(1-tp) and c:IsLocation(LOCATION_GRAVE+LOCATION_MZONE) end, nil)
     -- Merge the two groups into one
     rg1:Merge(rg2)
     if #rg1>0 then

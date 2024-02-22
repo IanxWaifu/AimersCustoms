@@ -78,6 +78,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil,code)
     local sg=tc:Select(tp,1,1,nil):GetFirst()
     Duel.SendtoHand(sg,nil,REASON_EFFECT)
+    Duel.ConfirmCards(1-tp,sg)
 end
 
 function s.ntcon(e,c,minc)
@@ -88,10 +89,6 @@ function s.nttg(e,c)
 	return c:IsSetCard(SET_DEATHRALL)
 end
 
-
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-    return eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_EXTRA)
-end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then
@@ -108,8 +105,26 @@ end
 
 
 
-
+function s.fiendfilter(c,tp)
+	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_FIEND)
+end
+function s.pyrofilter(c,tp)
+	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_PYRO)
+end
+function s.zombiefilter(c,tp)
+	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_ZOMBIE)
+end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	-- Check for the presence of Fiend monsters
+    local hasFiend=Duel.IsExistingMatchingCard(s.fiendfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
+    -- Check for the presence of Pyro monsters
+    local hasPyro=Duel.IsExistingMatchingCard(s.pyrofilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
+    -- Check for the presence of Zombie monsters
+    local hasZombie=Duel.IsExistingMatchingCard(s.zombiefilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
+    -- Return false if all three races are present
+    if hasFiend and hasPyro and hasZombie then
+        return false
+    end
     return eg:IsExists(Card.IsPreviousLocation,1,nil,LOCATION_EXTRA)
 end
 
@@ -131,7 +146,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
     if not Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,0,0) then return end
     local raceCount = 0
 	local excludedRace = 0
-	local mg = Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,LOCATION_MZONE,nil,TYPE_MONSTER)
+	local mg = Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,LOCATION_MZONE,nil,TYPE_TOKEN)
 	for mrc in aux.Next(mg) do
 	    local race = mrc:GetRace()
 	    excludedRace = excludedRace | race
@@ -157,5 +172,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
     else
         return
     end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
     Duel.SpecialSummon(token,0,tp,p,false,false,POS_FACEUP)
 end

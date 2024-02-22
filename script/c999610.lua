@@ -46,6 +46,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	for i=1,3 do
 		local token=Duel.CreateToken(tp,id+i)
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		Duel.SpecialSummonStep(token,0,tp,tp,false,false,POS_FACEUP)
 	end
 	Duel.SpecialSummonComplete()
@@ -147,14 +148,17 @@ function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	    race = Duel.AnnounceRace(1-tp,1,RACE_FIEND+RACE_PYRO+RACE_ZOMBIE-excludedRace)
 	    e:SetLabel(race)
 	end
-    if race==RACE_FIEND then
-	    local token=Duel.CreateToken(tp,TOKEN_LEGION_F)
-		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-    elseif race==RACE_PYRO then
-    	local token=Duel.CreateToken(tp,TOKEN_LEGION_P)
-		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-    elseif race==RACE_ZOMBIE then
-    	local token=Duel.CreateToken(tp,TOKEN_LEGION_Z)
-		Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-	else return end
+	
+    local token
+    if race == RACE_FIEND then
+        token = Duel.CreateToken(tp,TOKEN_LEGION_F)
+    elseif race == RACE_PYRO then
+        token = Duel.CreateToken(tp,TOKEN_LEGION_P)
+    elseif race == RACE_ZOMBIE then
+        token = Duel.CreateToken(tp,TOKEN_LEGION_Z)
+    else
+        return
+    end
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+    Duel.SpecialSummon(token,0,tp,p,false,false,POS_FACEUP)
 end

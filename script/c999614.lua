@@ -47,14 +47,14 @@ end
 
 
 function s.spfilter(c,tp)
-	return c:IsFaceup() and c:IsSetCard(SET_DEATHRALL) and c:ISType(TYPE_LINK)
+	return c:IsFaceup() and c:IsSetCard(SET_DEATHRALL) and c:IsType(TYPE_LINK)
 end
 function s.sprcon(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsTurnPlayer(1-tp) and eg:IsExists(s.spfilter,1,nil,tp)
 end
 
 function s.tgfilter(c,tp,rmv_chk,sp_chk)
-	return (c:IsSetCard(SET_DEATHRALL) or c:ListsArchetype(SET_LEGION_TOKEN)) and ((sp_chk and c:IsAbleToRemove()) or (rmv_chk and c:IsSSetable())) and not c:IsCode(id)
+	return (c:IsSetCard(SET_DEATHRALL) or c:ListsArchetype(SET_LEGION_TOKEN)) and ((sp_chk and c:IsAbleToRemove()) or (rmv_chk and c:IsSSetable())) and not c:IsCode(id) and c:IsSpellTrap()
 end
 function s.sprmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()

@@ -116,10 +116,10 @@ end
 
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(SET_DEATHRALL) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and not Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_MZONE,0,1,nil,c:GetRace())
+		and not Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil,c:GetRace())
 end
 function s.spfilter2(c,race)
-	return c:IsFaceup() and c:IsRace(race)--[[ and c:IsType(TYPE_TOKEN)--]]
+	return c:IsFaceup() and c:IsRace(race) and c:IsType(TYPE_TOKEN)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
