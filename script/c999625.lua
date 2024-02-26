@@ -59,15 +59,6 @@ function s.splimit(e,c)
 	return not c:IsSetCard(SET_LEGION_TOKEN) and not c:IsSetCard(SET_DEATHRALL)
 end
 
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then
-        return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_FIEND,0)
-    end
-    Duel.SetOperationInfo(0,CATEGORY_TOKEN,nil,1,0,0)
-    Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,0)
-end
-
-
 function s.fiendfilter(c,tp)
 	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_FIEND)
 end

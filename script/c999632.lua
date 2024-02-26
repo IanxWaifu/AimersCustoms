@@ -25,14 +25,14 @@ function s.initial_effect(c)
 	--Destroy 1 card on the field
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,1))
-	e3:SetCategory(CATEGORY_DESTROY+CATEGORY_REMOVE)
+	e3:SetCategory(CATEGORY_DISABLE)
 	e3:SetType(EFFECT_TYPE_QUICK_O)
 	e3:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetCountLimit(1,{id,1})
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetTarget(s.destg)
-	e3:SetOperation(s.desop)
+	e3:SetTarget(s.negtg)
+	e3:SetOperation(s.negop)
 	c:RegisterEffect(e3)
 	--Material check on summon
 	local e4=Effect.CreateEffect(c)
@@ -40,33 +40,18 @@ function s.initial_effect(c)
 	e4:SetCode(EFFECT_MATERIAL_CHECK)
 	e4:SetValue(s.valcheck2)
 	c:RegisterEffect(e4)
-	--Flip opponent's monster
 	local e5=Effect.CreateEffect(c)
-	e5:SetDescription(aux.Stringid(id,2))
-	e5:SetCategory(CATEGORY_POSITION)
-	e5:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e5:SetDescription(aux.Stringid(id,3))
+	e5:SetCategory(CATEGORY_REMOVE)
+	e5:SetType(EFFECT_TYPE_QUICK_O)
+	e5:SetCode(EVENT_BE_MATERIAL)
 	e5:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_NO_TURN_RESET)
-	e5:SetCode(EVENT_SUMMON_SUCCESS)
 	e5:SetRange(LOCATION_MZONE)
 	e5:SetCountLimit(1,{id,2})
-	e5:SetTarget(s.tdtg1)
-	e5:SetOperation(s.tdop)
+	e5:SetCondition(s.tgcon)
+	e5:SetTarget(s.tgtg)
+	e5:SetOperation(s.tgop)
 	c:RegisterEffect(e5)
-	local e6=e5:Clone()
-	e6:SetCode(EVENT_SPSUMMON_SUCCESS)
-	c:RegisterEffect(e6)
-	local e7=e5:Clone()
-	e7:SetCode(EVENT_FLIP_SUMMON_SUCCESS)
-	e7:SetTarget(s.tdtg2)
-	c:RegisterEffect(e7)
-	local e8=e5:Clone()
-	e8:SetDescription(aux.Stringid(id,3))
-	e8:SetType(EFFECT_TYPE_QUICK_O)
-	e8:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
-	e8:SetCode(EVENT_CHAINING)
-	e8:SetCondition(s.tdcon)
-	e8:SetTarget(s.tdtg3)
-	c:RegisterEffect(e8)
 end
 
 s.listed_names={id}
@@ -174,85 +159,81 @@ function s.valcheck2(e, c)
         end
     end
     if uniqueRaceCount>=3 then
-    	e:GetHandler():RegisterFlagEffect(id+3,RESETS_STANDARD-RESET_TOFIELD,0,1)
+    	e:GetHandler():RegisterFlagEffect(id+1,RESETS_STANDARD-RESET_TOFIELD,0,1)
     end
 end
 
 
-
-
-function s.desfilter(c,e)
-	return c:IsDestructable(e)
+function s.negfilter(c)
+	return c:IsFaceup() and c:IsSetCard(SET_DEATHRALL) and c:IsType(TYPE_LINK)
 end
-function s.rmfilter(c)
-	return c:IsAbleToRemove()
+function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chkc then return chkc:IsOnField() and chkc:IsControler(1-tp) end
+	if chk==0 then return e:GetHandler():GetFlagEffect(id)>0 and Duel.IsExistingMatchingCard(s.negfilter,tp,LOCATION_ONFIELD,0,1,nil)
+		and Duel.IsExistingTarget(aux.TRUE,tp,0,LOCATION_ONFIELD,1,nil) end
+	local ct=Duel.GetMatchingGroupCount(s.negfilter,tp,LOCATION_ONFIELD,0,nil)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_NEGATE)
+	local g=Duel.SelectTarget(tp,aux.TRUE,tp,0,LOCATION_ONFIELD,1,ct,nil)
+	Duel.SetOperationInfo(0,CATEGORY_DISABLE,g,#g,0,0)
 end
-function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g1=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,e)
-	local g2=Duel.GetMatchingGroup(s.rmfilter,tp,LOCATION_GRAVE,LOCATION_GRAVE,nil)
-	if chk==0 then return #g1>0 and #g2>0 and e:GetHandler():GetFlagEffect(id)>0 end
-	Duel.SetOperationInfo(0,CATEGORY_DESTROY,g1,1,PLAYER_ALL,LOCATION_ONFIELD)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g2,1,PLAYER_ALL,LOCATION_GRAVE)
-end
-function s.desop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
-	local g1=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,e)
-	if #g1==0 then return end
-	Duel.HintSelection(g1:GetFirst(),true)
-	if Duel.Destroy(g1,REASON_EFFECT)>0 then
-		local g2=Duel.GetMatchingGroup(s.rmfilter,tp,LOCATION_GRAVE,LOCATION_GRAVE,nil)
-		if #g2==0 then return end
-		Duel.BreakEffect()
-		local dg=g2:Select(tp,1,1,nil):GetFirst()
-		Duel.HintSelection(dg,true)
-		Duel.Remove(dg,POS_FACEUP,REASON_EFFECT)
-	end
-end
-
-
-
-function s.tdfilter(c,tp)
-	return c:IsFaceup() and not c:IsSummonPlayer(tp) and c:IsCanTurnSet()
-end
-function s.tdtg1(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():GetFlagEffect(id+3)>0 and eg and eg:IsExists(s.tdfilter,1,nil,tp) end
-	local g=eg:Filter(s.tdfilter,nil,tp)
-	Duel.SetTargetCard(g)
-end
-function s.tdtg2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local tc=eg:GetFirst()
-	if chk==0 then return e:GetHandler():GetFlagEffect(id+3)>0 and rp==1-tp and tc:IsFaceup() and tc:IsCanTurnSet() end
-	Duel.SetTargetCard(tc)
-end
-function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
-	local loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_LOCATION)
-	return rp~=tp and re:IsActiveType(TYPE_MONSTER) and Duel.IsChainNegatable(ev) and loc==LOCATION_MZONE
-end
-function s.tdtg3(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():GetFlagEffect(id+3)>0 end
-	if re:GetHandler():IsLocation(LOCATION_MZONE) and re:GetHandler():IsCanBeEffectTarget(e) and re:GetHandler():IsRelateToEffect(re) then
-		Duel.SetTargetCard(eg)
-	end
-end
-
-function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetTargetCards(e)
-	if Duel.ChangePosition(g,POS_FACEDOWN_DEFENSE)~=0 then
-		local og=Duel.GetOperatedGroup()
-		local tc=og:GetFirst()
-		for tc in aux.Next(og) do
-			--Cannot change its battle position
-			local e1=Effect.CreateEffect(e:GetHandler())
-			e1:SetDescription(aux.Stringid(id,4))
-			e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local tg=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
+	local g=tg:Filter(Card.IsRelateToEffect,nil,e)
+	if #g>0 then
+		for tc in aux.Next(g) do
+			Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+			local e1=Effect.CreateEffect(c)
+			e1:SetDescription(aux.Stringid(id,3))
 			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
-			e1:SetCondition(s.tgcond)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+			e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			tc:RegisterEffect(e1)
+			local e2=Effect.CreateEffect(c)
+			e2:SetType(EFFECT_TYPE_SINGLE)
+			e2:SetCode(EFFECT_CANNOT_TRIGGER)
+			e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e2)
+			if not tc:IsFaceup() then return end
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e1:SetCode(EFFECT_DISABLE)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e1)
+			local e2=Effect.CreateEffect(c)
+			e2:SetType(EFFECT_TYPE_SINGLE)
+			e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e2:SetCode(EFFECT_DISABLE_EFFECT)
+			e2:SetValue(RESET_TURN_SET)
+			e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e2)
+			if tc:IsType(TYPE_TRAPMONSTER) then
+				local e3=Effect.CreateEffect(c)
+				e3:SetType(EFFECT_TYPE_SINGLE)
+				e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
+				e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+				tc:RegisterEffect(e3)
+			end
 		end
 	end
 end
-function s.tgcond(e)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,SET_LEGION_TOKEN),e:GetHandlerPlayer(),LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
+
+
+
+function s.rmfilter(c,tp)
+	return not c:IsLocation(LOCATION_REMOVED) and c:GetPreviousControler()==1-tp and c:IsAbleToRemove() and not c:IsType(TYPE_TOKEN)
+end
+function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.rmfilter,1,nil,tp)
+end
+
+function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return e:GetHandler():GetFlagEffect(id+1)>0 and eg end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,eg,#eg,0,0)
+end
+function s.tgop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Remove(eg,POS_FACEUP,REASON_EFFECT)
 end

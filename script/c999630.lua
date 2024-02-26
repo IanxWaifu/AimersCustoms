@@ -73,6 +73,45 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
     Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 end
 
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+    -- Determine the owner of the group of cards in eg
+    if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+    if not Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,0,0) then return end
+    local raceCount = 0
+	local excludedRace = 0
+	local mg = Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,LOCATION_MZONE,nil,TYPE_TOKEN)
+	for mrc in aux.Next(mg) do
+	    local race = mrc:GetRace()
+	    excludedRace = excludedRace | race
+	end
+	excludedRace = excludedRace & (RACE_FIEND+RACE_PYRO+RACE_ZOMBIE)
+	if Duel.Draw(tp,1,REASON_EFFECT)~=0 then
+		Duel.ShuffleHand(tp)
+		Duel.BreakEffect()
+		local race = 0
+		if raceCount == 1 then
+		    race = Duel.AnnounceRace(tp,1,excludedRace)
+		    e:SetLabel(race)
+		else
+		    race = Duel.AnnounceRace(tp,1,RACE_FIEND+RACE_PYRO+RACE_ZOMBIE-excludedRace)
+		    e:SetLabel(race)
+		end
+	    
+	    local token
+	    if race == RACE_FIEND then
+	        token = Duel.CreateToken(tp,TOKEN_LEGION_F)
+	    elseif race == RACE_PYRO then
+	        token = Duel.CreateToken(tp,TOKEN_LEGION_P)
+	    elseif race == RACE_ZOMBIE then
+	        token = Duel.CreateToken(tp,TOKEN_LEGION_Z)
+	    else
+	        return
+	    end
+	    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+	    Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
 
 function s.fiendfilter(c,tp)
 	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_FIEND)
