@@ -46,6 +46,10 @@ function s.opfilter(c,e,tp)
 	and c:IsRace(RACE_FIEND|RACE_PYRO|RACE_ZOMBIE) and Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,race,0)
 end
 
+function s.lkfilter(c)
+	return c:IsSetCard(SET_DEATHRALL) and c:IsLinkSummonable()
+end
+
 function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local c=e:GetHandler()
     local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,tp)
@@ -108,6 +112,13 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 		    end
 		    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		    Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
+		    local drg=Duel.GetMatchingGroup(s.lkfilter,tp,LOCATION_EXTRA,0,nil,e,tp)
+		    if #drg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+		    	Duel.BreakEffect()
+				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+				local sg=drg:Select(tp,1,1,nil)
+				Duel.LinkSummon(tp,sg:GetFirst())
+			end	    
 		end
 	end
 end
