@@ -48,24 +48,24 @@ end
 
 
 function s.fiendfilter(c,tp)
-	return c:IsFaceup() and c:IsRace(RACE_FIEND)
+	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_FIEND)
 end
 function s.pyrofilter(c,tp)
-	return c:IsFaceup() and c:IsRace(RACE_PYRO)
+	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_PYRO)
 end
 function s.zombiefilter(c,tp)
-	return c:IsFaceup() and c:IsRace(RACE_ZOMBIE)
+	return c:IsType(TYPE_TOKEN) and c:IsFaceup() and c:IsRace(RACE_ZOMBIE)
 end
 
 function s.target(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_ONFIELD,c,tp)
 	 -- Check for the presence of Fiend monsters
-    local hasFiend=Duel.IsExistingMatchingCard(s.fiendfilter,tp,LOCATION_MZONE,0,1,nil)
+    local hasFiend=Duel.IsExistingMatchingCard(s.fiendfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
     -- Check for the presence of Pyro monsters
-    local hasPyro=Duel.IsExistingMatchingCard(s.pyrofilter,tp,LOCATION_MZONE,0,1,nil)
+    local hasPyro=Duel.IsExistingMatchingCard(s.pyrofilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
     -- Check for the presence of Zombie monsters
-    local hasZombie=Duel.IsExistingMatchingCard(s.zombiefilter,tp,LOCATION_MZONE,0,1,nil)
+    local hasZombie=Duel.IsExistingMatchingCard(s.zombiefilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
     -- Return false if all three races are present
     if hasFiend and hasPyro and hasZombie then
         return false
@@ -88,11 +88,11 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
     local c=e:GetHandler()
     local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_ONFIELD,c,tp)
      -- Check for the presence of Fiend monsters
-    local hasFiend=Duel.IsExistingMatchingCard(s.fiendfilter,tp,LOCATION_MZONE,0,1,nil)
+    local hasFiend=Duel.IsExistingMatchingCard(s.fiendfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
     -- Check for the presence of Pyro monsters
-    local hasPyro=Duel.IsExistingMatchingCard(s.pyrofilter,tp,LOCATION_MZONE,0,1,nil)
+    local hasPyro=Duel.IsExistingMatchingCard(s.pyrofilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
     -- Check for the presence of Zombie monsters
-    local hasZombie=Duel.IsExistingMatchingCard(s.zombiefilter,tp,LOCATION_MZONE,0,1,nil)
+    local hasZombie=Duel.IsExistingMatchingCard(s.zombiefilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
     -- Return false if all three races are present
     if hasFiend and hasPyro and hasZombie then return end
     if #g>0 then
@@ -113,7 +113,7 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 	    if Duel.SendtoGrave(dgt, REASON_RULE)~=0 then
 		local raceCount = 0
 		local excludedRace = 0
-		local mg = Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,0,nil,TYPE_MONSTER)
+		local mg = Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,LOCATION_MZONE,nil,TYPE_TOKEN)
 		for mrc in aux.Next(mg) do
 		    local race = mrc:GetRace()
 		    excludedRace = excludedRace | race

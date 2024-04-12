@@ -51,6 +51,10 @@ function s.initial_effect(c)
 	c:RegisterEffect(e7)
 end
 
+s.listed_names={id}
+s.listed_series={SET_DEATHRALL,SET_LEGION_TOKEN}
+
+
 function s.sumlimit(e,c)
 	if not c then return false end
 	return not c:IsControler(e:GetHandlerPlayer())
@@ -143,7 +147,7 @@ function s.tdfilter(c)
 end
 
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_MZONE,0,1,nil) 
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) 
 		and (Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_FIEND,0)
 		or Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_P,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_PYRO,0)
 		or Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_Z,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_ZOMBIE,0)) 
@@ -152,7 +156,7 @@ function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-    local cg = Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_MZONE,0,1,99,nil)
+    local cg = Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,99,nil)
     if Duel.SendtoDeck(cg,nil,2,REASON_EFFECT)~=0 then
         local ct = Duel.GetOperatedGroup():FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)
         if ct<=0 or Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end

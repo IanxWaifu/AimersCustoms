@@ -41,13 +41,14 @@ end
 
 function s.opfilter(c,e,tp)
 	local race=c:GetRace()
-	return c:IsSetCard(SET_DEATHRALL) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+	return c:IsSetCard(SET_DEATHRALL) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsRace(RACE_FIEND|RACE_PYRO|RACE_ZOMBIE)
 	and (c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_HAND) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()))
-	and c:IsRace(RACE_FIEND|RACE_PYRO|RACE_ZOMBIE) and Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,race,0)
+	and Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,race,0)
 end
 
-function s.lkfilter(c)
-	return c:IsSetCard(SET_DEATHRALL) and c:IsLinkSummonable()
+
+function s.lkfilter(c,fg,minmat,maxmat)
+	return c:IsSetCard(SET_DEATHRALL) and c:IsLinkSummonable(nil,fg)
 end
 
 function s.activate(e, tp, eg, ep, ev, re, r, rp)
@@ -80,20 +81,20 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
             e:SetLabelObject(card)
         end
         -- Special Summon each card to its corresponding sequence
-        for i, fg in ipairs(displaceCards) do
+        for i, fgt in ipairs(displaceCards) do
             local seq = sequences[i]
             local seq_bit = 2 ^ seq
             local pos = positions[i]
             local mat=e:GetLabelObject()
-            fg:SetMaterial(mat)
-            if Duel.MoveToField(fg,tp,tp,LOCATION_MZONE,pos,true,seq_bit) then
+            fgt:SetMaterial(mat)
+            if Duel.MoveToField(fgt,tp,tp,LOCATION_MZONE,pos,true,seq_bit) then
             	local e1=Effect.CreateEffect(c)
 				e1:SetType(EFFECT_TYPE_SINGLE)
 				e1:SetCode(EFFECT_CANNOT_CHANGE_POSITION)
 				e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TURN_SET+RESET_PHASE+PHASE_END,1)
-				fg:RegisterEffect(e1)
+				fgt:RegisterEffect(e1)
             end
-            fg:CompleteProcedure()
+            fgt:CompleteProcedure()
         end
     elseif op==2 then
     	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 or Duel.GetLocationCount(1-tp,LOCATION_MZONE)<=0 then return end
@@ -112,12 +113,13 @@ function s.activate(e, tp, eg, ep, ev, re, r, rp)
 		    end
 		    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		    Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
-		    local drg=Duel.GetMatchingGroup(s.lkfilter,tp,LOCATION_EXTRA,0,nil,e,tp)
-		    if #drg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-		    	Duel.BreakEffect()
+		    local tfg=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+			local tg=Duel.GetMatchingGroup(s.lkfilter,tp,LOCATION_EXTRA,0,nil,tfg)
+			if #tg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-				local sg=drg:Select(tp,1,1,nil)
-				Duel.LinkSummon(tp,sg:GetFirst())
+				local sg=tg:Select(tp,1,1,nil)
+				local sc=sg:GetFirst()
+				Duel.LinkSummon(tp,sc,nil,tfg)
 			end	    
 		end
 	end

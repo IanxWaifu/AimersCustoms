@@ -86,7 +86,7 @@ function s.ntcon(e,c,minc)
 	return minc==0 and Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0
 end
 function s.nttg(e,c)
-	return c:IsSetCard(SET_DEATHRALL)
+	return c:IsSetCard(SET_DEATHRALL) and c:IsLevelAbove(4)
 end
 
 

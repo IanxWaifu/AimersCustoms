@@ -55,11 +55,6 @@ function s.initial_effect(c)
     e7:SetTarget(s.necrotictg)
     e7:SetOperation(s.necroticop)
     c:RegisterEffect(e7)
-    local leave = Effect.CreateEffect(c)
-    leave:SetType(EFFECT_TYPE_SINGLE + EFFECT_TYPE_CONTINUOUS)
-    leave:SetCode(EVENT_LEAVE_FIELD)
-    leave:SetOperation(s.leaveOperation)
-    c:RegisterEffect(leave)
 end
 
 s.listed_series={0x29f}

@@ -66,7 +66,7 @@ function s.aclimit(e, re, tp)
     local c=re:GetHandler()
     local rc=c:GetRace()
     local g=Duel.GetMatchingGroup(s.atfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,rc)
-    return c:IsType(TYPE_MONSTER) and not g:IsExists(Card.IsRace,1,nil,rc)
+    return (c:IsType(TYPE_MONSTER) and not g:IsExists(Card.IsRace,1,nil,rc)) and not c:IsCode(999634)
 end
 
 

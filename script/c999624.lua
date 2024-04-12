@@ -177,29 +177,32 @@ end
 function s.ttfilter(c,tp)
 	return c:IsSpellTrap() and (c:IsType(TYPE_CONTINUOUS) or c:IsType(TYPE_FIELD)) and not c:IsForbidden() and c:CheckUniqueOnField(tp) and c:ListsArchetype(SET_LEGION_TOKEN)
 end
-function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsControler(tp) and chkc:IsLocation(LOCATION_MZONE) and s.rmfilter(chkc,tp) end
-	if chk==0 then return e:GetHandler():GetFlagEffect(id)>0 and Duel.IsExistingTarget(s.rmfilter,tp,LOCATION_MZONE,0,1,nil,tp) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,s.rmfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
+
+function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and e:GetHandler():GetFlagEffect(id)>0 and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_MZONE,0,1,nil,tp) end
+	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_MZONE)
 end
+
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	local g=Duel.GetMatchingGroup(s.ttfilter,tp,LOCATION_DECK,0,nil,tp)
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
-	if tc:IsRelateToEffect(e) and tc:IsFaceup() and tc:IsControler(tp) and Duel.Remove(tc,0,REASON_EFFECT+REASON_TEMPORARY)~=0 and #g>0 then
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+	local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_MZONE,0,1,1,nil,tp)
+	if #g==0 then return end
+	Duel.HintSelection(g,true)
+	local g2=Duel.GetMatchingGroup(s.ttfilter,tp,LOCATION_DECK,0,nil,tp)
+	if Duel.Remove(g,0,REASON_EFFECT+REASON_TEMPORARY)~=0 and #g2>0 then
+		g:KeepAlive()
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		e1:SetCode(EVENT_PHASE+PHASE_END)
 		e1:SetReset(RESET_PHASE+PHASE_END)
-		e1:SetLabelObject(tc)
+		e1:SetLabelObject(g:GetFirst())
 		e1:SetCountLimit(1)
 		e1:SetOperation(s.retop)
 		Duel.RegisterEffect(e1,tp)
 		Duel.BreakEffect()
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-		local dg=g:Select(tp,1,1,nil):GetFirst()
+		local dg=g2:Select(tp,1,1,nil):GetFirst()
 		if dg:IsType(TYPE_FIELD) then
 			Duel.MoveToField(dg,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
 		else
@@ -214,7 +217,7 @@ end
 
 --Shuffle into deck
 function s.tdcon(e,tp,eg,ep,ev,re,r,rp)
-	return rp==1-tp and (re:IsHasType(EFFECT_TYPE_ACTIVATE) or re:IsAbleToDeck())
+	return rp==1-tp and (re:IsHasType(EFFECT_TYPE_ACTIVATE) or re:GetHandler():IsAbleToDeck())
 end
 function s.tgfilter(c,rc)
 	local rrc=rc:GetType()
