@@ -8,11 +8,10 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_HAND)
+	e1:SetRange(LOCATION_HAND+LOCATION_GRAVE)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(s.spcon)
 	e1:SetOperation(s.spop)
-	e1:SetValue(1)
 	c:RegisterEffect(e1)
 	--Search
 	local e2=Effect.CreateEffect(c)
@@ -21,8 +20,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetCountLimit(1)
-	e2:SetCondition(s.thcon)
+	e2:SetCountLimit(1,id)
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
@@ -51,9 +49,6 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 end
 
 --Search
-function s.thcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SPECIAL+1
-end
 function s.thfilter(c)
 	return c:IsSetCard(SET_CYENE) and c:IsSpellTrap() and c:IsAbleToHand()
 end

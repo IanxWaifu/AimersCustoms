@@ -72,7 +72,7 @@ function s.ctop2(e,tp,eg,ep,ev,re,r,rp,angle_or_delvin)
 	if #g==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
 	local sg=g:Select(tp,1,1,nil)
-	sg:GetFirst():AddCounter(COUNTER_ICE,1)
+	sg:GetFirst():AddCounter(COUNTER_ICE,2)
 end
 
 --Special Summon from Deck

@@ -15,7 +15,7 @@ function s.initial_effect(c)
 end
 
 s.listed_names = {id}
-s.listed_series = {SET_VOLTAIC, SET_VOLTAIC_ARTIFACT, SET_VOLDRAGO}
+s.listed_series = {SET_VOLTAIC, SET_VOLTAIC_ARTIFACT, SET_VOLDRAGO, SET_DRAGOCYENE}
 
 function s.chfilter(c)
 	return c:IsFaceup() and c:GetEquipGroup():IsExists(Card.IsSetCard,1,nil,SET_VOLTAIC_ARTIFACT)

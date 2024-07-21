@@ -58,7 +58,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e10)	
 end
 s.listed_names = {id}
-s.listed_series = {SET_VOLTAIC, SET_VOLDRAGO}
+s.listed_series = {SET_VOLTAIC, SET_VOLDRAGO, SET_DRAGOCYENE}
 
 function s.sfilter(c,val,scard,sumtype,tp)
 	return c:IsSetCard(SET_VOLTAIC,scard,sumtype,tp) or c:IsSetCard(SET_VOLDRAGO,scard,sumtype,tp)

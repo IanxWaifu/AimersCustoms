@@ -8,7 +8,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetCode(EFFECT_SPSUMMON_PROC)
 	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e1:SetRange(LOCATION_HAND)
+	e1:SetRange(LOCATION_HAND+LOCATION_GRAVE)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	e1:SetCondition(s.spcon)
 	e1:SetOperation(s.spop)
@@ -30,7 +30,7 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
 	e3:SetCode(EVENT_PHASE+PHASE_END)
 	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,{id,1})
+	e3:SetCountLimit(1)
 	e3:SetOperation(s.ctop)
 	c:RegisterEffect(e3)
 end
@@ -50,16 +50,18 @@ function s.spcon(e,c)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	local g=Duel.GetMatchingGroup(s.spfilter,tp,LOCATION_DECK,0,nil,e,tp)
-	if Duel.RemoveCounter(tp,1,1,COUNTER_ICE,4,REASON_RULE) and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) and Duel.GetLocationCount(tp,LOCATION_MZONE)>=2 then
-		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local dg=g:Select(tp,1,1,nil)
-		if Duel.SpecialSummon(dg,0,tp,tp,false,false,POS_FACEUP)~=0 then
-			dg:GetFirst():AddCounter(COUNTER_ICE,1)
+	if Duel.RemoveCounter(tp,1,1,COUNTER_ICE,4,REASON_RULE) then
+		if Duel.GetLocationCount(tp,LOCATION_MZONE)<=1 then return end
+			if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+			Duel.BreakEffect()
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
+			local dg=g:Select(tp,1,1,nil)
+			if Duel.SpecialSummon(dg,0,tp,tp,false,false,POS_FACEUP)~=0 then
+				dg:GetFirst():AddCounter(COUNTER_ICE,1)
+			end
 		end
 	end
 end
-
 --tribute to summon a synchro
 function s.tspfilter(c,e,tp)
 	local counter=Duel.GetCounter(tp,LOCATION_MZONE,0,COUNTER_ICE)

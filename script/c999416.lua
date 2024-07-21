@@ -4,7 +4,6 @@ local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--Activate
-	-- local e1=Fusion.CreateSummonEff({handler=c,fusfilter=aux.FilterBoolFunction(Card.IsRace,RACE_ZOMBIE),matfilter=s.matfilter,extrafil=s.fextra,extraop=s.extraop,nosummoncheck=true,location=LOCATION_GRAVE|LOCATION_EXTRA,extratg=s.extratg})
 	local fusfilter,matfilter,extrafil,extraop,nosummoncheck,location,extratg=
 	aux.FilterBoolFunction(Card.IsRace,RACE_ZOMBIE),s.matfilter,s.fextra,s.extraop,true,LOCATION_GRAVE|LOCATION_EXTRA,s.extratg
 	--Activate

@@ -9,7 +9,7 @@ function s.initial_effect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetCountLimit(1,id)
-	e1:SetCost(s.thcost)
+	--[[e1:SetCost(s.thcost)--]]
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
@@ -36,14 +36,16 @@ end
 
 --Option Select
 function s.thfilter(c)
-	return c:IsSetCard(SET_ICYENE) and not c:IsCode(id)
+	return c:IsSetCard(SET_ICYENE) and not c:IsCode(id) and c:IsAbleToHand()
 end
 function s.thgfilter(c)
-	return c:IsSetCard(SET_ICYENE) and c:IsMonster()
+	return c:IsSetCard(SET_CYENE) and c:IsAbleToHand() and (c:IsRitualMonster() or c:IsRitualSpell())
 end
+
+
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local b1=Duel.GetMatchingGroup(s.thfilter,tp,LOCATION_DECK,0,nil)
-	local b2=Duel.GetMatchingGroup(s.thgfilter,tp,LOCATION_GRAVE,0,nil)
+	local b2=Duel.GetMatchingGroup(s.thgfilter,tp,LOCATION_GRAVE+LOCATION_DECK,0,nil)
 	if chk==0 then return #b1>0 or #b2>0 end
 	local op=0
 	if #b1>0 and #b2>0 then
@@ -75,15 +77,27 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	else 
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-		local g=Duel.SelectMatchingCard(tp,s.thgfilter,tp,LOCATION_GRAVE,0,1,2,nil)
+		local rg=Duel.GetMatchingGroup(s.thgfilter,tp,LOCATION_GRAVE+LOCATION_DECK,0,nil)
+		local g=aux.SelectUnselectGroup(rg,e,tp,1,2,aux.dncheck,1,tp,HINTMSG_ATOHAND)
 		if #g>0 then
 			Duel.SendtoHand(g,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,g)
 		end
 	end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetDescription(aux.Stringid(id,4))
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(s.splimit)
+	e1:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e1,tp)
 end
 
-
+function s.splimit(e,c,sump,sumtype,sumpos,targetp,se)
+	return not c:IsSetCard(SET_CYENE)
+end
 
 --Place 1 counters on a card
 function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk)

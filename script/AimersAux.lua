@@ -33,6 +33,13 @@ SET_VOLDRAGO = 0x2A2
 SET_VOLTAIC_ARTIFACT = 0x12A1
 SET_DEATHRALL = 0x2A3
 SET_LEGION_TOKEN = 0x2A4
+SET_CYENE = 0x2A5
+SET_ICYENE = 0x12A5
+SET_DRAGOCYENE = 0x22A5
+
+--Common used Counters
+COUNTER_ICE = 0x1015
+COUNTER_BLAZE = 0x1515
 
 
 
@@ -90,6 +97,41 @@ function Aimer.MoveCardToAppropriateZone(tc,p,zoneType)
         Duel.MoveSequence(tc,seq,zoneType)
     end
 end
+
+function Aimer.GetCardPositionInfo(c)
+    local seq=c:GetSequence()
+    local pos=0 
+    if c:IsSpellTrap() or (c:IsMonster() and c:IsFacedown()) then 
+        pos=POS_FACEUP_DEFENSE 
+    else 
+        pos=c:GetPosition() 
+    end
+    local seqbit=0
+    if c:IsLocation(LOCATION_MMZONE) then 
+        seqbit=2^seq 
+    elseif c:IsLocation(LOCATION_STZONE) then 
+        seqbit=1<<seq 
+    elseif c:IsLocation(LOCATION_EMZONE) then
+        if seq==5 then 
+            seqbit=2 
+        elseif seq==6 then 
+            seqbit=8 
+        end 
+    end
+    return seq,pos,seqbit
+end
+
+function Aimer.DeathrallSummonByRaceCheck(tp,race,p,pos,seqbit)
+    local token_id=0
+    if race==RACE_FIEND then token_id=TOKEN_LEGION_F
+    elseif race==RACE_PYRO then token_id=TOKEN_LEGION_P
+    elseif race==RACE_ZOMBIE then token_id=TOKEN_LEGION_Z
+    else return end
+    local token=Duel.CreateToken(tp,token_id)
+    Duel.SpecialSummon(token,0,tp,p,false,false,pos,seqbit)
+end
+
+
 
 -- Add Voltaic Equip Per Chain Effect
 function Aimer.AddVoltaicEquipEffect(c,id)

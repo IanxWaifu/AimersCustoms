@@ -40,9 +40,18 @@ function s.initial_effect(c)
 	e4:SetCountLimit(1,{id,2})
 	e4:SetOperation(s.ctop)
 	c:RegisterEffect(e4)
+	--Can be used as material from the hand
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_SINGLE)
+	e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+	e5:SetCode(EFFECT_SYNCHRO_MAT_FROM_HAND)
+	e5:SetRange(LOCATION_HAND)
+	e5:SetCountLimit(1,{id,3})
+	e5:SetValue(s.synval)
+	c:RegisterEffect(e5)
 end
 
-s.listed_series={SET_ICYENE}
+s.listed_series={SET_ICYENE,SET_DRAGOCYENE}
 s.counter_list={COUNTER_ICE}
 
 
@@ -108,4 +117,9 @@ function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 	local sg=g:Select(tp,1,1,nil)
 	sg:GetFirst():AddCounter(COUNTER_ICE,1)
+end
+
+--Synchro using itself in hand
+function s.synval(e,mc,sc)
+	return sc:IsAttribute(ATTRIBUTE_WATER)
 end
