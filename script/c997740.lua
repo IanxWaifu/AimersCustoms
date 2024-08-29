@@ -74,7 +74,7 @@ function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local gt=g2:GetFirst()
 	if #g==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-	local sg=g:Select(tp,1,99,nil)
+	local sg=g:Select(tp,1,#g,nil)
 	if Duel.SendtoDeck(sg,nil,2,REASON_EFFECT)>0 and #g2>0 then
 		local oc=#(Duel.GetOperatedGroup())
 		local e1=Effect.CreateEffect(e:GetHandler())

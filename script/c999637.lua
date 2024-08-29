@@ -1,6 +1,7 @@
 --Scripted by IanxWaifu
 --Deathrall Nihilazanthis
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Fusion Materials
@@ -224,16 +225,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	    
-	    local token
-	    if race == RACE_FIEND then
-	        token = Duel.CreateToken(tp,TOKEN_LEGION_F)
-	    elseif race == RACE_PYRO then
-	        token = Duel.CreateToken(tp,TOKEN_LEGION_P)
-	    elseif race == RACE_ZOMBIE then
-	        token = Duel.CreateToken(tp,TOKEN_LEGION_Z)
-	    else
-	        return
-	    end
+	    local token = Aimer.LegionTokenSP(tp, race)
+    	if not token then return end
+
 	    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	    Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
 	end

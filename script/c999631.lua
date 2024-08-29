@@ -36,7 +36,7 @@ function s.initial_effect(c)
 	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
 end
-s.listed_series={0x12A7}
+s.listed_series={SET_DEATHRALL,SET_LEGION_TOKEN}
 s.listed_names={id}
 
 
@@ -133,13 +133,17 @@ function s.matop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 
+function s.statfilter(c)
+	return c:IsSetCard(SET_LEGION_TOKEN) and c:IsFaceup()
+end
+
 function s.lkop(e,tp,eg,ep,ev,re,r,rp)
+	--Cannot be Link MAterial
 	local c=e:GetHandler()
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
 	e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_IGNORE_IMMUNE)
 	e1:SetCode(EFFECT_CANNOT_BE_FUSION_MATERIAL)
-	e1:SetRange(LOCATION_SZONE)
 	e1:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
 	e1:SetTarget(function(e,c) return c:IsSetCard(SET_LEGION_TOKEN) end)
 	e1:SetValue(s.sumlimit)
@@ -154,7 +158,27 @@ function s.lkop(e,tp,eg,ep,ev,re,r,rp)
 	local e4=e1:Clone()
 	e4:SetCode(EFFECT_CANNOT_BE_LINK_MATERIAL)
 	Duel.RegisterEffect(e4,tp)
+	--lose stats
+	local e5=Effect.CreateEffect(c)
+	e5:SetType(EFFECT_TYPE_FIELD)
+	e5:SetCode(EFFECT_UPDATE_ATTACK)
+	e5:SetTargetRange(0,LOCATION_MZONE)
+	e5:SetValue(s.val)
+	e5:SetReset(RESET_PHASE+PHASE_END)
+	Duel.RegisterEffect(e5,tp)
+	local e6=e5:Clone()
+	e6:SetCode(EFFECT_UPDATE_DEFENSE)
+	Duel.RegisterEffect(e6,tp)
+	aux.RegisterClientHint(c,nil,tp,0,1,aux.Stringid(id,2),nil)
+
 end
+
+function s.val(e,c)
+	local sg=Duel.GetMatchingGroup(s.statfilter,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil)
+	local stat=#sg*500
+	return -stat
+end
+
 
 function s.sumlimit(e,c)
 	if not c then return false end

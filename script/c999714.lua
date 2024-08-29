@@ -37,7 +37,7 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_FREE_CHAIN)
 	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER_E)
 	e3:SetCondition(function() return Duel.IsMainPhase() end)
-	e3:SetCost(s.thcost)
+	e3:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk,counter_amount) return Aimer.FrostrineCounterCost(e,tp,eg,ep,ev,re,r,rp,chk,3) end )
 	e3:SetTarget(s.thtg)
 	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
@@ -86,10 +86,6 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST) end
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST)
-end
 function s.thtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsAbleToRemove() end
 	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end

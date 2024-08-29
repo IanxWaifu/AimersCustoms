@@ -27,7 +27,7 @@ function s.initial_effect(c)
 end
 
 s.listed_series={SET_ICYENE}
-s.counter_list={COUNTER_ICE}
+s.counter_list={COUNTER_ICE,COUNTER_BLAZE}
 
 
 function s.cfilter(c)

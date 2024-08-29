@@ -3,6 +3,8 @@
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	--Apply Astral Shift
+    Aimer.AddAstralShift(c)
 	--Place Counters
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -20,7 +22,7 @@ function s.initial_effect(c)
 	e2:SetType(EFFECT_TYPE_IGNITION)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,{id,1})
-	e2:SetCost(s.thcost)
+	e2:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk,counter_amount) return Aimer.FrostrineCounterCost(e,tp,eg,ep,ev,re,r,rp,chk,3) end )
 	e2:SetTarget(s.thtg)
 	e2:SetOperation(s.thop)
 	c:RegisterEffect(e2)
@@ -40,13 +42,10 @@ function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
 		local sg=g:Select(tp,1,1,nil)
 		sg:GetFirst():AddCounter(COUNTER_ICE,1)
+		Duel.RaiseSingleEvent(e:GetHandler(),EVENT_ASTRAL_EFFECT_PROC,e,0,0,0,0)
 	end
 end
 
-function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST) end
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST)
-end
 
 function s.thfilter(c)
 	return c:IsSetCard(SET_CYENE) and c:IsMonster() and c:IsAbleToHand()

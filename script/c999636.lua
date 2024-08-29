@@ -3,7 +3,7 @@
 local s,id=GetID()
 function s.initial_effect(c)
 	--Custom Fusion Activation
-	local e1=Fusion.CreateSummonEff({handler=c,fusfilter=s.fusfilter,matfilter=s.matfil,extrafil=s.extrafilter,stage2=s.stage2,extraop=s.extraop})
+	local e1=Fusion.CreateSummonEff({handler=c,fusfilter=s.fusfilter,matfilter=aux.False,extrafil=s.extrafilter,stage2=s.stage2,extraop=s.extraop})
 	e1:SetCountLimit(1,id)
 	c:RegisterEffect(e1)
 	local e2=Effect.CreateEffect(c)
@@ -60,11 +60,18 @@ function s.filter(c)
 	return (c:IsAbleToRemove() and c:IsLocation(LOCATION_GRAVE)) or (c:IsAbleToGrave() and c:IsLocation(LOCATION_DECK)) or (c:IsLocation(LOCATION_HAND+LOCATION_MZONE)) and c:IsCanBeFusionMaterial()
 end
 
-function s.extrafilter(e,tp,mg)
-	return Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE+LOCATION_HAND+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,nil)
+function s.fcheck(tp,sg,fc)
+	return sg:CheckDifferentPropertyBinary(Card.GetRace,fc,tp)
 end
 
 
+function s.extrafilter(e,tp,mg)
+	local eg=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE+LOCATION_HAND+LOCATION_GRAVE,LOCATION_MZONE+LOCATION_GRAVE,nil)
+	if #eg>0 then
+		return eg,s.fcheck
+	end
+	return nil
+end
 
 --Remove Materials
 function s.extraop(e,tc,tp,sg)
@@ -74,6 +81,11 @@ function s.extraop(e,tc,tp,sg)
 		sg:Sub(rg)
 	end
 end
+
+
+
+
+
 
 --Continuous Application
 function s.stage2(e,tc,tp,sg,chk)

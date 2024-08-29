@@ -112,11 +112,7 @@ end
 
 --Place Counter
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-	if #g==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-	local sg=g:Select(tp,1,1,nil)
-	sg:GetFirst():AddCounter(COUNTER_ICE,1)
+	e:GetHandler():AddCounter(COUNTER_ICE,1)
 end
 
 --Synchro using itself in hand

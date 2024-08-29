@@ -77,12 +77,12 @@ function s.ttfilter(c,tp)
 end
 
 function s.tftg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.tfilter,tp,LOCATION_DECK,0,1,nil,tp) end
+    if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(s.ttfilter,tp,LOCATION_DECK,0,1,nil,tp) end
 end
 
 function s.tfop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
     local tc=Duel.SelectMatchingCard(tp,s.ttfilter,tp,LOCATION_DECK,0,1,1,nil,tp):GetFirst()
     if not tc then return end
         local fc=Duel.GetFieldCard(tp,LOCATION_FZONE,0)

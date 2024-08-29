@@ -37,7 +37,7 @@ s.counter_list={COUNTER_ICE}
 
 function s.hsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,2,REASON_EFFECT) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	if chk==0 then return (Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,2,REASON_EFFECT) or Aimer.FrostrineCheckEnvironment(tp)) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
@@ -45,8 +45,22 @@ end
 function s.hspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) or Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,2,REASON_EFFECT)
+	local check=0
+    if Duel.GetCounter(tp,1,1,COUNTER_ICE)>=2 and Aimer.FrostrineCheckEnvironment(tp) then
+        if Duel.SelectYesNo(tp,aux.Stringid(999721,1)) then
+            Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+            Duel.Hint(HINT_CARD,0,999721)
+            check=check+1
+        end
+    elseif Duel.GetCounter(tp,1,1,COUNTER_ICE)<1 and Aimer.FrostrineCheckEnvironment(tp) then
+        Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+        Duel.Hint(HINT_CARD,0,999721)
+        check=check+1
+    end
+    if check==0 then
+	    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		Duel.RemoveCounter(tp,1,1,COUNTER_ICE,2,REASON_EFFECT)
+	end
 end
 
 --Special Summon from GY

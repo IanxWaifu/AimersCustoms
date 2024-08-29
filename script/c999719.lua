@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetCost(s.spcost)
+	e2:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk,counter_amount) return Aimer.FrostrineCounterCost(e,tp,eg,ep,ev,re,r,rp,chk,3) end )
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
@@ -40,14 +40,14 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
-s.listed_series={SET_ICYENE,SET_DRAGOCYENE}
+s.listed_series={SET_DRAGOCYENE}
 s.counter_list={COUNTER_ICE}
 
 function s.pccon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
 end
 function s.pcfilter(c)
-	return c:IsFaceup() and c:IsMonster()
+	return c:IsFaceup()
 end
 function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(s.pcfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
@@ -59,11 +59,6 @@ end
 
 
 --Special Summon from Deck
-function s.spcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST) end
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST)
-end
-
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(SET_CYENE) and c:IsMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end

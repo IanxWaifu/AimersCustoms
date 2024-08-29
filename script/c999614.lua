@@ -54,7 +54,7 @@ function s.sprcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.tgfilter(c,tp,rmv_chk,sp_chk)
-	return (c:IsSetCard(SET_DEATHRALL) or c:ListsArchetype(SET_LEGION_TOKEN)) and ((sp_chk and c:IsAbleToRemove()) or (rmv_chk and c:IsSSetable())) and not c:IsCode(id) and c:IsSpellTrap()
+	return (c:IsSetCard(SET_DEATHRALL) or c:ListsArchetype(SET_LEGION_TOKEN)) and (((sp_chk and c:IsAbleToRemove()) or (rmv_chk and c:IsSSetable())) and not c:IsCode(id) and c:IsSpellTrap())
 end
 function s.sprmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	local c=e:GetHandler()

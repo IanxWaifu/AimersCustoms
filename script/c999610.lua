@@ -66,7 +66,7 @@ function s.aclimit(e, re, tp)
     local c=re:GetHandler()
     local rc=c:GetRace()
     local g=Duel.GetMatchingGroup(s.atfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil,rc)
-    return (c:IsType(TYPE_MONSTER) and not g:IsExists(Card.IsRace,1,nil,rc)) and not c:IsCode(999634)
+    return (c:IsType(TYPE_MONSTER) and not g:IsExists(Card.IsRace,1,nil,rc)) and not c:IsRace(RACE_ILLUSION)
 end
 
 
@@ -149,16 +149,9 @@ function s.repop(e,tp,eg,ep,ev,re,r,rp)
 	    e:SetLabel(race)
 	end
 	
-    local token
-    if race == RACE_FIEND then
-        token = Duel.CreateToken(tp,TOKEN_LEGION_F)
-    elseif race == RACE_PYRO then
-        token = Duel.CreateToken(tp,TOKEN_LEGION_P)
-    elseif race == RACE_ZOMBIE then
-        token = Duel.CreateToken(tp,TOKEN_LEGION_Z)
-    else
-        return
-    end
+	local token = Aimer.LegionTokenSP(tp, race)
+    if not token then return end
+
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
     Duel.SpecialSummon(token,0,tp,p,false,false,POS_FACEUP)
 end

@@ -90,14 +90,14 @@ end
 --tribute to summon a ritual monster
 function s.filter1(c,e,tp)
     local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,c,nil,REASON_RITUAL)
-    return #pg<=0 and c:IsRitualMonster() and c:IsSetCard(SET_DRAGOCYENE) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,true,false)
+    return #pg<=0 and c:IsRitualMonster() and c:IsSetCard(SET_DRAGOCYENE) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_RITUAL,tp,true,true)
 end
 
 function s.checkc(c,tp)
     local ice=Duel.GetCounter(tp,LOCATION_ONFIELD,LOCATION_ONFIELD,COUNTER_ICE)
     local blaze=Duel.GetCounter(tp,LOCATION_ONFIELD,LOCATION_ONFIELD,COUNTER_BLAZE)
     local total=ice+blaze
-    return c:GetLevel()<=total
+    return c:GetLevel()<=total or Aimer.FrostrineCheckEnvironment(tp)
 end
 
 function s.rttg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -117,7 +117,7 @@ function s.rtop(e,tp,eg,ep,ev,re,r,rp)
     local tc=tg:GetFirst()
     if tc then
         tc:SetMaterial(nil)
-        Duel.SpecialSummon(tc,SUMMON_TYPE_RITUAL,tp,tp,true,false,POS_FACEUP)
+        Duel.SpecialSummon(tc,SUMMON_TYPE_RITUAL,tp,tp,true,true,POS_FACEUP)
         tc:CompleteProcedure()
         local e1=Effect.CreateEffect(c)
         e1:SetDescription(aux.Stringid(id,4))
@@ -156,28 +156,42 @@ function s.rtop(e,tp,eg,ep,ev,re,r,rp)
         local ice=Duel.GetCounter(tp,LOCATION_ONFIELD,LOCATION_ONFIELD,COUNTER_ICE)
         local blaze=Duel.GetCounter(tp,LOCATION_ONFIELD,LOCATION_ONFIELD,COUNTER_BLAZE)
         local removed=0
-        while removed<lv do
-            local op
-            if ice>0 and blaze>0 then
-                op=Duel.SelectOption(tp,aux.Stringid(id,5),aux.Stringid(id,6)) -- 5 for Ice, 6 for Blaze
-            elseif ice>0 then
-                op=0
-            elseif blaze>0 then
-                op=1
-            else
-                break
+        local check=0
+        if ice+blaze>=lv and Aimer.FrostrineCheckEnvironment(tp) then
+            if Duel.SelectYesNo(tp,aux.Stringid(999721,1)) then
+                Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+                Duel.Hint(HINT_CARD,0,999721)
+                check=check+1
             end
-            if (op==0 and ice>0) or (op==1 and blaze>0) then
-                Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-                Duel.RemoveCounter(tp,LOCATION_ONFIELD,LOCATION_ONFIELD,(op==0 and COUNTER_ICE or COUNTER_BLAZE),1,REASON_EFFECT)
-                if op==0 then
-                    ice=ice-1
+        elseif ice+blaze<lv and Aimer.FrostrineCheckEnvironment(tp) then
+            Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+            Duel.Hint(HINT_CARD,0,999721)
+            check=check+1
+        end
+        if check==0 then
+            while removed<lv do
+                local op
+                if ice>0 and blaze>0 then
+                    op=Duel.SelectOption(tp,aux.Stringid(id,5),aux.Stringid(id,6)) -- 5 for Ice, 6 for Blaze
+                elseif ice>0 then
+                    op=0
+                elseif blaze>0 then
+                    op=1
                 else
-                    blaze=blaze-1
+                    break
                 end
-                removed=removed+1
-            else
-                break
+                if (op==0 and ice>0) or (op==1 and blaze>0) then
+                    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+                    Duel.RemoveCounter(tp,LOCATION_ONFIELD,LOCATION_ONFIELD,(op==0 and COUNTER_ICE or COUNTER_BLAZE),1,REASON_EFFECT)
+                    if op==0 then
+                        ice=ice-1
+                    else
+                        blaze=blaze-1
+                    end
+                    removed=removed+1
+                else
+                    break
+                end
             end
         end
     end

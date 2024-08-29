@@ -12,6 +12,9 @@ end
 --Common use Events
 EVENT_PENDULUM_ZONE_CHANGE = EVENT_CUSTOM + 3200
 EVENT_ROVARIK = EVENT_CUSTOM + 3200
+EVENT_ASTRAL_SHIFT = EVENT_CUSTOM + 3300
+EVENT_ASTRAL_EFFECT_PROC = EVENT_CUSTOM + 3305
+
 
 --Common used cards
 CARD_ZORGA = 999415
@@ -22,10 +25,12 @@ TOKEN_LEGION_P = 999612
 TOKEN_LEGION_Z = 999613
 
 
---Enviroment ids
+--Enviroment ids and effects
 VOLTAICPENDQ = 999563
 VOLTAICMONQ = 999564
 VOLTAICEQUQ = 999565
+
+----------------------------------
 
 --Common Setcards
 SET_VOLTAIC = 0x2A1
@@ -36,10 +41,66 @@ SET_LEGION_TOKEN = 0x2A4
 SET_CYENE = 0x2A5
 SET_ICYENE = 0x12A5
 SET_DRAGOCYENE = 0x22A5
+SET_DAEMON = 0x718
+SET_DAEDRIC_RELIC = 0x719
+SET_ARCHDAEMON = 0x1718
+SET_NECROTIC = 0x29f
+SET_NECROTICRYPT = 0x129f
+SET_WIZARDRAKE = 0x12A7
+SET_BEASKETEER = 0x12A8
+SET_STAR_RELIC = 0x12A9
+SET_STELLARIUS = 0x12D9
+SET_DIVINE_ = 0x12E0
+SET_IRON_SAGA = 0x12EC
+SET_KIJIN = 0x12EA
+SET_LEGENDS_AND_MYTHS = 0xFB0
+SET_KNIGHTS_OF_THE_FALLEN = 0xFA0
+SET_REVELATIA = 0x19f
+SET_ZODIAKIERI = 0x12D7
 
---Common used Counters
+
+--Common used Flags
+local ASTRAL_FLAG = 0x3305  -- Astral Overlay Flag Check
+EFFECT_EXTRA_ASTRAL = 3305
+
+--Common used Counters and Effects
 COUNTER_ICE = 0x1015
 COUNTER_BLAZE = 0x1515
+
+
+--Dragocyene Frostrine Cost Bypass
+function Aimer.FrostrineCheckEnvironment(tp)
+    local envactive=Duel.IsPlayerAffectedByEffect(tp,999721)
+    return envactive and Duel.GetFlagEffect(tp,999721)<=0
+end
+
+function Aimer.FrostrineCounterCost(e,tp,eg,ep,ev,re,r,rp,chk,counter_amount,extra_cost)
+    counter_amount = counter_amount or 3 -- Default to 3 if no amount is provided
+    if chk == 0 then
+        return Aimer.FrostrineCheckEnvironment(tp) or Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,counter_amount,REASON_COST)
+    end
+    local check = 0
+    if Duel.GetCounter(tp,1,1,COUNTER_ICE)>=counter_amount and Aimer.FrostrineCheckEnvironment(tp) then
+        if Duel.SelectYesNo(tp, aux.Stringid(999721,1)) then
+            Duel.RegisterFlagEffect(tp,999721,RESET_PHASE + PHASE_END, 0, 1)
+            Duel.Hint(HINT_CARD,0,999721)
+            check = check + 1
+        end
+    elseif Duel.GetCounter(tp,1,1,COUNTER_ICE)<counter_amount and Aimer.FrostrineCheckEnvironment(tp) then
+        Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+        Duel.Hint(HINT_CARD,0,999721)
+        check = check + 1
+    end
+    if check == 0 then
+        Duel.Hint(HINT_SELECTMSG, tp, HINTMSG_REMOVE)
+        Duel.RemoveCounter(tp,1,1,COUNTER_ICE,counter_amount,REASON_COST)
+    end
+    -- Always apply the extra cost function
+    if extra_cost then
+        extra_cost(e,tp,eg,ep,ev,re,r,rp,chk) -- Pass chk to the extra_cost function
+    end
+end
+-----------------------------------
 
 
 
@@ -1093,6 +1154,21 @@ function Aimer.Operation(f,minc,maxc,specialchk)
 end
 
 
+-- Legion Token Special Summon Check
+function Aimer.LegionTokenSP(tp, race)
+    local token
+    if race == RACE_FIEND then
+        token = Duel.CreateToken(tp, TOKEN_LEGION_F)
+    elseif race == RACE_PYRO then
+        token = Duel.CreateToken(tp, TOKEN_LEGION_P)
+    elseif race == RACE_ZOMBIE then
+        token = Duel.CreateToken(tp, TOKEN_LEGION_Z)
+    else
+        return nil  -- Return nil if the race does not match any case
+    end
+    return token
+end
+
 --Deathrall Link Proc (2+ GreaterThan)
 function Aimer.AddLinkProcedureDeathrall(c,f,min,max,specialchk,desc)
     local e1=Effect.CreateEffect(c)
@@ -1306,4 +1382,343 @@ function Aimer.DOperation(f,minc,maxc,specialchk)
                 g:DeleteGroup()
                 aux.DeleteExtraMaterialGroups(emt)
             end
+end
+
+
+
+--add procedure to persistent traps
+function Aimer.AddPersistentProcedure(c,p,f,category,property,hint1,hint2,con,cost,tg,op,anypos,limit,hardlimit,code,stage2)
+    --Note: p==0 is check persistent trap controler, p==1 for opponent's, PLAYER_ALL for both player's monsters
+    --anypos is check for face-up/any
+    --Activate
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(aux.Stringid(999722,2))
+    if category then
+        e1:SetCategory(category)
+    end
+    e1:SetType(EFFECT_TYPE_QUICK_O)
+    e1:SetRange(LOCATION_SZONE)
+    if hardlimit==true then
+        e1:SetCountLimit(limit,code)
+    else
+        e1:SetCountLimit(0+limit)
+    end
+    e1:SetCode(EVENT_FREE_CHAIN)
+    if hint1 or hint2 then
+        if hint1==hint2 then
+            e1:SetHintTiming(hint1)
+        elseif hint1 and not hint2 then
+            e1:SetHintTiming(hint1,0)
+        elseif hint2 and not hint1 then
+            e1:SetHintTiming(0,hint2)
+        else
+            e1:SetHintTiming(hint1,hint2)
+        end
+    end
+    if property then
+        e1:SetProperty(EFFECT_FLAG_CARD_TARGET+property)
+    else
+        e1:SetProperty(EFFECT_FLAG_CARD_TARGET)
+    end
+    if con then
+        e1:SetCondition(con)
+    end
+    if cost then
+        e1:SetCost(cost)
+    end
+    e1:SetTarget(Aimer.PersistentTarget(tg,p,f))
+    e1:SetOperation(op)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e2:SetRange(LOCATION_SZONE)
+    e2:SetCode(EVENT_CHAIN_SOLVED)
+    e2:SetLabelObject(e1)
+    e2:SetCondition(Aimer.PersistentTgCon)
+    e2:SetOperation(Aimer.PersistentTgOp(anypos,stage2))
+    c:RegisterEffect(e2)
+end
+function Aimer.PersistentFilter(c,p,f,e,tp,tg,eg,ep,ev,re,r,rp)
+    return (p==PLAYER_ALL or c:IsControler(p)) and (not f or f(c,e,tp)) and (not tg or tg(e,tp,eg,ep,ev,re,r,rp,c,0))
+end
+function Aimer.PersistentTarget(tg,p,f)
+    return  function(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+                local player=nil
+                if p==0 then
+                    player=tp
+                elseif p==1 then
+                    player=1-tp
+                elseif p==PLAYER_ALL or p==nil then
+                    player=PLAYER_ALL
+                end
+                if chkc then return chkc:IsLocation(LOCATION_ONFIELD) and chkc:IsFaceup() and Aimer.PersistentFilter(chkc,player,f,e,tp) end
+                if chk==0 then return Duel.IsExistingTarget(Aimer.PersistentFilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,player,f,e,tp,tg,eg,ep,ev,re,r,rp)
+                    and player~=nil end
+                Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+                local g=Duel.SelectTarget(tp,Aimer.PersistentFilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil,player,f,e,tp)
+                if tg then tg(e,tp,eg,ep,ev,re,r,rp,g:GetFirst(),1) end
+            end
+end
+function Aimer.PersistentTgCon(e,tp,eg,ep,ev,re,r,rp)
+    return re==e:GetLabelObject()
+end
+function Aimer.PersistentTgOp(anypos,stage2)
+    return function(e,tp,eg,ep,ev,re,r,rp)
+            local c=e:GetHandler()
+            local tc=Duel.GetChainInfo(ev,CHAININFO_TARGET_CARDS):GetFirst()
+            if c:IsRelateToEffect(re) and tc and (anypos or tc:IsFaceup()) and tc:IsRelateToEffect(re) then
+                c:SetCardTarget(tc)
+                c:CreateRelation(tc,RESET_EVENT+RESETS_STANDARD)
+                if stage2 then
+                    stage2(e,tp,eg,ep,ev,re,r,rp,tc)
+                end
+            else
+        end
+    end
+end
+function Aimer.PersistentTargetFilter(e,c)
+    return e:GetHandler():IsHasCardTarget(c)
+end
+
+
+-- Function to set up the global check effect
+function Aimer.AddAstralShift(c)
+    -- Set the astral_shift metatable property for the card
+    local mt=Duel.GetMetatable(c:GetCode())
+    if not mt then
+        mt={}
+        Duel.SetMetatable(c:GetCode(),mt)
+    end
+    mt.astral_shift={id=c:GetCode()}
+    -- Effect that handles the Astral Shift
+    local e1 = Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_MOVE)
+    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetCondition(function(e) return e:GetHandler():IsPreviousLocation(LOCATION_MZONE) end)
+    e1:SetOperation(Aimer.HandleAstralShift)
+    c:RegisterEffect(e1)
+   -- Register the continuous effect that triggers on EVENT_ASTRAL_EFFECT_PROC
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCode(EVENT_ASTRAL_EFFECT_PROC)
+    e2:SetOperation(Aimer.AstralEffectSwapTrigger)
+    c:RegisterEffect(e2)
+    -- Register chain resolution and trigger the swap
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+    e3:SetRange(LOCATION_MZONE)
+    e3:SetCode(EVENT_CHAIN_SOLVED)
+    e3:SetOperation(Aimer.AstralEffectSwapOnChainSolved)
+    c:RegisterEffect(e3)
+end
+
+-- Function to handle the Astral Shift effect
+function Aimer.HandleAstralShift(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if not c or not c:IsFaceup() then return end -- Ensure the handler is valid and face-up
+    
+    -- Collect all other monsters on the field
+    local otherCards={}
+    local monsters=Duel.GetMatchingGroup(Card.IsMonster,tp,LOCATION_MZONE,0,nil)
+    for tc in aux.Next(monsters) do
+        if tc~=c then
+            table.insert(otherCards,tc)
+        end
+    end
+
+    -- Function to get the previous sequence of a card in monster zones
+    local function GetPrevSequence(card)
+        return card:GetPreviousSequence() or card:GetSequence()
+    end
+
+    -- Function to check if two ranges overlap
+    local function RangeOverlap(start1,end1,start2,end2)
+        return not (end1<start2 or end2<start1)
+    end
+
+    -- Function to check if the card crossed paths with another card
+    local function PathsIntersected(card, otherCardsList)
+        local prevSeq=GetPrevSequence(card)
+        local newSeq=card:GetSequence()
+        -- Normalize the sequences to always check from a lower to a higher index
+        local cStart,cEnd=math.min(prevSeq,newSeq),math.max(prevSeq,newSeq)
+        local intersectedCards={}
+        for _, tc in ipairs(otherCardsList) do
+            local tcCurrentSeq=tc:GetSequence()
+            local tcStart,tcEnd=tcCurrentSeq,tcCurrentSeq
+            -- Check if the paths overlap
+            if RangeOverlap(cStart,cEnd,tcStart,tcEnd) then
+                -- Check if the card has the astral_shift metatable property
+                local mt = Duel.GetMetatable(tc:GetCode())
+                if mt and mt.astral_shift then
+                    table.insert(intersectedCards,tc)
+                end
+            end
+        end
+        return intersectedCards
+    end
+
+    -- Check if the current card crossed paths with any other card
+    local intersectedCards=PathsIntersected(c,otherCards)
+
+    if #intersectedCards>0 then
+        -- Get the moved card's sequence (newSeq)
+        local newSeq=c:GetSequence()
+        -- Apply the overlay logic: place the moved monster on top of the intersected stationary monster
+        for _, tc in ipairs(intersectedCards) do
+            -- Overlay the two monsters
+            Duel.Overlay(c,Group.FromCards(tc)) -- Place the moved monster (c) on top of the intersected monster (tc)
+            Duel.RaiseSingleEvent(c,EVENT_ASTRAL_SHIFT,e,0,0,0,0)
+            Duel.RaiseSingleEvent(tc,EVENT_ASTRAL_SHIFT,e,0,0,0,0)
+        end
+         -- Check for cards with "EFFECT_EXTRA_ASTRAL" in all locations
+        local extraAstralCards = Duel.GetMatchingGroup(Aimer.FilterExtraAstralCards,tp,LOCATION_ALL,0,nil)
+        -- Prompt the player to select one card from the group
+        if #extraAstralCards>0 and Duel.SelectYesNo(tp,4500) then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
+            local selectedCard=extraAstralCards:Select(tp,1,1,nil):GetFirst()
+            -- Add the selected card to the overlay group
+            Duel.Hint(HINT_CARD,0,selectedCard:GetCode())
+            Duel.Overlay(c,Group.FromCards(selectedCard))
+            Duel.RaiseSingleEvent(selectedCard,EVENT_ASTRAL_SHIFT,e,0,0,0,0)
+            Aimer.ApplyFlagToAllWithSameName(selectedCard, tp)
+        end
+    end
+end
+
+-- Function to filter cards with EFFECT_EXTRA_ASTRAL and no flag effects with their own IDs
+function Aimer.FilterExtraAstralCards(tc)
+    return tc:IsHasEffect(EFFECT_EXTRA_ASTRAL) and tc:GetFlagEffect(tc:GetCode())==0
+end
+
+-- Function to get all cards with the same name as the selected card
+function Aimer.GetCardsWithSameName(card, tp)
+    return Duel.GetMatchingGroup(function(tc) return tc:GetCode()==card:GetCode() end,tp,LOCATION_ALL,0,nil)
+end
+
+-- Function to apply a flag effect to all cards with the same name as the selected card
+function Aimer.ApplyFlagToAllWithSameName(selectedCard, tp)
+    local cardsWithSameName = Aimer.GetCardsWithSameName(selectedCard,tp)
+    cardsWithSameName:ForEach(function(tc)
+        -- Register the flag effect directly on each card
+        tc:RegisterFlagEffect(selectedCard:GetCode(),RESET_PHASE+PHASE_END,0,1)
+    end)
+end
+
+
+
+
+-- Effect to trigger AstralEffectSwapProc after chain resolution
+function Aimer.AstralEffectSwapTrigger(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    -- Set a flag to indicate AstralEffectSwapProc should trigger after chain resolution
+    c:RegisterFlagEffect(c:GetCode(),RESET_CHAIN,0,1)  -- Use a unique flag ID
+end
+
+-- Effect to actually execute AstralEffectSwapProc after the chain has resolved
+function Aimer.AstralEffectSwapOnChainSolved(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    -- Check if the flag is set (AstralEffectSwapProc was triggered during a resolving chain)
+    if c:GetFlagEffect(c:GetCode())>0 then
+        -- Clear the flag
+        c:ResetFlagEffect(c:GetCode())
+        -- Now execute the AstralEffectSwapProc
+        Aimer.AstralEffectSwapProc(e,tp,eg,ep,ev,re,r,rp)
+    end
+end
+
+
+
+
+--Overlay swapping effect
+function Aimer.AstralEffectSwapProc(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local pos=c:GetPosition()
+    local tp=e:GetHandlerPlayer()
+    local selfseq=c:GetSequence()
+    local og=c:GetOverlayGroup()
+    if og:GetCount()==0 then return end
+    -- Get bottom material (the card that was on the bottom of the overlay stack)
+    local BottomMaterial=og:GetMinGroup(Card.GetSequence):GetFirst()
+    -- Check if both BottomMaterial and the current monster (c) have the Astral flag
+    if c:GetFlagEffect(ASTRAL_FLAG)>0 and BottomMaterial:GetFlagEffect(ASTRAL_FLAG)>0 then
+        return  -- Don't proceed if both have the flag
+    end
+    -- Define temporary holder for the materials and (c)
+    local locs=LOCATION_EXTRA|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED|LOCATION_HAND
+    local TemporaryMaterialHolder=Duel.GetFieldGroup(tp,locs,locs):GetFirst()
+    -- Attach the materials and then the handler to the temporary holder
+    Duel.Overlay(TemporaryMaterialHolder,og)
+    Duel.Overlay(TemporaryMaterialHolder,c)
+    -- Move the bottom material to the field
+    Duel.MoveToField(BottomMaterial,tp,tp,LOCATION_MZONE,pos,true,1<<selfseq)
+    -- Define new group of materials that will be attached to BottomMaterial
+    local NewMaterials=og:Clone()
+    NewMaterials:RemoveCard(BottomMaterial)
+    -- Convert group to table
+    local materialsTable={}
+    local tc=NewMaterials:GetFirst()
+    while tc do
+        table.insert(materialsTable,tc)  -- Add each card to the table except c
+        tc=NewMaterials:GetNext()
+    end
+    -- Attach all materials except the card handler
+    for i=#materialsTable,1,-1 do
+        Duel.Overlay(BottomMaterial,materialsTable[i])  -- Overlay each card from last to first
+    end
+    -- Finally, overlay the handler (c) last
+    Duel.Overlay(BottomMaterial,c)
+    -- Set the Astral flag effect on the current handler (c)
+    c:RegisterFlagEffect(ASTRAL_FLAG,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET,0,1)
+    -- Check if both BottomMaterial and the current monster (c) have the Astral flag
+    if c:GetFlagEffect(ASTRAL_FLAG)>0 and BottomMaterial:GetFlagEffect(ASTRAL_FLAG)>0 then
+        -- Register an End Phase effect to send the handler and materials to the bottom of the deck
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCountLimit(1)
+        e1:SetCondition(Aimer.SendToDeckCondition)
+        e1:SetOperation(Aimer.SendToDeckOperation)
+        e1:SetLabelObject(BottomMaterial)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+
+--Condition for sending to the deck during the End Phase
+function Aimer.SendToDeckCondition(e,tp,eg,ep,ev,re,r,rp)
+    return e:GetLabelObject():IsLocation(LOCATION_MZONE)
+end
+
+--Operation for sending the handler and materials to the bottom of the deck during the End Phase
+function Aimer.SendToDeckOperation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetLabelObject()
+    if not c:IsLocation(LOCATION_MZONE) then return end
+    local og=c:GetOverlayGroup()
+     -- Define temporary holder for the materials and (c)
+    local locs=LOCATION_EXTRA|LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED|LOCATION_HAND
+    local tog=Duel.GetFieldGroup(tp,locs,locs):GetFirst()
+    if og:GetCount()==0 then return end
+    -- Attach all overlay materials to the temporary holder
+    if tog then
+        Duel.Overlay(tog,og)
+    end
+    -- Now send the handler (c) to the bottom of the deck
+    Duel.SendtoDeck(c,nil,SEQ_DECKBOTTOM,REASON_RULE)
+    -- Collect all overlay materials into a table, in the correct order (top to bottom)
+    local materialsTable={}
+    for tc in aux.Next(og) do
+        table.insert(materialsTable,tc)
+    end
+    -- Send each material to the bottom of the deck in order (top to bottom)
+    for i=#materialsTable,1,-1 do
+        local mat=materialsTable[i]
+        Duel.SendtoDeck(mat,nil,SEQ_DECKBOTTOM,REASON_RULE)
+    end
 end

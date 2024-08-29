@@ -75,7 +75,7 @@ function s.discost(e,tp,eg,ep,ev,re,r,rp,chk)
 		local sg=Duel.SelectMatchingCard(tp,s.cfilter1,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
 		Duel.RemoveOverlayCard(tp,1,0,1,1,REASON_COST,sg)
 		elseif opt>0 then
-		local tc=Duel.SelectMatchingCard(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
+		local tc=Duel.SelectMatchingCard(tp,s.cfilter2,tp,LOCATION_MZONE,0,1,1,nil,tp):GetFirst()
 		local og=tc:GetOverlayGroup()
 		Duel.SendtoGrave(og,REASON_COST)
 		Duel.RaiseSingleEvent(tc,EVENT_DETACH_MATERIAL,e,0,0,0,0)

@@ -1,4 +1,4 @@
---Icyene Contractress
+--Icyene Angel
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
@@ -29,11 +29,13 @@ function s.initial_effect(c)
 end
 s.listed_series={SET_ICYENE,SET_DRAGOCYENE}
 s.counter_list={COUNTER_ICE}
+s.astral_shift={id}
+
 
 --Special from hand
 function s.hsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,1,REASON_EFFECT) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+	if chk==0 then return (Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,1,REASON_EFFECT) or Aimer.FrostrineCheckEnvironment(tp)) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 	end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
@@ -41,8 +43,22 @@ end
 function s.hspop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) or Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)==0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,1,REASON_EFFECT)
+	local check=0
+    if Duel.GetCounter(tp,1,1,COUNTER_ICE)>=1 and Aimer.FrostrineCheckEnvironment(tp) then
+        if Duel.SelectYesNo(tp,aux.Stringid(999721,1)) then
+            Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+            Duel.Hint(HINT_CARD,0,999721)
+            check=check+1
+        end
+    elseif Duel.GetCounter(tp,1,1,COUNTER_ICE)<1 and Aimer.FrostrineCheckEnvironment(tp) then
+        Duel.RegisterFlagEffect(tp,999721,RESET_PHASE+PHASE_END,0,1)
+        Duel.Hint(HINT_CARD,0,999721)
+        check=check+1
+    end
+    if check==0 then
+	    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		Duel.RemoveCounter(tp,1,1,COUNTER_ICE,1,REASON_EFFECT)
+	end
 end
 
 function s.spfilter(c,e,tp,mat,mg)
@@ -143,52 +159,3 @@ function s.synop(e,tg,ntg,sg,lv,sc,tp)
 end
 
 
---[[-- Synchro
-function s.syfilter(c,e,tp,rel)
-	local mat = e:GetHandler()
-	if not c:IsType(TYPE_SYNCHRO) then return false end
-	if not c:IsSetCard(SET_CYENE) then
-		return c:IsSynchroSummonable(mat) and c:IsAttribute(ATTRIBUTE_WATER)
-	else
-		local mg=Duel.GetMatchingGroup(s.exsyncfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp,c,mat)
-		if c:IsSynchroSummonable(nil,mg+mat) then return true end
-	end
-	return false
-end
-
-function s.exsyncfilter(c,tp,tc,mat)
-	return c:IsCanBeSynchroMaterial() and ((c:GetCounter(COUNTER_ICE)>0 and c:IsControler(1-tp) and c:IsFaceup()) or (c:IsControler(tp)))
-end
-
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.syfilter,tp,LOCATION_EXTRA,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
-end
-
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local g=Duel.GetMatchingGroup(s.syfilter,tp,LOCATION_EXTRA,0,nil,e,tp,c)
-	if #g>0 then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-		local tc=g:Select(tp,1,1,nil):GetFirst()
-		if not tc:IsSetCard(SET_CYENE) then
-			Duel.SynchroSummon(tp,tc,c)
-		else
-			local mg=Duel.GetMatchingGroup(s.exsyncfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp,tc,c)
-			Duel.SynchroSummon(tp,tc,c,mg)
-		end
-	end
-end
-
-
-function s.syfilter(c,e,tp,rel)
-	local mat = e:GetHandler()
-	if not c:IsType(TYPE_SYNCHRO) then return false end
-	if not c:IsSetCard(SET_CYENE) then
-		return c:IsSynchroSummonable(mat) and c:IsAttribute(ATTRIBUTE_WATER)
-	else
-		local mg=Duel.GetMatchingGroup(s.exsyncfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp,c,mat)
-		if c:IsSynchroSummonable(nil,mg+mat) then return true end
-	end
-	return false
-end--]]

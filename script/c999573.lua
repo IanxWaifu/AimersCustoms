@@ -21,7 +21,7 @@ function s.chfilter(c)
 	return c:IsFaceup() and c:GetEquipGroup():IsExists(Card.IsSetCard,1,nil,SET_VOLTAIC_ARTIFACT)
 end
 function s.chvfilter(c)
-	return c:IsFaceup() and c:IsSetCard(SET_VOLDRAGO)
+	return c:IsFaceup() and c:IsSetCard(SET_DRAGOCYENE)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	local ph=Duel.GetCurrentPhase()

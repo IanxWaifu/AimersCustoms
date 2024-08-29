@@ -1,8 +1,10 @@
---Icyene Seeress
+--Icyene Hunter
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	--Apply Astral Shift
+	Aimer.AddAstralShift(c)
 	--Place 2 Ice Counters
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -43,18 +45,21 @@ end
 s.listed_series={SET_ICYENE,SET_DRAGOCYENE}
 s.counter_list={COUNTER_ICE}
 
+
+
 --Place 2 counters on a card
 function s.cttg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(Card.IsFaceup,tp,LOCATION_ONFIELD,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_COUNTER,nil,1,0,COUNTER_ICE)
 end
 
-function s.ctop(e,tp,eg,ep,ev,re,r,rp,angle_or_delvin)
+function s.ctop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_ONFIELD,0,nil)
 	if #g==0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_COUNTER)
 	local sg=g:Select(tp,1,1,nil)
 	sg:GetFirst():AddCounter(COUNTER_ICE,2)
+	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_ASTRAL_EFFECT_PROC,e,0,0,0,0)
 end
 
 --Extra Normal of a "cyene"

@@ -102,16 +102,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		    e:SetLabel(race)
 		end
 	    
-	    local token
-	    if race == RACE_FIEND then
-	        token = Duel.CreateToken(tp,TOKEN_LEGION_F)
-	    elseif race == RACE_PYRO then
-	        token = Duel.CreateToken(tp,TOKEN_LEGION_P)
-	    elseif race == RACE_ZOMBIE then
-	        token = Duel.CreateToken(tp,TOKEN_LEGION_Z)
-	    else
-	        return
-	    end
+		local token = Aimer.LegionTokenSP(tp, race)
+    	if not token then return end
+    	
 	    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	    Duel.SpecialSummon(token,0,tp,tp,false,false,POS_FACEUP)
 	end
@@ -143,11 +136,11 @@ end
 
 
 function s.tdfilter(c)
-	return c:IsSetCard(SET_DEATHRALL) and c:IsAbleToExtra() and c:IsType(TYPE_LINK) and c:IsMonster()
+	return c:IsSetCard(SET_DEATHRALL) and c:IsAbleToExtra() and ((c:IsType(TYPE_LINK)) or (c:IsType(TYPE_FUSION)) or (c:IsType(TYPE_XYZ))) and c:IsMonster()
 end
 
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,nil) 
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil) 
 		and (Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_F,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_FIEND,0)
 		or Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_P,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_PYRO,0)
 		or Duel.IsPlayerCanSpecialSummonMonster(tp,TOKEN_LEGION_Z,SET_LEGION_TOKEN,TYPES_TOKEN,1000,1000,4,RACE_ZOMBIE,0)) 
@@ -156,7 +149,7 @@ function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.tdop(e,tp,eg,ep,ev,re,r,rp)
-    local cg = Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_MZONE+LOCATION_GRAVE,0,1,99,nil)
+    local cg = Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_MZONE+LOCATION_GRAVE+LOCATION_REMOVED,0,1,99,nil)
     if Duel.SendtoDeck(cg,nil,2,REASON_EFFECT)~=0 then
         local ct = Duel.GetOperatedGroup():FilterCount(Card.IsLocation,nil,LOCATION_EXTRA)
         if ct<=0 or Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end

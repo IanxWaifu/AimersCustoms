@@ -20,7 +20,7 @@ function s.chfilter(c)
 	return c:IsFaceup() and c:GetEquipGroup():IsExists(Card.IsSetCard,1,nil,SET_VOLTAIC_ARTIFACT)
 end
 function s.chvfilter(c)
-	return c:IsFaceup() and c:IsSetCard(SET_VOLDRAGO)
+	return c:IsFaceup() and c:IsSetCard(SET_DRAGOCYENE)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsExistingMatchingCard(s.chfilter,tp,LOCATION_MZONE,0,1,nil) or Duel.IsExistingMatchingCard(s.chvfilter,tp,LOCATION_MZONE,0,1,nil)

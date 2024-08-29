@@ -69,6 +69,7 @@ function s.tspfilter(c,e,tp)
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 		and c:GetLevel()<=counter
 		and c:IsLocation(LOCATION_EXTRA)
+		and c:IsSetCard(SET_DRAGOCYENE)
 		and Duel.IsExistingMatchingCard(s.countfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
@@ -108,10 +109,6 @@ function s.tsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 
-
-function s.tfilter(c,lv,e,tp)
-	return c:IsSetCard(SET_DRAGOCYENE) and c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsLevelBelow(lv) and c:IsLocation(LOCATION_EXTRA)
-end
 function s.tspop(e,tp,eg,ep,ev,re,r,rp)
 	local lv=e:GetLabel()
 	local tc=e:GetLabelObject()

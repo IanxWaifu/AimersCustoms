@@ -5,13 +5,6 @@ Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	Aimer.AddLinkProcedureDeathrall(c,s.sfilter1,2,99,s.lcheck)
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CANNOT_DISABLE)
-	e1:SetRange(LOCATION_ALL)
-	e1:SetCode(EFFECT_IMMUNE_EFFECT)
-	e1:SetValue(s.efilter)
-	c:RegisterEffect(e1)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,0))
 	e2:SetCategory(CATEGORY_REMOVE)
@@ -67,12 +60,6 @@ end
 function s.sfilter2(c)
 	return c:IsSetCard(SET_DEATHRALL) and c:IsType(TYPE_LINK)
 end
-
-function s.efilter(e,te)
-	local c=te:GetHandler()
-	return c:IsCode(999610)
-end
-
 
 function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 	return ep~=tp

@@ -36,7 +36,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCountLimit(1,{id,2})
 	e3:SetCondition(s.negcon)
-	e3:SetCost(s.negcost)
+	e3:SetCost(function(e,tp,eg,ep,ev,re,r,rp,chk,counter_amount) return Aimer.FrostrineCounterCost(e,tp,eg,ep,ev,re,r,rp,chk,3) end )
 	e3:SetTarget(s.negtg)
 	e3:SetOperation(s.negop)
 	c:RegisterEffect(e3)
@@ -59,10 +59,10 @@ s.counter_list={COUNTER_ICE}
 --Special Summon Condition
 function s.spcon(e,c)
 	if c==nil then return true end
-	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0 and Duel.IsCanRemoveCounter(c:GetControler(),1,1,COUNTER_ICE,6,REASON_RULE+REASON_RITUAL)
+	return Duel.GetLocationCount(c:GetControler(),LOCATION_MZONE)>0 and Duel.IsCanRemoveCounter(c:GetControler(),1,1,COUNTER_ICE,8,REASON_RULE+REASON_RITUAL)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,6,REASON_RULE+REASON_RITUAL)
+	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,8,REASON_RULE+REASON_RITUAL)
 	--Banish it if it leaves the field
 	local e1=Effect.CreateEffect(e:GetHandler())
 	e1:SetDescription(3300)
@@ -85,10 +85,6 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
-function s.negcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsCanRemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST) end
-	Duel.RemoveCounter(tp,1,1,COUNTER_ICE,3,REASON_COST)
-end
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local rc=re:GetHandler()
