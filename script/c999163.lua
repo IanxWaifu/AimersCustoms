@@ -117,7 +117,7 @@ end
 function s.atkcost2(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetLabelObject()
 	local eq=c:GetEquipGroup():Filter(s.eqfilter,nil)
-	if chk==0 then return eq>0 end
+	if chk==0 then return eq end
 	local tg=eq:Select(tp,1,1,nil)
 	Duel.SendtoGrave(tg,REASON_COST)
 end

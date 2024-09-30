@@ -50,10 +50,10 @@ function s.cfilter(c,seq,p)
 	return c:IsFaceup() and c:IsSetCard(0x12EE) and c:IsColumn(seq,p,LOCATION_MZONE)
 end
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	if not re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and not  re:IsActiveType(TYPE_CONTINUOUS) then return false end
+	if not re:IsActiveType(TYPE_SPELL+TYPE_TRAP) and not re:IsActiveType(TYPE_CONTINUOUS) then return false end
 	local rc=re:GetHandler()
 	local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	return loc==LOCATION_SZONE and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil,seq,p)
+	return re:IsHasType(EFFECT_TYPE_ACTIVATE) and loc==LOCATION_SZONE and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil,seq,p)
 	and rc:IsSetCard(0x12EF) and rc:IsType(TYPE_CONTINUOUS)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)

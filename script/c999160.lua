@@ -141,7 +141,7 @@ end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local mg=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_MZONE,nil)
-	local ov=Duel.GetOverlayGroupCount(tp,LOCATION_MZONE,0)
+	local ov=Duel.GetOverlayCount(tp,LOCATION_MZONE,0)
 	local ct=Duel.GetMatchingGroupCount(s.checkfilter,tp,LOCATION_SZONE,0,nil)
 	local count=ov+ct
 	for mc in aux.Next(mg) do

@@ -75,21 +75,41 @@ function s.checkfilter(c)
 end
 
 function s.discon(e,tp,eg,ep,ev,re,r,rp)
-    if rp==tp or not re:IsActiveType(TYPE_SPELL+TYPE_TRAP) or not Duel.IsExistingMatchingCard(s.checkfilter,tp,LOCATION_ONFIELD,0,1,nil) then
+    if re:IsActiveType(TYPE_FIELD) or rp==tp or not re:IsActiveType(TYPE_SPELL+TYPE_TRAP) or not Duel.IsExistingMatchingCard(s.checkfilter,tp,LOCATION_ONFIELD,0,1,nil) then
         return false
     end
     local rg=Duel.GetMatchingGroup(s.checkfilter,tp,LOCATION_ONFIELD,0,nil)
-    local te,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-    local tc,cg,cg2=te:GetHandler(),tc:GetColumnGroup(1,1),tc:GetColumnGroup()
+    local te,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_SEQUENCE)
+    local tc=te:GetHandler()
+    local seq = tc:GetSequence()
+    local loc = tc:GetLocation()
+	if loc == LOCATION_FIELD then return false end
+    local seqbit = bit.lshift(1, seq)
+    -- Special handling for Pendulum Zones
+    if loc == LOCATION_PZONE then
+        -- Pendulum Zones use special sequence values
+        if seq == 6 then
+            seqbit = 0x1  -- Left Pendulum Zone
+        elseif seq == 7 then
+            seqbit = 0x20  -- Right Pendulum Zone
+        end
+    end
+    -- Get the column groups, adjusting for Pendulum Zones
+    local cg = tc:GetColumnGroup(1, 1)
+    local cg2 = tc:GetColumnGroup()
     for g in aux.Next(rg) do
-        if (cg:IsContains(g) or cg2:IsContains(g)) or
-           (g:IsLocation(LOCATION_SZONE) and (loc==LOCATION_SZONE or loc==LOCATION_FZONE or Duel.GetFlagEffect(tp,g:GetFieldID())>0)) or
-           (g:IsLocation(LOCATION_PZONE) and loc==LOCATION_PZONE and Duel.GetFlagEffect(tp,g:GetFieldID())>0) then
+        if cg:IsContains(g) or cg2:IsContains(g) then
+            return false
+        end
+        -- Check for Pendulum Zone match
+        if loc == LOCATION_PZONE and (g:GetSequenceBit() & seqbit) ~= 0 then
             return false
         end
     end
+
     return true
 end
+
 
 function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.NegateEffect(ev)

@@ -120,15 +120,21 @@ function s.retfilter(c)
 end
 
 function s.retop(e,tp,eg,ep,ev,re,r,rp)
-	local g=e:GetLabelObject()
-	local sg=g:Filter(s.retfilter,nil)
-	g:DeleteGroup()
-	for tc in aux.Next(sg) do
-		local seq=tc:GetPreviousSequence()
-		local zone=0x1<<seq
-		if seq>4 then
-			Duel.SendtoGrave(tc,REASON_RULE+REASON_RETURN)
-		end
-		Duel.ReturnToField(tc,tc:GetPreviousPosition(),zone)
-	end
+    local g=e:GetLabelObject()
+    local sg=g:Filter(s.retfilter,nil)
+    g:DeleteGroup()
+    for tc in aux.Next(sg) do
+        local seq=tc:GetPreviousSequence()
+        local zone=0x1<<seq
+        local p=tc:GetOwner()
+        if tc:IsType(TYPE_FIELD) then
+            Duel.MoveToField(tc,p,p,LOCATION_FZONE,tc:GetPreviousPosition(),true)
+        else
+            if seq>4 then
+                Duel.SendtoGrave(tc,REASON_RULE+REASON_RETURN)
+            else
+                Duel.ReturnToField(tc,tc:GetPreviousPosition(),zone,p)
+            end
+        end
+    end
 end

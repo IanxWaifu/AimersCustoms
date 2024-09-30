@@ -15,7 +15,7 @@ function s.initial_effect(c)
 	c:RegisterEffect(e1)
 end
 function s.lvfilter(c)
-	return c:HasLevel() and c:IsSetCard(0x311) and (c:IsType(TYPE_RITUAL) or c:IsType(TYPE_SYNCHRO)) and ((c:IsLocation(LOCATION_HAND) and not c:IsPublic()) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup()))
+	return c:HasLevel() and c:IsSetCard(SET_AZHIMAOU) and (c:IsType(TYPE_RITUAL) or c:IsType(TYPE_SYNCHRO)) and ((c:IsLocation(LOCATION_HAND) and not c:IsPublic()) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup()))
 end
 
 function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -41,7 +41,7 @@ function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.spfilter(c,e,tp,cd)
-	return --[[c:IsSetCard(0x311) and --]]c:IsCanBeSpecialSummoned(e,0,tp,false,false)  and not Duel.IsExistingMatchingCard(s.offilter,tp,LOCATION_MZONE,0,1,nil,c:GetCode()) and not c:IsCode(cd)
+	return c:IsSetCard(SET_AZHIMAOU) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)  and not Duel.IsExistingMatchingCard(s.offilter,tp,LOCATION_MZONE,0,1,nil,c:GetCode()) and not c:IsCode(cd)
 	and not c:IsType(TYPE_TUNER)
 end
 function s.offilter(c,code)

@@ -170,7 +170,6 @@ function s.lkop(e,tp,eg,ep,ev,re,r,rp)
 	e6:SetCode(EFFECT_UPDATE_DEFENSE)
 	Duel.RegisterEffect(e6,tp)
 	aux.RegisterClientHint(c,nil,tp,0,1,aux.Stringid(id,2),nil)
-
 end
 
 function s.val(e,c)

@@ -50,7 +50,7 @@ function s.tgfilter(c)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) and 
-		Duel.IsExistingMatchingCard(aux.FilterFaceupFunction(Card.IsSetCard,0x12EE),tp,LOCATION_MZONE,0,1,nil) end
+		Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x12EE),tp,LOCATION_MZONE,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
 end
 function s.gyfilter(c)
@@ -61,7 +61,7 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
 	local tc=g:GetFirst()
 	if not tc or Duel.SendtoGrave(tc,REASON_EFFECT)==0 then return end
-	local g=Duel.GetMatchingGroup(aux.FilterFaceupFunction(Card.IsSetCard,0x12EE),tp,LOCATION_MZONE,0,nil)
+	local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsSetCard,0x12EE),tp,LOCATION_MZONE,0,nil)
 	local ct=0
 	for tc in aux.Next(g) do
 	local gyc=Duel.GetMatchingGroupCount(s.gyfilter,0,LOCATION_GRAVE+LOCATION_SZONE,0,nil)

@@ -114,7 +114,8 @@ function s.drfilter(c,tc)
 end
 
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp
+	local c=e:GetHandler()
+	return Duel.GetTurnPlayer()==tp and c:IsSummonType(SUMMON_TYPE_FUSION)
 end
 
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -234,14 +235,17 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.regcon(e,tp,eg,ep,ev,re,r,rp)
-	return e:GetHandler():IsReason(REASON_LINK+REASON_MATERIAL)
+	local c=e:GetHandler()
+	return c:IsReason(REASON_LINK+REASON_MATERIAL) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_FUSION)
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
-	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+	local c=e:GetHandler()
+	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
 end
 
 function s.rtfcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetCurrentPhase()==PHASE_END and Duel.IsTurnPlayer(1-tp) and e:GetHandler():GetFlagEffect(id)>0
+	local c=e:GetHandler()
+	return Duel.GetCurrentPhase()==PHASE_END and Duel.IsTurnPlayer(1-tp) and c:GetFlagEffect(id)>0
 end
 
 function s.rtftg(e,tp,eg,ep,ev,re,r,rp,chk)

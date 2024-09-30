@@ -111,7 +111,7 @@ end
 
 function s.actcost(e,te,tp)
     local tc=te:GetHandler()
-    if tc:GetFlagEffect(id)>0 and tc:IsLocation(LOCATION_SZONE) and tc:IsFacedown() --[[and e:GetLabelObject():IsContains(tc) --]]then
+    if tc:GetFlagEffect(id)>0 and tc:IsLocation(LOCATION_SZONE) and tc:IsFacedown() then
         e:SetLabelObject(tc)
         return true
     end

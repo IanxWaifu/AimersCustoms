@@ -110,7 +110,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.adfilter(c,code,tcode)
-	return c:IsSetCard(SET_AZHIMAOU) and c:IsType(TYPE_RITUAL) and not c:IsCode(code) and not c:IsCode(tcode)
+	return c:IsSetCard(SET_AZHIMAOU) and c:IsType(TYPE_RITUAL) and not c:IsCode(code) and not c:IsCode(tcode) and c:IsAbleToHand()
 end
 
 

@@ -28,7 +28,7 @@ function c9945480.cost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.ShuffleHand(tp)
 end
 function c9945480.target(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and Duel.IsExistingMatchingCard(c9945480.filter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>1 and Duel.IsExistingMatchingCard(c9945480.filter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil)
 		and Duel.IsExistingMatchingCard(c9945480.filter2,tp,LOCATION_DECK,0,1,nil) end
 	Duel.SetOperationInfo(0,CATEGORY_TOHAND,nil,1,tp,LOCATION_DECK+LOCATION_GRAVE)
 end

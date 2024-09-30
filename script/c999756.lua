@@ -25,7 +25,7 @@ function s.initial_effect(c)
 	e2:SetTarget(s.lvtg)
 	e2:SetOperation(s.lvop)
 	c:RegisterEffect(e2)
-	--Special Summon 1 monster frome the opponent's GY
+	--Special Summon 1 monster
 	local e3=Effect.CreateEffect(c)
 	e3:SetDescription(aux.Stringid(id,3))
 	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)

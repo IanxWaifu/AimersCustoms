@@ -85,6 +85,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
             e2:SetRange(0xff) 
             e2:SetTargetRange(LOCATION_SZONE,0)
             e2:SetTarget(s.actcost)
+            e2:SetLabel(tc:GetCode())
             e2:SetLabelObject(tg)
             e2:SetCost(s.costchk)
             e2:SetOperation(s.costop)
@@ -98,12 +99,65 @@ function s.actcost(e,te,tp)
     return te:GetHandler():GetFlagEffect(id)>0 and te:GetHandler():IsLocation(LOCATION_SZONE) and te:GetHandler():IsFacedown()
 end
 
+-- Cost check and operation logic based on card ID
 function s.costchk(e,te_or_c,tp)
-    return Duel.CheckLPCost(tp,500)
-end
-function s.costop(e,tp,eg,ep,ev,re,r,rp)
-    if e:GetLabelObject():GetFlagEffect(id)>0 then
-        Duel.PayLPCost(tp,500)
-        e:GetHandler():ResetFlagEffect(id)
+    local tc=e:GetLabelObject()
+    local code=e:GetLabel()
+    if code==999751 then
+        return Duel.CheckLPCost(tp,500)
+    elseif code==999762 or code==999763 then
+        local g=Duel.GetMatchingGroup(s.costopfilter,tp,LOCATION_ONFIELD|LOCATION_HAND|LOCATION_GRAVE,0,tc,tp,code)
+        return #g>0
     end
+    return false
+end
+
+function s.costop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=e:GetLabelObject()
+    local code=e:GetLabel()
+    if code==999751 then
+        if tc:GetFlagEffect(id)>0 then
+            Duel.PayLPCost(tp,500)
+            tc:ResetFlagEffect(id)
+        end
+    elseif code==999762 then
+        local g=Duel.GetMatchingGroup(s.costopfilter,tp,LOCATION_ONFIELD|LOCATION_HAND,0,tc,tp,code)
+        if tc and #g>0 then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+            local sg=g:Select(tp,1,1,nil)
+            Duel.HintSelection(sg)
+            Duel.SendtoGrave(sg,REASON_COST)
+            tc:ResetFlagEffect(id)
+        end
+    elseif code==999763 then
+        local g=Duel.GetMatchingGroup(s.costopfilter,tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_ONFIELD,0,tc,tp,code)
+        if tc and #g>1 then
+            Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+            local sg=g:Select(tp,2,2,nil)
+            Duel.HintSelection(sg)
+            Duel.Remove(sg,POS_FACEUP,REASON_COST)
+            tc:ResetFlagEffect(id)
+        end
+    end
+end
+
+-- Common cost filter with id-based check
+function s.costopfilter(c,tp,code)
+    if c:IsSetCard(SET_AZHIMAOU) and (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO)) then
+        local azhimaouCount=Duel.GetMatchingGroupCount(s.ritfilter,tp,LOCATION_ONFIELD|LOCATION_HAND,0,nil)
+        if azhimaouCount==1 then
+            return false
+        end
+    end
+    if code==999762 then
+        return c:IsAbleToGraveAsCost()
+    elseif code==999763 then
+        return c:IsAbleToRemoveAsCost()
+    end
+    return false
+end
+
+function s.ritfilter(c)
+    return c:IsSetCard(SET_AZHIMAOU) and (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO))
 end

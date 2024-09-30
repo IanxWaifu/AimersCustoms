@@ -27,6 +27,7 @@ function s.initial_effect(c)
 	e4:SetCountLimit(1,id)
 	e4:SetLabelObject(e3)
 	e4:SetCondition(s.secon)
+	e4:SetTarget(s.setg)
 	e4:SetOperation(s.seop)
 	c:RegisterEffect(e4)
 	--register when a card leaves the field
@@ -58,11 +59,23 @@ end
 function s.lvfdfilter(c)
 	return c:IsLocation(LOCATION_MZONE) and c:GetMutualLinkedGroupCount()>0 and c:IsSetCard(0x12EE)
 end
-function s.regop(e,tp,eg,ep,ev,re,r,rp)
+--[[function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	if eg:IsExists(s.lvfdfilter,1,nil) then
 		local tc=eg:GetFirst()
 		for tc in aux.Next(eg) do
-		tc:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
+			tc:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
+		end
+	end
+end--]]
+
+function s.lvfdfilter(c)
+	return c:IsLocation(LOCATION_MZONE) and c:GetMutualLinkedGroupCount()>0 and c:IsSetCard(0x12EE)
+end
+
+function s.regop(e,tp,eg,ep,ev,re,r,rp)
+	for tc in aux.Next(eg) do
+		if tc:IsLocation(LOCATION_MZONE) and tc:GetMutualLinkedGroupCount()>0 and tc:IsSetCard(0x12EE) then
+			tc:RegisterFlagEffect(id,RESET_PHASE+PHASE_END,0,1)
 		end
 	end
 end
@@ -73,11 +86,33 @@ function s.sefilter(c,e,tp)
 	return c:IsSetCard(0x12EE) and c:IsLinkMonster() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:GetFlagEffect(id)>0
 end
 function s.secon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.sefilter,1,nil,e,tp) 
+	return eg:IsExists(s.sefilter,1,nil,e,tp)
+end
+
+-- Reset Flag Effect if Condition is not met
+function s.resetflageffect(eg)
+	for tc in aux.Next(eg) do
+		if tc:GetFlagEffect(id)>0 then
+			tc:ResetFlagEffect(id)
+		end
+	end
+end
+
+-- Set Target
+function s.setg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then
+		local conditionchk = Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		if not conditionchk then
+			s.resetflageffect(eg)
+		end
+		return conditionchk
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,1)
 end
 
 --Special Summon
 function s.seop(e,tp,eg,ep,ev,re,r,rp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local tc=eg:FilterSelect(tp,aux.NecroValleyFilter(s.sefilter),1,1,nil,e,tp):GetFirst()
 	if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
 		local e1=Effect.CreateEffect(e:GetHandler())

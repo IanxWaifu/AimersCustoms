@@ -84,8 +84,8 @@ function s.xyzop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
-function s.rmtarget(e,c,tp)
-	return c:IsControler(1-tp) and  c:IsReason(REASON_EFFECT+REASON_BATTLE)
+function s.rmtarget(e,c)
+	return --[[c:IsControler(e:GetHandlerPlayer()-1) and --]]c:IsReason(REASON_EFFECT+REASON_BATTLE)
 end
 
 

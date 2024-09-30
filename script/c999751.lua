@@ -110,7 +110,7 @@ end
 
 function s.actcost(e,te,tp)
     local tc=te:GetHandler()
-    if tc:GetFlagEffect(id)>0 and tc:IsLocation(LOCATION_SZONE) and tc:IsFacedown() --[[and e:GetLabelObject():IsContains(tc) --]]then
+    if tc:GetFlagEffect(id)>0 and tc:IsLocation(LOCATION_SZONE) and tc:IsFacedown() then
         e:SetLabelObject(tc)
         return true
     end
@@ -140,7 +140,7 @@ end
 
 --Special Summon upon Self Destruction
 function s.spfilter(c,e,tp)
-    return --[[c:IsSetCard(0x311) and --]]c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_TUNER)
+    return c:IsSetCard(SET_AZHIMAOU) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:IsType(TYPE_TUNER)
 end
 -- + Return to Deck
 function s.tdfilter(c)

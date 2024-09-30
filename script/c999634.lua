@@ -189,57 +189,34 @@ function s.ctop(e, tp, eg, ep, ev, re, r, rp)
 	local loc=LOCATION_ONFIELD
 	if ft<=0 then loc=LOCATION_MZONE end
     local g=Duel.GetMatchingGroup(s.chfilter,tp,0,loc,c,tp,c)
-     -- Check for the presence of Fiend monsters
     local hasFiend=Duel.IsExistingMatchingCard(s.fiendfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
-    -- Check for the presence of Pyro monsters
     local hasPyro=Duel.IsExistingMatchingCard(s.pyrofilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
-    -- Check for the presence of Zombie monsters
     local hasZombie=Duel.IsExistingMatchingCard(s.zombiefilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,nil)
-    -- Return false if all three races are present
-    if hasFiend and hasPyro and hasZombie then return end
-    if #g>0 then
-    	local dg=g:Select(tp,1,1,nil)
-    	local dgt=dg:GetFirst()
+    if hasfiend and haspyro and haszombie then return end
+	if #g>0 then
+		local dg=g:Select(tp,1,1,nil)
+		local dgt=dg:GetFirst()
 		Duel.HintSelection(dg)
-        local seq = dgt:GetSequence()
-        local pos = 0 
-        if dgt:IsSpellTrap() then pos=POS_FACEUP_DEFENSE else pos=dgt:GetPosition() end
-		local seq_bit = 0
-		if dgt:IsLocation(LOCATION_MMZONE) then seq_bit = 2 ^ seq end
-		if dgt:IsLocation(LOCATION_STZONE) then seq_bit = 1<<seq end
-		if dgt:IsLocation(LOCATION_EMZONE) then
-		    if seq == 5 then seq_bit=2 end
-		    if seq == 6 then seq_bit=8 end 
+		local seq,pos,seqbit=Aimer.GetCardPositionInfo(dgt)
+		local p=dgt:GetControler()
+		if Duel.SendtoGrave(dgt,REASON_RULE)~=0 then
+			local racecount=0
+			local excrace=0
+			local mg=Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,LOCATION_MZONE,nil,TYPE_TOKEN)
+			for mrc in aux.Next(mg) do
+				local race=mrc:GetRace()
+				excrace=excrace|race
+			end
+			excrace=excrace&(RACE_FIEND+RACE_PYRO+RACE_ZOMBIE)
+			local race=0
+			if racecount==1 then
+				race=Duel.AnnounceRace(tp,1,excrace)
+				e:SetLabel(race)
+			else
+				race=Duel.AnnounceRace(tp,1,RACE_FIEND+RACE_PYRO+RACE_ZOMBIE-excrace)
+				e:SetLabel(race)
+			end
+			Aimer.DeathrallSummonByRaceCheck(tp,race,p,pos,seqbit)
 		end
-	    local p=dgt:GetControler()
-	    if Duel.SendtoGrave(dgt, REASON_RULE)~=0 then
-		local raceCount = 0
-		local excludedRace = 0
-		local mg = Duel.GetMatchingGroup(Card.IsType,tp,LOCATION_MZONE,LOCATION_MZONE,nil,TYPE_TOKEN)
-		for mrc in aux.Next(mg) do
-		    local race = mrc:GetRace()
-		    excludedRace = excludedRace | race
-		end
-		excludedRace = excludedRace & (RACE_FIEND+RACE_PYRO+RACE_ZOMBIE)
-
-		local race = 0
-		if raceCount == 1 then
-		    race = Duel.AnnounceRace(tp,1,excludedRace)
-		    e:SetLabel(race)
-		else
-		    race = Duel.AnnounceRace(tp,1,RACE_FIEND+RACE_PYRO+RACE_ZOMBIE-excludedRace)
-		    e:SetLabel(race)
-		end
-	        if race==RACE_FIEND then
-		    local token=Duel.CreateToken(tp,TOKEN_LEGION_F)
-			Duel.SpecialSummon(token,0,tp,p,false,false,pos,seq_bit)
-	    elseif race==RACE_PYRO then
-	    	local token=Duel.CreateToken(tp,TOKEN_LEGION_P)
-			Duel.SpecialSummon(token,0,tp,p,false,false,pos,seq_bit)
-	    elseif race==RACE_ZOMBIE then
-	    	local token=Duel.CreateToken(tp,TOKEN_LEGION_Z)
-			Duel.SpecialSummon(token,0,tp,p,false,false,pos,seq_bit)
-		else return end
-        end
-    end
+	end
 end

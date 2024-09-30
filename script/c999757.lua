@@ -57,7 +57,7 @@ function s.syncfilter(c)
     return c:IsFaceup()
 end
 function s.exfilter(c,mg)
-    return --[[c:IsSetCard(SET_AZHIMAOU) and --]] c:IsSynchroSummonable(nil,mg)
+    return c:IsSetCard(SET_AZHIMAOU) and  c:IsSynchroSummonable(nil,mg)
 end
 function s.synchtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local mg=Duel.GetMatchingGroup(s.syncfilter,tp,LOCATION_MZONE,0,nil)
