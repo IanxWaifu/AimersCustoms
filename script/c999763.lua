@@ -183,6 +183,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
     local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_DECK|LOCATION_HAND|LOCATION_GRAVE,0,1,1,nil,e,tp)
     Duel.DisableShuffleCheck()
     if #g<=0 or Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)==0 then return end
+    Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
     local dg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,nil)
     if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
         Duel.BreakEffect()
@@ -213,7 +214,7 @@ function s.tdop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.retcon(e,tp,eg,ep,ev,re,r,rp)
-    return re and re:GetHandler()==e:GetHandler()
+    return re and re:GetHandler()==e:GetHandler() and Duel.GetFlagEffect(tp,id)==0
 end
 
 --Draw 1 card when an "Azhimaou" makes a card leave the field
