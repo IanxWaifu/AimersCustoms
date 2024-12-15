@@ -58,7 +58,7 @@ function s.setcost2(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.setfilter(c,e,tp)
-    return c:IsMonster() and c:IsSetCard(SET_VOLTAIC) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,zone)
+    return c:IsMonster() and (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,zone)
 end
 
 
