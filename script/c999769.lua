@@ -51,24 +51,29 @@ function s.tgfilter(c)
 	return c:IsSetCard(SET_AZHIMAOU) and c:IsAbleToGrave() and not c:IsCode(id)
 end
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
+	if chk==0 then return g:GetClassCount(Card.GetCode)>1 end
+	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,2,tp,LOCATION_DECK)
 end
 
 function s.atkfilter(c)
 	return c:IsFaceup() and (c:GetLevel()>0 or c:GetLink()>0 or c:GetRank()>0) and (c:GetAttack()>0 or c:GetDefense()>0)
 end
 function s.chkfilter(c)
-	return not c:IsStatus(STATUS_ACT_FROM_HAND)
+	return not c:IsStatus(STATUS_ACT_FROM_HAND) 
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
-    local c=e:GetHandler()
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-    local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
-    local tc=g:GetFirst()
-    if not tc or Duel.SendtoGrave(tc,REASON_EFFECT)==0 then return end
-    local tg=Duel.GetMatchingGroup(s.atkfilter,tp,0,LOCATION_MZONE,nil)
-	if #tg>0 then
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(s.tgfilter,tp,LOCATION_DECK,0,nil)
+	if #g<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local tg1=g:Select(tp,1,1,nil)
+	--[[g:Remove(Card.IsCode,nil,tg1:GetFirst():GetCode())
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local tg2=g:Select(tp,1,1,nil)
+	tg1:Merge(tg2)--]]
+	local tg=Duel.GetMatchingGroup(s.atkfilter,tp,0,LOCATION_MZONE,nil)
+  	if Duel.SendtoGrave(tg1,REASON_EFFECT)~=0 and #tg>0 then
 	    for sc in aux.Next(tg) do
 	        -- Determine if it's a Link, Xyz (Rank), or other monster (Level)
 	        local reduction = 0

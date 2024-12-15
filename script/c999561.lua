@@ -11,27 +11,12 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_SZONE)
 	e1:SetCountLimit(1,{id,1})
 	e1:SetCost(s.setcost1)
-	e1:SetCondition(s.pcon1)
 	e1:SetTarget(s.settg)
 	e1:SetOperation(s.setop)
 	c:RegisterEffect(e1)
-	local e2=e1:Clone()
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_FREE_CHAIN)
-	e2:SetCost(s.setcost2)
-	e2:SetCondition(s.pcon2)
-	c:RegisterEffect(e2)
 end
 s.listed_names = {id}
 s.listed_series = {SET_VOLTAIC_ARTIFACT}
-
-function s.pcon1(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
-end
-function s.pcon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICEQUQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999564)==0
-end
 
 function s.setcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

@@ -57,17 +57,10 @@ function s.initial_effect(c)
     e9:SetType(EFFECT_TYPE_IGNITION)
     e9:SetRange(LOCATION_MZONE)
     e9:SetCountLimit(1,{id,2})
-    e9:SetCondition(s.mqecon1)
     e9:SetCost(s.movecost)
     e9:SetTarget(s.movetg)
     e9:SetOperation(s.moveop)
     c:RegisterEffect(e9)
-    local e11=e9:Clone()
-	e11:SetType(EFFECT_TYPE_QUICK_O)
-	e11:SetCode(EVENT_FREE_CHAIN)
-	e11:SetCost(s.movecost2)
-	e11:SetCondition(s.mqecon2)
-	c:RegisterEffect(e11)
 	local e12=Effect.CreateEffect(c)
 	e12:SetType(EFFECT_TYPE_SINGLE)
 	e12:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
@@ -87,14 +80,6 @@ function s.pcon1(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.pcon2(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICPENDQ)
-end
-
-function s.mqecon1(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
-end
-function s.mqecon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and (Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp))
-	and Duel.GetFlagEffect(tp,999563)==0
 end
 
 
@@ -228,13 +213,6 @@ function s.movecost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
-function s.movecost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
-	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
-end
 
 function s.movetg(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk==0 then return Duel.IsExistingMatchingCard(Aimer.CanMoveCardToAppropriateZone,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil,tp,nil) end
@@ -255,5 +233,5 @@ function s.syncon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.synval(e,mc,sc) --this effect, this card and the monster to be summoned
-	return sc:IsType(TYPE_SYNCHRO) and sc:IsCode(999574)
+	return sc:IsType(TYPE_SYNCHRO) and (sc:IsCode(999574) or sc:IsCode(999555))
 end

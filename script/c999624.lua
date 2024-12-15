@@ -138,7 +138,7 @@ function s.valcheck1(e,c)
 	local g=c:GetMaterial()
 	if not g then return end
 	local ct=g:FilterCount(Card.IsRace,nil,RACE_PYRO)
-	if ct==#g then e:GetHandler():RegisterFlagEffect(id,RESETS_STANDARD-RESET_TOFIELD,0,1) end
+	if ct==#g then e:GetHandler():RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1) end
 end
 
 -- Check Materials
@@ -154,7 +154,7 @@ function s.valcheck2(e, c)
         end
     end
     if uniqueRaceCount>=3 then
-    	e:GetHandler():RegisterFlagEffect(id+3,RESETS_STANDARD-RESET_TOFIELD,0,1)
+    	e:GetHandler():RegisterFlagEffect(id+3,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1)
     end
 end
 

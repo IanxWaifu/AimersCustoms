@@ -15,19 +15,15 @@ function s.initial_effect(c)
 	e1:SetTarget(s.thtg)
 	e1:SetOperation(s.thop)
 	c:RegisterEffect(e1)
-	local e10=e1:Clone()
-	e10:SetType(EFFECT_TYPE_QUICK_O)
-	e10:SetCode(EVENT_FREE_CHAIN)
-	e10:SetCondition(s.mqecon)
-	e10:SetCost(s.mqecost)
-	c:RegisterEffect(e10)
-	--Special summon
+	--Place
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,2))
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_FLIP)
+	e2:SetCode(EVENT_CHANGE_POS)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetRange(LOCATION_MZONE)
+	e2:SetCondition(s.scondition)
 	e2:SetTarget(s.tftg)
 	e2:SetOperation(s.tfop)
 	c:RegisterEffect(e2)
@@ -40,7 +36,7 @@ s.listed_series = {SET_VOLTAIC}
 
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:IsFaceup() and c:IsDisabled() and Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
+	return c:IsFaceup() and c:IsDisabled()
 end
 
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -50,26 +46,13 @@ function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
 
-function s.mqecon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsFaceup() and c:IsDisabled() and Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999563)==0
-end
-
-function s.mqecost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
-	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
-end
-
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:IsFaceup() end
 	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
+
 function s.thfilter(c)
 	return c:IsSetCard(SET_VOLTAIC) and c:IsMonster() and c:IsAbleToHand() and not c:IsCode(id)
 end
@@ -98,12 +81,19 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 
+function s.scondition(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return (not ((c:GetPreviousPosition() & POS_FACEDOWN) == 0)) and c:IsFaceup()
+end
+
 function s.tffilter(c,tp)
 	return c:IsSpellTrap() and ((c:IsType(TYPE_CONTINUOUS) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0) or c:IsType(TYPE_FIELD)) and c:IsSetCard(SET_VOLTAIC) and not c:IsForbidden() and c:CheckUniqueOnField(tp)
 end
+
 function s.tftg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.tffilter,tp,LOCATION_DECK,0,1,nil,tp) end
 end
+
 function s.tfop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 and not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsType,TYPE_FIELD),tp,LOCATION_FZONE,0,1,nil) then
         return

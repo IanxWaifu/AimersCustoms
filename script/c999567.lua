@@ -43,16 +43,9 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1,{id,2})
-	e4:SetCondition(s.mqecon1)
 	e4:SetTarget(s.rthtg)
 	e4:SetOperation(s.rthop)
 	c:RegisterEffect(e4)
-	local e10=e4:Clone()
-	e10:SetType(EFFECT_TYPE_QUICK_O)
-	e10:SetCode(EVENT_FREE_CHAIN)
-	e10:SetCondition(s.mqecon2)
-	e10:SetCost(s.mqecost)
-	c:RegisterEffect(e10)	
 end
 
 s.material_setcode=SET_VOLTAIC_ARTIFACT
@@ -186,16 +179,4 @@ function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE)
 		end
 	end
-end
-
-function s.mqecon1(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
-end
-function s.mqecon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999563)==0
-end
-function s.mqecost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
 end

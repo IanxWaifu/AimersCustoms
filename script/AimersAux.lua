@@ -230,12 +230,32 @@ function Aimer.AddVoltaicEquipEffect(c,id)
             Duel.Equip(tp,c,g:GetFirst())
         end
     end
+    local function equipfilter(c,tp)
+        return c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
+    end
+    local function regop(e,tp,eg,ep,ev,re,r,rp)
+        local tg=eg:Filter(hdexfilter,nil,tp)
+        if #tg>0 then
+            for tc in tg:Iter() do
+                    tc:RegisterFlagEffect(999567,RESET_CHAIN,0,1)
+                end
+                local g=e:GetLabelObject():GetLabelObject()
+                if Duel.GetCurrentChain()==0 then g:Clear() end
+                g:Merge(tg)
+                g:Remove(function(c) return c:GetFlagEffect(999567)==0 end,nil)
+                e:GetLabelObject():SetLabelObject(g)
+                if #g>0 and not Duel.HasFlagEffect(tp,999567) then
+                    Duel.RegisterFlagEffect(tp,999567,RESET_CHAIN,0,1)
+                    Duel.RaiseEvent(g,EVENT_CUSTOM+999567,re,r,tp,ep,ev)
+            end
+        end
+    end
     local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,0))
     e1:SetCategory(CATEGORY_EQUIP)
     e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
     e1:SetProperty(EFFECT_FLAG_DELAY)
-    e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e1:SetCode(EVENT_CUSTOM+999567)
     e1:SetCountLimit(3,999557)
     e1:SetRange(LOCATION_DECK)
     e1:SetCost(hdexcost)
@@ -243,13 +263,27 @@ function Aimer.AddVoltaicEquipEffect(c,id)
     e1:SetTarget(hdextg)
     e1:SetOperation(hdexop)
     c:RegisterEffect(e1)
-    local e2=e1:Clone()
-    e2:SetCode(EVENT_SUMMON_SUCCESS)
-    c:RegisterEffect(e2)
-    local e3=e1:Clone()
-    e3:SetCode(EVENT_FLIP)
-    c:RegisterEffect(e3)
+    --Collect Groups of Event Cards
+    local g=Group.CreateGroup()
+    g:KeepAlive()
+    e1:SetLabelObject(g)
+    --Keep track of monsters flipped/summoned
+    local e3a=Effect.CreateEffect(c)
+    e3a:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e3a:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e3a:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e3a:SetRange(LOCATION_DECK)
+    e3a:SetLabelObject(e1)
+    e3a:SetOperation(regop)
+    c:RegisterEffect(e3a)
+    local e3b=e3a:Clone()
+    e3b:SetCode(EVENT_SUMMON_SUCCESS)
+    c:RegisterEffect(e3b)
+    local e3c=e3a:Clone()
+    e3c:SetCode(EVENT_FLIP)
+    c:RegisterEffect(e3c)
 end
+
 
 
 --Voltaic face-down Pendulum Summon

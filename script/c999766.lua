@@ -9,7 +9,7 @@ function s.initial_effect(c)
     --Register Custom Event upon Level Adjustment
     local e0=Effect.CreateEffect(c)
     e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-    e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
     e0:SetRange(LOCATION_MZONE|LOCATION_HAND|LOCATION_DECK)
     e0:SetCode(EVENT_ADJUST)
     e0:SetOperation(s.regop)
@@ -19,6 +19,7 @@ function s.initial_effect(c)
     e1:SetCategory(CATEGORY_DESTROY)
     e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
     e1:SetCode(EVENT_CUSTOM+id)
+    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
     e1:SetRange(LOCATION_MZONE|LOCATION_HAND|LOCATION_DECK)
     e1:SetCountLimit(1)
     e1:SetTarget(s.destg)
@@ -108,7 +109,7 @@ end
 
 --Banish until the End Phase
 function s.rmfilter(c)
-    return c:IsAbleToRemove() and not ((c:IsStatus(STATUS_ACTIVATED)) or (c:IsStatus(STATUS_ACT_FROM_HAND)))
+    return ((c:IsFaceup() and c:IsLocation(LOCATION_SZONE) and c:IsStatus(STATUS_ACTIVATED)) or (c:IsFacedown() or c:IsType(TYPE_CONTINUOUS) or c:IsType(TYPE_FIELD) or c:IsType(TYPE_EQUIP) or c:IsLocation(LOCATION_MZONE))) and c:IsAbleToRemove()
 end
 
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -117,7 +118,15 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     if chk==0 then return s[tp]>0 and Duel.IsExistingTarget(s.rmfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
     local g1=Duel.SelectTarget(tp,s.rmfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,s[tp],nil)
-    e:SetLabelObject(g1)
+    -- Store the original face-up/face-down positions of each targeted card
+    local posTable = {}
+    local tc=g1:GetFirst()
+    while tc do
+        local facePos = tc:IsFacedown() and POS_FACEDOWN or POS_FACEUP
+        table.insert(posTable, {card=tc, pos=facePos})
+        tc=g1:GetNext()
+    end
+    e:SetLabelObject({group=g1, positions=posTable})
     g1:KeepAlive()
     Duel.SetOperationInfo(0,CATEGORY_REMOVE,g1,#g1,0,0)
     Duel.SetChainLimit(s.chlimit)
@@ -129,10 +138,22 @@ function s.chlimit(e,ep,tp)
 end
 
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
-    local tc=e:GetLabelObject()
-    if Duel.Remove(tc,0,REASON_EFFECT+REASON_TEMPORARY)~=0 then
+    local data = e:GetLabelObject()
+    local g1 = data.group
+    local posTable = data.positions
+    -- Create a new group for cards that didn't change between face-up/face-down
+    local removeGroup = Group.CreateGroup()
+    -- Check each card's current face-up/face-down position and compare with the original
+    for _, cardData in ipairs(posTable) do
+        local card = cardData.card
+        local originalPos = cardData.pos
+        local currentPos = card:IsFacedown() and POS_FACEDOWN or POS_FACEUP
+        if currentPos == originalPos then
+            removeGroup:AddCard(card)
+        end
+    end
+    if #removeGroup>0 and Duel.Remove(removeGroup,0,REASON_EFFECT+REASON_TEMPORARY)~=0 then
         local og=Duel.GetOperatedGroup()
-        local oc=og:GetFirst()
         for oc in aux.Next(og) do
             oc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
         end
@@ -149,6 +170,8 @@ function s.rmop(e,tp,eg,ep,ev,re,r,rp)
         Duel.RegisterEffect(e1,tp)
     end
 end
+
+
 
 --Return next turn
 function s.retcon(e,tp,eg,ep,ev,re,r,rp)

@@ -51,12 +51,19 @@ end
 function s.setfilter(c)
 	return c:IsFaceup() and ((c:IsSpellTrap() and c:IsSSetable(true)) or (c:IsMonster() and c:IsCanTurnSet())) and not ((c:IsStatus(STATUS_ACTIVATED)) or (c:IsStatus(STATUS_ACT_FROM_HAND)))
 end
+
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
+	if e:GetHandler():IsLocation(LOCATION_HAND) then ft=ft-1 end
+	if chk==0 then return ft>0 and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,e:GetHandler()) end
+	if e:IsHasType(EFFECT_TYPE_ACTIVATE) then
+		Duel.SetChainLimit(s.chainlimit())
+	end
 end
+
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local tc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil):GetFirst()
+	local tc=Duel.SelectMatchingCard(tp,s.setfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,e:GetHandler()):GetFirst()
 	if tc then
 		if tc:IsSpellTrap() then 
 			Duel.ChangePosition(tc,POS_FACEDOWN)
@@ -66,7 +73,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		end
 		if not e:GetHandler():IsRelateToEffect(e) or not e:IsHasType(EFFECT_TYPE_ACTIVATE) then return end
 	    local ct=Duel.GetCurrentChain()
-	   	local mg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.adfilter),tp,LOCATION_GRAVE,0,nil)
+	   	local mg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.adfilter),tp,LOCATION_GRAVE,0,e:GetHandler())
 		if ct>1 and #mg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)

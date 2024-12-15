@@ -15,20 +15,16 @@ function s.initial_effect(c)
 	e1:SetTarget(s.settg)
 	e1:SetOperation(s.setop)
 	c:RegisterEffect(e1)
-	local e10=e1:Clone()
-	e10:SetType(EFFECT_TYPE_QUICK_O)
-	e10:SetCode(EVENT_FREE_CHAIN)
-	e10:SetCondition(s.mqecon)
-	e10:SetCost(s.mqecost)
-	c:RegisterEffect(e10)
 	--Special summon
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,2))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_FLIP)
+	e2:SetCode(EVENT_CHANGE_POS)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetRange(LOCATION_MZONE)
+	e2:SetCondition(s.scondition)
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
 	c:RegisterEffect(e2)
@@ -49,19 +45,6 @@ function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return c:IsFaceup() end
 	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
-end
-
-function s.mqecon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsFaceup() and c:IsDisabled() and Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999563)==0
-end
-function s.mqecost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
-	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
 end
 
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -119,7 +102,10 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 
-
+function s.scondition(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	return (not ((c:GetPreviousPosition() & POS_FACEDOWN) == 0)) and c:IsFaceup()
+end
 
 function s.spfilter(c,e,tp)
 	if c:IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,nil,c)==0 then return false end

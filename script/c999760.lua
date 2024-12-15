@@ -10,7 +10,7 @@ function s.initial_effect(c)
     e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
     e1:SetProperty(EFFECT_FLAG_DELAY)
     e1:SetCode(EVENT_TO_DECK)
-    e1:SetRange(LOCATION_HAND)
+    e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
     e1:SetCountLimit(1,id)
     e1:SetCondition(s.gspcon)
     e1:SetTarget(s.gsptg)
@@ -42,8 +42,17 @@ function s.gsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.gspop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if not c:IsRelateToEffect(e) then return end
-    Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+    if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0 then
+        --Banish it when it leaves the field
+        local e1=Effect.CreateEffect(c)
+        e1:SetDescription(3300)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+        e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
+        e1:SetValue(LOCATION_REMOVED)
+        e1:SetReset(RESET_EVENT|RESETS_REDIRECT)
+        c:RegisterEffect(e1,true)
+    end
 end
 
 

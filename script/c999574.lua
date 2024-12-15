@@ -37,12 +37,6 @@ function s.initial_effect(c)
 	e3:SetTarget(s.drtg)
 	e3:SetOperation(s.drop)
 	c:RegisterEffect(e3)
-	local e10=e3:Clone()
-	e10:SetType(EFFECT_TYPE_QUICK_O)
-	e10:SetCode(EVENT_FREE_CHAIN)
-	e10:SetCondition(s.mqecon3)
-	e10:SetCost(s.drcost2)
-	c:RegisterEffect(e10)
 	--Negate Spell/Trap
 	aux.GlobalCheck(s,function()
 		local ge1=Effect.CreateEffect(c)
@@ -105,7 +99,7 @@ end
 -- Cost for Quicks
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp) and c:IsFaceup() and c:IsDisabled()
+	return c:IsFaceup() and c:IsDisabled()
 end
 
 function s.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -114,18 +108,7 @@ function s.drcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
-function s.drcost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
-	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
-end
-function s.mqecon3(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsFaceup() and c:IsDisabled() and Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999563)==0
-end
+
 
 --Draw 1 Card
 function s.drtg(e,tp,eg,ep,ev,re,r,rp,chk)

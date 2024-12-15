@@ -33,12 +33,6 @@ function s.initial_effect(c)
 	e3:SetTarget(s.settg)
 	e3:SetOperation(s.setop)
 	c:RegisterEffect(e3)
-	local e9=e3:Clone()
-	e9:SetType(EFFECT_TYPE_QUICK_O)
-	e9:SetCode(EVENT_FREE_CHAIN)
-	e9:SetCondition(s.mqecon3)
-	e9:SetCost(s.setcost2)
-	c:RegisterEffect(e9)
 	-- Target same columns and return to hand
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,1))
@@ -46,16 +40,9 @@ function s.initial_effect(c)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1,{id,1})
-	e4:SetCondition(s.mqecon1)
 	e4:SetTarget(s.rthtg)
 	e4:SetOperation(s.rthop)
 	c:RegisterEffect(e4)
-	local e10=e4:Clone()
-	e10:SetType(EFFECT_TYPE_QUICK_O)
-	e10:SetCode(EVENT_FREE_CHAIN)
-	e10:SetCondition(s.mqecon2)
-	e10:SetCost(s.mqecost)
-	c:RegisterEffect(e10)	
 end
 s.listed_names = {id}
 s.listed_series = {SET_VOLTAIC, SET_VOLDRAGO, SET_DRAGOCYENE}
@@ -122,7 +109,7 @@ end
 -- Set to field
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp) and c:IsFaceup() and c:IsDisabled()
+	return c:IsFaceup() and c:IsDisabled()
 end
 
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -131,18 +118,7 @@ function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
 	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
 end
-function s.setcost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
-	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
-end
-function s.mqecon3(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:IsFaceup() and c:IsDisabled() and Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999563)==0
-end
+
 
 function s.setfilter(c)
 	return (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:IsSpellTrap() and c:IsSSetable()
@@ -176,16 +152,4 @@ function s.rthop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 then
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 	end
-end
-
-function s.mqecon1(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsMainPhase() and Duel.IsTurnPlayer(tp)
-end
-function s.mqecon2(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICMONQ) and ((Duel.IsMainPhase() and Duel.GetCurrentChain(true)>=0) or not (Duel.IsMainPhase()) or (Duel.IsTurnPlayer(1-tp)))
-	and Duel.GetFlagEffect(tp,999563)==0
-end
-function s.mqecost(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return true end
-	Duel.RegisterFlagEffect(tp,999563,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
 end
