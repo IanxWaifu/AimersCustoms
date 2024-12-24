@@ -3,7 +3,7 @@
 local s, id = GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
-    Pendulum.AddProcedure(c, false)
+    --[[Pendulum.AddProcedure(c, false)--]]
     Aimer.AddVoltaicPendProcedure(c,reg,aux.Stringid(id,0))
     -- Remain on Field
     local e3=Effect.CreateEffect(c)
