@@ -21,6 +21,7 @@ s.listed_series = {SET_VOLTAIC_ARTIFACT}
 function s.setcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local tc=c:GetEquipTarget()
+	if tc==nil then return false end
 	if not tc:IsFaceup() or tc:IsDisabled() then return false end
 	if chk==0 then return tc:IsFaceup() and not tc:IsDisabled() end
 	Duel.NegateRelatedChain(tc,RESET_TURN_SET)
@@ -37,25 +38,6 @@ function s.setcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	tc:RegisterEffect(e2)
 end
 
-function s.setcost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	local tc=c:GetEquipTarget()
-	if not tc:IsFaceup() or tc:IsDisabled() or Duel.GetFlagEffect(tp,VOLTAICEQUQ)>0 then return false end
-	if chk==0 then return tc:IsFaceup() and not tc:IsDisabled() and Duel.GetFlagEffect(tp,VOLTAICEQUQ)==0 end
-	Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_DISABLE)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	tc:RegisterEffect(e1)
-	local e2=Effect.CreateEffect(e:GetHandler())
-	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetCode(EFFECT_DISABLE_EFFECT)
-	e2:SetValue(RESET_TURN_SET)
-	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-	tc:RegisterEffect(e2)
-	Duel.RegisterFlagEffect(tp,999564,RESET_PHASE+PHASE_END,0,1)
-end
 
 function s.settg(e, tp, eg, ep, ev, re, r, rp, chk)
     if chk==0 then return true end
@@ -88,7 +70,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		e2:SetTargetRange(LOCATION_MZONE,0)
 		e2:SetTarget(s.indtg)
 		e2:SetValue(aux.tgoval)
-		e2:SetReset(RESET_PHASE+PHASE_END)
+		e2:SetReset(RESET_PHASE|PHASE_END,2)
 		Duel.RegisterEffect(e2,tp)
 		local e3=Effect.CreateEffect(c)
 		e3:SetType(EFFECT_TYPE_FIELD)
@@ -96,8 +78,11 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetTargetRange(LOCATION_MZONE,0)
 		e3:SetTarget(s.indtg)
 		e3:SetValue(1000)
-		e3:SetReset(RESET_PHASE+PHASE_END)
+		e3:SetReset(RESET_PHASE|PHASE_END,2)
 		Duel.RegisterEffect(e3,tp)
+		local e4=e3:Clone()
+		e4:SetCode(EFFECT_UPDATE_DEFENSE)
+		Duel.RegisterEffect(e4,tp)
 	end
 end
 

@@ -52,7 +52,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetType(EFFECT_TYPE_QUICK_O)
 			e1:SetCode(EVENT_FREE_CHAIN)
 			e1:SetCountLimit(1,{id,1})
-			e1:SetProperty(EFFECT_FLAG_DELAY)
+			--[[e1:SetProperty(EFFECT_FLAG_DELAY)--]]
 			e1:SetRange(LOCATION_MZONE)
 			e1:SetCost(s.announcecost)
 			e1:SetLabelObject(mt.ordinal_scale)

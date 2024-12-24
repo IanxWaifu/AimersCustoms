@@ -12,6 +12,11 @@ function s.initial_effect(c)
     e0:SetCode(EVENT_ADJUST)
     e0:SetOperation(s.regop)
     c:RegisterEffect(e0)
+    --Allows Negative Levels
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_ALLOW_NEGATIVE)
+    c:RegisterEffect(e1)
     --Destroy itself upon Custom Event
     local e2=Effect.CreateEffect(c)
     e2:SetCategory(CATEGORY_DESTROY)
@@ -70,8 +75,8 @@ end
 --Raise Custom Event
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if c:GetLevel()>1 then return end
-    if c:GetLevel()<=1 and ((c:IsLocation(LOCATION_HAND)) or (c:IsLocation(LOCATION_DECK)) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup())) then
+    if c:GetLevel()>0 then return end
+    if c:GetLevel()<=0 and ((c:IsLocation(LOCATION_HAND)) or (c:IsLocation(LOCATION_DECK)) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup())) then
         Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
     end
 end

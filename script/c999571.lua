@@ -38,7 +38,7 @@ function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
 end
 function s.filter(c,e,tp)
-	return c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEDOWN_DEFENSE)
+	return (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP|POS_FACEDOWN_DEFENSE) and c:IsMonster()
 end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -58,7 +58,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 			Duel.BreakEffect()
 			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 			local dg=g:Select(tp,1,1,nil)
-			Duel.SpecialSummon(dg,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
+			if Duel.SpecialSummon(dg,0,tp,tp,false,false,POS_FACEUP|POS_FACEDOWN_DEFENSE)~=0 and dg:GetFirst():IsFacedown() then
+				Duel.ConfirmCards(1-tp,dg)
+			end
 		 else end
 	end
 end

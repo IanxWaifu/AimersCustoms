@@ -3,7 +3,7 @@
 local s, id = GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
-    --[[Pendulum.AddProcedure(c, false)--]]
+    Pendulum.AddProcedure(c, false)
     Aimer.AddVoltaicPendProcedure(c,reg,aux.Stringid(id,0))
     -- Remain on Field
     local e3=Effect.CreateEffect(c)
@@ -17,36 +17,33 @@ function s.initial_effect(c)
     local e4=e3:Clone()
     e4:SetCode(EVENT_SSET)
     c:RegisterEffect(e4)
-    -- Flip and Set
-    local e5=Effect.CreateEffect(c)
-    e5:SetDescription(aux.Stringid(id,1))
-    e5:SetCategory(CATEGORY_POSITION)
-    e5:SetType(EFFECT_TYPE_IGNITION)
-    e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
-    e5:SetRange(LOCATION_PZONE)
-    e5:SetCountLimit(1,id)
-    e5:SetCondition(s.pcon1)
-    e5:SetCost(s.pcost)
-    e5:SetTarget(s.ptg)
-    e5:SetOperation(s.pop)
-    c:RegisterEffect(e5)
+    --change scale
+	local e5=Effect.CreateEffect(c)
+	e5:SetDescription(aux.Stringid(id,1))
+	e5:SetType(EFFECT_TYPE_IGNITION)
+	e5:SetRange(LOCATION_PZONE)
+	e5:SetCountLimit(1,id)
+	e5:SetCondition(s.pcon1)
+	e5:SetCost(s.pcost)
+	e5:SetOperation(s.pcop)
+	c:RegisterEffect(e5)
     local e10=e5:Clone()
 	e10:SetType(EFFECT_TYPE_QUICK_O)
 	e10:SetCode(EVENT_FREE_CHAIN)
 	e10:SetCondition(s.pcon2)
 	c:RegisterEffect(e10)
-    --Target and Return a card to the hand
+    --Flip a Monster Card
 	local e6=Effect.CreateEffect(c)
 	e6:SetDescription(aux.Stringid(id,2))
-	e6:SetCategory(CATEGORY_TOHAND)
+	e6:SetCategory(CATEGORY_POSITION)
 	e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e6:SetCode(EVENT_CHANGE_POS)
 	e6:SetRange(LOCATION_MZONE)
 	e6:SetProperty(EFFECT_FLAG_DELAY)
 	e6:SetCountLimit(1,{id,1})
-	e6:SetCondition(s.rthcon)
-	e6:SetTarget(s.rthtg)
-	e6:SetOperation(s.rthop)
+	e6:SetCondition(s.flipcon)
+	e6:SetTarget(s.fliptg)
+	e6:SetOperation(s.flipop)
 	c:RegisterEffect(e6)
 	local e7=e6:Clone()
 	e7:SetCode(EVENT_SSET)
@@ -82,7 +79,6 @@ function s.pcon2(e,tp,eg,ep,ev,re,r,rp)
 	return Duel.IsPlayerAffectedByEffect(tp,VOLTAICPENDQ)
 end
 
-
 function s.scondition(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return (not ((c:GetPreviousPosition() & POS_FACEUP) == 0)) and c:IsFacedown()
@@ -98,53 +94,34 @@ function s.dirop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.RegisterEffect(e1,tp)
 end
 
+
+function s.pcfilter(c,pc)
+	return c:IsMonster() and (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:GetLevel()~=pc:GetLeftScale() and c:IsAbleToGraveAsCost()
+end
 function s.pcost(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return c:IsFaceup() end
-	Duel.ChangePosition(c,POS_FACEDOWN)
-	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_SSET,e,REASON_COST,tp,tp,0)
-	Duel.RaiseEvent(e:GetHandler(),EVENT_SSET,e,REASON_COST,tp,tp,0)
-end
-function s.cfilter(c)
-	return c:IsFacedown() --[[and c:IsSetCard(SET_VOLTAIC)--]]
-end
-function s.ptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chkc then return chkc:IsLocation(LOCATION_MZONE) and s.filter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.cfilter,tp,LOCATION_MZONE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
-	local g=Duel.SelectTarget(tp,s.cfilter,tp,LOCATION_MZONE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_POSITION,g,1,0,0)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_DECK,0,1,nil,e:GetHandler()) end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+	local g=Duel.SelectMatchingCard(tp,s.pcfilter,tp,LOCATION_DECK,0,1,1,nil,e:GetHandler())
+	Duel.SendtoGrave(g,REASON_COST)
+	e:SetLabel(g:GetFirst():GetLevel())
 end
 
-function s.pop(e,tp,eg,ep,ev,re,r,rp)
+function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local tc=Duel.GetFirstTarget()
-	if tc and tc:IsRelateToEffect(e) and Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)~=0 then
-		--cannot activate
-		local e1=Effect.CreateEffect(c)
-		e1:SetDescription(aux.Stringid(id,2))
-		e1:SetType(EFFECT_TYPE_FIELD)
-		e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_IGNORE_RANGE+EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_CLIENT_HINT)
-		e1:SetCode(EFFECT_LEAVE_FIELD_REDIRECT)
-		e1:SetTargetRange(0,LOCATION_ONFIELD)
-		e1:SetLabelObject(tc)
-		e1:SetTarget(s.rmtarget)
-		e1:SetReset(RESET_PHASE|PHASE_END)
-		e1:SetValue(LOCATION_REMOVED)
-		Duel.RegisterEffect(e1,tp)
-		aux.RegisterClientHint(c,nil,tp,1,0,aux.Stringid(id,2),nil)
-	end
+	if not c:IsRelateToEffect(e) then return end
+	local scale=e:GetLabel()
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_CHANGE_LSCALE)
+	e1:SetValue(scale)
+	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+	c:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_CHANGE_RSCALE)
+	e2:SetValue(scale)
+	c:RegisterEffect(e2)
 end
 
-function s.rmfilter(c)
-	return c:IsSpellTrap() or c:IsMonster()
-end
-function s.rmtarget(e,c)
-	local cc=e:GetLabelObject():GetColumnGroup()
-	local cg=cc:Match(s.rmfilter,nil)
-	return cg and cc:IsContains(c) and c:IsControler(1-e:GetHandlerPlayer()) and Duel.IsPlayerCanRemove(e:GetHandlerPlayer(),c)
-end
 
 
 function s.tspcfilter(c,tp)
@@ -180,25 +157,67 @@ function s.repval(e,c)
 end
 
 --monstercard is flipped down
-function s.rthfilter(c)
+function s.flipfilter(c)
 	return (not ((c:GetPreviousPosition() & POS_FACEUP) == 0)) and c:IsFacedown() and c:IsOriginalType(TYPE_MONSTER)
 end
-function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.rthfilter,1,nil)
+
+function s.flipcon(e,tp,eg,ep,ev,re,r,rp)
+	return eg:IsExists(s.flipfilter,1,nil)
 end
-function s.rthtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsOnField() and chkc:IsAbleToHand() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToHand,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_RTOHAND)
-	local g=Duel.SelectTarget(tp,Card.IsAbleToHand,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_TOHAND,g,1,0,0)
+
+function s.ffilter(c)
+	return ((c:IsFaceup() and c:IsCanTurnSet()) or c:IsFacedown()) and c:IsOriginalType(TYPE_MONSTER)
 end
-function s.rthop(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetTargetCards(e)
-	if #g>0 then
-		Duel.SendtoHand(g,nil,REASON_EFFECT)
-	end
+
+function s.fliptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.ffilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
+	Duel.SetOperationInfo(0,CATEGORY_POSITION,nil,1,0,0)
 end
+
+function s.flipop(e,tp,eg,ep,ev,re,r,rp)
+	local fg=Duel.GetMatchingGroup(s.ffilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
+	if #fg>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_POSCHANGE)
+		local g=fg:Select(tp,1,1,nil)
+		Duel.HintSelection(g)
+    	for tc in aux.Next(g) do
+            if tc:IsMonster() then
+                local chpos=0
+                local pos=tc:GetPosition()
+                local isFaceup=(pos&POS_FACEUP)~=0
+                local isFacedown=(pos&POS_FACEDOWN_DEFENSE)~=0
+                if isFaceup then
+                    chpos=POS_FACEDOWN_DEFENSE
+                elseif isFacedown then
+                    -- Choose between POS_FACEUP_ATTACK and POS_FACEUP_DEFENSE
+                    chpos=Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEUP_DEFENSE)
+                end
+                Duel.ChangePosition(tc,chpos)
+            else
+                local chpos=0
+                local pos=tc:GetPosition()
+                local isFaceup=(pos&POS_FACEUP)~=0
+                local isFacedown=(pos&POS_FACEDOWN)~=0
+                if isFaceup then
+                    chpos=POS_FACEDOWN
+                elseif isFacedown then
+                    chpos=POS_FACEUP
+                end
+                if chpos==POS_FACEDOWN then
+                    Duel.ChangePosition(tc,chpos)
+                    Duel.RaiseSingleEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+                    Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+                elseif chpos==POS_FACEUP then
+                    Duel.ChangePosition(tc,chpos)
+                    Duel.RaiseSingleEvent(tc,EVENT_CHANGE_POS,e,REASON_EFFECT,tp,tp,0)
+                    Duel.RaiseEvent(tc,EVENT_CHANGE_POS,e,REASON_EFFECT,tp,tp,0)
+                end
+            end
+        end
+    end
+end
+
+
 --move opponent's card
 function s.movecost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

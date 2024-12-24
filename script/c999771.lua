@@ -46,24 +46,24 @@ function s.initial_effect(c)
     end)
 end
 
-local activatedAzhimaouCards = {}
+local ActivatedAzhimaouCards={}
 
 -- Function to check and add "SET_AZHIMAOU" card to the table for the player
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
     local rc=re:GetHandler()
     if re:IsHasType(EFFECT_TYPE_ACTIVATE) and rc:IsSetCard(SET_AZHIMAOU) and rp==tp then
-        local cardID = rc:GetCode()
-        -- Check if cardID is already in the table
-        if not s.isCardIDInTable(cardID) then
-            table.insert(activatedAzhimaouCards, cardID)
+        local CardID=rc:GetCode()
+        -- Check if CardID is already in the table
+        if not s.IsCardInIDTable(CardID) then
+            table.insert(ActivatedAzhimaouCards,CardID)
         end
     end
 end
 
 -- Utility function to check if a card ID is in the table
-function s.isCardIDInTable(cardID)
-    for _, id in ipairs(activatedAzhimaouCards) do
-        if id == cardID then
+function s.IsCardInIDTable(CardID)
+    for _,id in ipairs(ActivatedAzhimaouCards) do
+        if id==CardID then
             return true
         end
     end
@@ -72,7 +72,7 @@ end
 
 -- Function to clear the table at the end of the turn
 function s.clear_table(e,tp,eg,ep,ev,re,r,rp)
-    activatedAzhimaouCards = {}
+    ActivatedAzhimaouCards={}
 end
 
 function s.ffilter(c,fc,sumtype,tp,sub,mg,sg)
@@ -131,7 +131,7 @@ end
 
 -- Filter function to check if the card can be Set and has not been used this turn
 function s.setfilter(c)
-    return c:IsSetCard(SET_AZHIMAOU) and (c:IsQuickPlaySpell() or c:IsNormalTrap()) and c:IsSSetable() and not s.isCardIDInTable(c:GetCode())
+    return c:IsSetCard(SET_AZHIMAOU) and (c:IsQuickPlaySpell() or c:IsNormalTrap()) and c:IsSSetable() and not s.IsCardInIDTable(c:GetCode())
 end
 
 -- Set up to 2 cards

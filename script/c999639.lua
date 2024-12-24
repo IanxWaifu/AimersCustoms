@@ -18,6 +18,15 @@ function s.initial_effect(c)
 	e1:SetTarget(s.destg)
 	e1:SetOperation(s.desop)
 	c:RegisterEffect(e1)
+	--Special Summon itself from hand or GY, then you can apply extra effects
+	local e2=Effect.CreateEffect(c)
+	e2:SetDescription(aux.Stringid(id,1))
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetTarget(s.tg)
+	e2:SetOperation(s.op)
+	c:RegisterEffect(e2,false,REGISTER_FLAG_DETACH_XMAT)
 end
 
 s.listed_names={id}
@@ -87,4 +96,57 @@ function s.desop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	end
+end
+
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	local g=c:GetOverlayGroup()
+	local race=0
+	if c:IsAbleToRemove() then race=race | RACE_FIEND end
+	if Duel.IsPlayerCanDraw(tp,1) then race=race | RACE_PYRO end
+	if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsAbleToDeck),tp,0,LOCATION_ONFIELD,1,nil) then race=race | RACE_ZOMBIE end
+	if chk==0 then return race>0 and g:IsExists(Card.IsRace,1,nil,race) end
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsRelateToEffect(e) then return end
+	local g=c:GetOverlayGroup()
+	local race=0
+	if c:IsAbleToRemove() then race=race | RACE_FIEND end
+	if Duel.IsPlayerCanDraw(tp,1) then race=race | RACE_PYRO end
+	if Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsAbleToDeck),tp,0,LOCATION_ONFIELD,1,nil) then race=race | RACE_ZOMBIE end
+	if race==0 then return end
+	local sg=aux.SelectUnselectGroup(g:Filter(Card.IsRace,nil,race),e,tp,1,3,s.rescon,1,tp,HINTMSG_REMOVEXYZ)
+	local lb=0
+	for tc in aux.Next(sg) do
+		lb=lb | tc:GetRace()
+	end
+	lb=lb & 0x98
+	Duel.SendtoGrave(sg,REASON_EFFECT)
+	Duel.RaiseSingleEvent(c,EVENT_DETACH_MATERIAL,e,0,0,0,0)
+	Duel.BreakEffect()
+	if lb & RACE_FIEND ~=0 then
+		if c:IsRelateToEffect(e) then
+			Duel.Remove(c,c:GetPosition(),REASON_EFFECT+REASON_TEMPORARY)
+			local e1=Effect.CreateEffect(e:GetHandler())
+			e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+			e1:SetCode(EVENT_PHASE+PHASE_END)
+			e1:SetReset(RESET_PHASE+PHASE_END)
+			e1:SetLabelObject(c)
+			e1:SetCountLimit(1)
+			e1:SetOperation(s.retop)
+			Duel.RegisterEffect(e1,tp)
+		end
+	end
+	if lb & RACE_PYRO ~=0 then
+		Duel.Draw(tp,1,REASON_EFFECT)
+	end
+	if lb & RACE_ZOMBIE ~=0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
+		local g=Duel.SelectMatchingCard(tp,aux.FaceupFilter(Card.IsAbleToDeck),tp,0,LOCATION_ONFIELD,1,1,nil)
+		if #g>0 then Duel.SendtoDeck(g,nil,0,REASON_EFFECT) end
+	end
+end
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.ReturnToField(e:GetLabelObject())
 end

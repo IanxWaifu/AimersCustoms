@@ -33,7 +33,7 @@ function s.tokenfilter(c)
 	return c:IsType(TYPE_TOKEN)
 end
 function s.dgfilter(c)
-	return --[[c:IsSetCard(SET_DEATHRALL) and --]]c:IsMonster() and not c:IsPublic()
+	return c:IsSetCard(SET_DEATHRALL) and c:IsMonster() and not c:IsPublic()
 end
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsOnField() and chkc:IsControler(tp) end

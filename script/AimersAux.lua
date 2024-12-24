@@ -320,9 +320,8 @@ function Aimer.VoltaicPendFilter(c,e,tp,lscale,rscale,lvchk)
     else
         lv=c:GetLevel()
     end
-    return c:IsSetCard(0x2A1) 
-        and (lvchk or (lv>lscale and lv<rscale) or c:IsHasEffect(511004423)) 
-            and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_PENDULUM,tp,false,false,POS_FACEDOWN_DEFENSE) and not c:IsForbidden()
+    return ((c:IsSetCard(SET_VOLTAIC) and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_PENDULUM,tp,false,false,POS_FACEDOWN_DEFENSE)) or (c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_PENDULUM,tp,false,false,POS_FACEUP)))
+        and (lvchk or (lv>lscale and lv<rscale) or c:IsHasEffect(511004423)) and not c:IsForbidden()
 end
 function Aimer.VoltaicPendCondition()
     return function(e,c,og)
@@ -342,6 +341,7 @@ function Aimer.VoltaicPendCondition()
         end
     end
 end
+
 function Aimer.VoltaicPendOperation()
     return function(e,tp,eg,ep,ev,re,r,rp,c,sg,og)
         local rpz=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
@@ -366,19 +366,24 @@ function Aimer.VoltaicPendOperation()
         end
         if #sg<=0 then return end
         local id=c:GetCode()
-        Duel.Hint(HINT_CARD,0,id)
+        --[[Duel.Hint(HINT_CARD,0,id)--]]
         Duel.RegisterFlagEffect(tp,10000000,RESET_PHASE+PHASE_END+RESET_SELF_TURN,0,1)
         Duel.HintSelection(c,true)
         Duel.HintSelection(rpz,true)
+        local fg=Group.CreateGroup()
         for tc in sg:Iter() do
-            if tc:IsSetCard(0x2A1) then
-                Duel.SpecialSummonStep(tc,SUMMON_TYPE_PENDULUM,tp,tp,true,false,POS_FACEDOWN_DEFENSE)
+            if tc:IsSetCard(SET_VOLTAIC) and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP|POS_FACEDOWN_DEFENSE)~=0 and tc:IsFacedown() then
+                fg:AddCard(tc)
+            elseif not tc:IsSetCard(SET_VOLTAIC) then
+                Duel.SpecialSummonStep(tc,SUMMON_TYPE_PENDULUM,tp,tp,true,false,POS_FACEUP)
             end
+        end
+        if #fg>0 then
+            Duel.ConfirmCards(1-tp,fg)
         end
         Duel.SpecialSummonComplete()
     end
 end
-
 
 --Synchro monster, m-n tuners + m-n monsters
 function Aimer.VoltaicSynchroAddProcedure(c,...)

@@ -100,7 +100,7 @@ function s.rcop(e,tp,eg,ep,ev,re,r,rp)
         e1:SetRange(LOCATION_MZONE)
         e1:SetCode(EFFECT_ADD_RACE)
         e1:SetValue(rc)
-        e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE))
         c:RegisterEffect(e1)
     end
 end

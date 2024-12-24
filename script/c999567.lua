@@ -53,7 +53,7 @@ s.listed_names = {id}
 s.listed_series = {SET_VOLTAIC_ARTIFACT,SET_VOLDRAGO}
 
 function s.matfilter(c)
-	return c:IsSetCard(SET_VOLTAIC_ARTIFACT) or c:IsSetCard(SET_VOLDRAGO)
+	return (c:IsSetCard(SET_VOLTAIC) and c:IsType(TYPE_EQUIP)) or c:IsSetCard(SET_VOLDRAGO)
 end
 
 function s.contactfil(tp)
@@ -147,8 +147,8 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local tc=Duel.GetFirstTarget()
 	if tc:IsFaceup() and tc:IsRelateToEffect(e) and tc:IsCanBeDisabledByEffect(e) then
-		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 		--Negate its effects
+		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_DISABLE)
@@ -157,7 +157,28 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 		local e2=Effect.CreateEffect(c)
 		e2:SetType(EFFECT_TYPE_SINGLE)
 		e2:SetCode(EFFECT_DISABLE_EFFECT)
+		e2:SetValue(RESET_TURN_SET)
 		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e2)
+	end
+end
+
+function s.cgop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local g=Duel.GetMatchingGroup(Card.IsNegatableMonster,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+	if #g>0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
+		local sg=g:Select(tp,1,1,nil)
+		Duel.HintSelection(sg)
+		local tc=sg:GetFirst()
+		Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_DISABLE)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		tc:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_DISABLE_EFFECT)
 		tc:RegisterEffect(e2)
 	end
 end

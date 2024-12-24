@@ -88,14 +88,14 @@ function s.rcop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local rc=e:GetLabel()
     if rc>0 then
-        local e5=Effect.CreateEffect(c)
-        e5:SetType(EFFECT_TYPE_SINGLE)
-        e5:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-        e5:SetRange(LOCATION_MZONE)
-        e5:SetCode(EFFECT_ADD_RACE)
-        e5:SetValue(rc)
-        e5:SetReset(RESET_EVENT + RESETS_STANDARD_DISABLE)
-        c:RegisterEffect(e5)
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+        e1:SetRange(LOCATION_MZONE)
+        e1:SetCode(EFFECT_ADD_RACE)
+        e1:SetValue(rc)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE))
+        c:RegisterEffect(e1)
     end
 end
 

@@ -108,8 +108,6 @@ function s.disop(e,tp,eg,ep,ev,re,r,rp)
 	end
 	if b2 and opt>0 then
 		Duel.NegateEffect(ev)
-		Duel.BreakEffect()
-		Duel.Destroy(eg,REASON_EFFECT)
 	end
 end
 

@@ -14,41 +14,46 @@ function s.initial_effect(c)
     e0:SetCode(EVENT_ADJUST)
     e0:SetOperation(s.regop)
     c:RegisterEffect(e0)
-    --Destroy itself upon Custom Event
+    --Allows Negative Levels
     local e1=Effect.CreateEffect(c)
-    e1:SetCategory(CATEGORY_DESTROY)
-    e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
-    e1:SetCode(EVENT_CUSTOM+id)
-    e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
-    e1:SetRange(LOCATION_MZONE|LOCATION_HAND|LOCATION_DECK)
-    e1:SetCountLimit(1)
-    e1:SetTarget(s.destg)
-    e1:SetOperation(s.desop)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_ALLOW_NEGATIVE)
     c:RegisterEffect(e1)
-    --Special
+    --Destroy itself upon Custom Event
     local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id,1))
-    e2:SetCategory(CATEGORY_TOGRAVE)
-    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-    e2:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
-    e2:SetCode(EVENT_LEAVE_FIELD)
-    e2:SetCountLimit(1,id)
-    e2:SetCondition(s.tgcon)
-    e2:SetTarget(s.tgtg)
-    e2:SetOperation(s.tgop)
+    e2:SetCategory(CATEGORY_DESTROY)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_CUSTOM+id)
+    e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+    e2:SetRange(LOCATION_MZONE|LOCATION_HAND|LOCATION_DECK)
+    e2:SetCountLimit(1)
+    e2:SetTarget(s.destg)
+    e2:SetOperation(s.desop)
     c:RegisterEffect(e2)
-    --Remove until End Phase
+    --Special
     local e3=Effect.CreateEffect(c)
-    e3:SetDescription(aux.Stringid(id,0))
-    e3:SetCategory(CATEGORY_REMOVE)
-    e3:SetType(EFFECT_TYPE_QUICK_O)
-    e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-    e3:SetCode(EVENT_FREE_CHAIN)
-    e3:SetRange(LOCATION_MZONE)
-    e3:SetCountLimit(1,{id,1})
-    e3:SetTarget(s.rmtg)
-    e3:SetOperation(s.rmop)
+    e3:SetDescription(aux.Stringid(id,1))
+    e3:SetCategory(CATEGORY_TOGRAVE)
+    e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e3:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CARD_TARGET)
+    e3:SetCode(EVENT_LEAVE_FIELD)
+    e3:SetCountLimit(1,id)
+    e3:SetCondition(s.tgcon)
+    e3:SetTarget(s.tgtg)
+    e3:SetOperation(s.tgop)
     c:RegisterEffect(e3)
+    --Remove until End Phase
+    local e4=Effect.CreateEffect(c)
+    e4:SetDescription(aux.Stringid(id,0))
+    e4:SetCategory(CATEGORY_REMOVE)
+    e4:SetType(EFFECT_TYPE_QUICK_O)
+    e4:SetProperty(EFFECT_FLAG_CARD_TARGET)
+    e4:SetCode(EVENT_FREE_CHAIN)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetCountLimit(1,{id,1})
+    e4:SetTarget(s.rmtg)
+    e4:SetOperation(s.rmop)
+    c:RegisterEffect(e4)
     -- Check for activated "Azhimaou" Spell/Traps
     aux.GlobalCheck(s,function()
         s[0]=0
@@ -75,8 +80,8 @@ end
 --Raise Custom Event
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if c:GetLevel()>1 then return end
-    if c:GetLevel()<=1 and ((c:IsLocation(LOCATION_HAND)) or (c:IsLocation(LOCATION_DECK)) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup())) then
+    if c:GetLevel()>0 then return end
+    if c:GetLevel()<=0 and ((c:IsLocation(LOCATION_HAND)) or (c:IsLocation(LOCATION_DECK)) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup())) then
         Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
     end
 end
@@ -119,14 +124,14 @@ function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
     local g1=Duel.SelectTarget(tp,s.rmfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,s[tp],nil)
     -- Store the original face-up/face-down positions of each targeted card
-    local posTable = {}
+    local posTable={}
     local tc=g1:GetFirst()
     while tc do
-        local facePos = tc:IsFacedown() and POS_FACEDOWN or POS_FACEUP
-        table.insert(posTable, {card=tc, pos=facePos})
+        local facePos=tc:IsFacedown() and POS_FACEDOWN or POS_FACEUP
+        table.insert(posTable,{card=tc,pos=facePos})
         tc=g1:GetNext()
     end
-    e:SetLabelObject({group=g1, positions=posTable})
+    e:SetLabelObject({group=g1,positions=posTable})
     g1:KeepAlive()
     Duel.SetOperationInfo(0,CATEGORY_REMOVE,g1,#g1,0,0)
     Duel.SetChainLimit(s.chlimit)
@@ -138,17 +143,17 @@ function s.chlimit(e,ep,tp)
 end
 
 function s.rmop(e,tp,eg,ep,ev,re,r,rp)
-    local data = e:GetLabelObject()
-    local g1 = data.group
-    local posTable = data.positions
+    local data=e:GetLabelObject()
+    local g1=data.group
+    local posTable=data.positions
     -- Create a new group for cards that didn't change between face-up/face-down
-    local removeGroup = Group.CreateGroup()
+    local removeGroup=Group.CreateGroup()
     -- Check each card's current face-up/face-down position and compare with the original
-    for _, cardData in ipairs(posTable) do
-        local card = cardData.card
-        local originalPos = cardData.pos
-        local currentPos = card:IsFacedown() and POS_FACEDOWN or POS_FACEUP
-        if currentPos == originalPos then
+    for _,cardData in ipairs(posTable) do
+        local card=cardData.card
+        local originalPos=cardData.pos
+        local currentPos=card:IsFacedown() and POS_FACEDOWN or POS_FACEUP
+        if currentPos==originalPos then
             removeGroup:AddCard(card)
         end
     end
@@ -223,7 +228,7 @@ function s.regop1(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.regop2(e,tp,eg,ep,ev,re,r,rp)
-    if re:GetHandler():IsSetCard(SET_MAGICAL_MUSKET) and rp==tp and re:IsHasType(EFFECT_TYPE_ACTIVATE) then
+    if re:GetHandler():IsSetCard(SET_AZHIMAOU) and rp==tp and re:IsHasType(EFFECT_TYPE_ACTIVATE) then
         local val=s[tp]
         if val==0 then val=1 end
         val=val-1

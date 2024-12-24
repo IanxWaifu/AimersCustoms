@@ -27,17 +27,24 @@ function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if sg:IsLocation(LOCATION_HAND) and not sg:IsPublic() then
 		Duel.ConfirmCards(1-tp,sg)
 	end
+	local c=e:GetHandler()
 	local lv=sg:GetLevel()
     local reduction=4
-    if lv-reduction<1 then
-        reduction=lv-1
-    end
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_LEVEL)
-	e1:SetValue(-reduction)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
-	sg:RegisterEffect(e1)
+    if lv-reduction<0 then
+        local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CHANGE_LEVEL)
+		e1:SetValue(0)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+		sg:RegisterEffect(e1)
+	else
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_LEVEL)
+		e1:SetValue(-reduction)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+		sg:RegisterEffect(e1)
+	end
 end
 
 function s.chainlimit()
@@ -75,17 +82,17 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local tg=Duel.GetMatchingGroup(s.atkfilter,tp,0,LOCATION_MZONE,nil)
   	if Duel.SendtoGrave(tg1,REASON_EFFECT)~=0 and #tg>0 then
 	    for sc in aux.Next(tg) do
-	        -- Determine if it's a Link, Xyz (Rank), or other monster (Level)
-	        local reduction = 0
+	        --Determine if it's a Link, Xyz (Rank), or other monster (Level)
+	        local reduction=0
 	        if sc:IsType(TYPE_LINK) then
-	            reduction = sc:GetLink()
+	            reduction=sc:GetLink()
 	        elseif sc:IsType(TYPE_XYZ) then
-	            reduction = sc:GetRank()
+	            reduction=sc:GetRank()
 	        else
-	            reduction = sc:GetLevel()
+	            reduction=sc:GetLevel()
 	        end
 	        -- Apply the reduction to Attack
-	        if reduction ~= 0 then
+	        if reduction~=0 then
 	            local e1=Effect.CreateEffect(c)
 	            e1:SetType(EFFECT_TYPE_SINGLE)
 	            e1:SetCode(EFFECT_UPDATE_ATTACK)

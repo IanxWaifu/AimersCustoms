@@ -27,17 +27,24 @@ function s.lvcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if sg:IsLocation(LOCATION_HAND) and not sg:IsPublic() then
 		Duel.ConfirmCards(1-tp,sg)
 	end
+	local c=e:GetHandler()
 	local lv=sg:GetLevel()
     local reduction=4
-    if lv-reduction<1 then
-        reduction=lv-1
-    end
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_LEVEL)
-	e1:SetValue(-reduction)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
-	sg:RegisterEffect(e1)
+    if lv-reduction<0 then
+        local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CHANGE_LEVEL)
+		e1:SetValue(0)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+		sg:RegisterEffect(e1)
+	else
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_LEVEL)
+		e1:SetValue(-reduction)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+		sg:RegisterEffect(e1)
+	end
 end
 
 

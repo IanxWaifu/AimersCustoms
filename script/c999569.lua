@@ -19,7 +19,7 @@ function s.initial_effect(c)
     e2:SetType(EFFECT_TYPE_IGNITION)
     e2:SetRange(LOCATION_GRAVE)
     e2:SetCountLimit(1,{id,2})
-    e2:SetCost(s.tdcost)
+    e2:SetCost(aux.bfgcost)
     e2:SetTarget(s.tdtg)
     e2:SetOperation(s.tdop)
     c:RegisterEffect(e2)
@@ -46,9 +46,6 @@ end
 --BFG Shuffle+Draw
 function s.tdfilter(c)
     return c:IsSetCard(SET_VOLTAIC_ARTIFACT) and c:IsAbleToDeck() and ((c:IsFaceup() and c:IsLocation(LOCATION_REMOVED)) or c:IsLocation(LOCATION_GRAVE))
-end
-function s.tdcost(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return aux.bfgcost(e,tp,eg,ep,ev,re,r,rp,0) end
 end
 function s.tdtg(e,tp,eg,ep,ev,re,r,rp,chk)
     local dg=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,nil)

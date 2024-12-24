@@ -130,6 +130,7 @@ function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.lvop(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.lvfilter,tp,LOCATION_MZONE|LOCATION_HAND,0,nil)
 	if #g<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,aux.Stringid(id,2))
@@ -142,21 +143,26 @@ function s.lvop(e,tp,eg,ep,ev,re,r,rp,chk)
 	local lv=sg:GetLevel()
 	if lv>=9 then op=Duel.SelectOption(tp,aux.Stringid(id,5))
 	else op=Duel.SelectOption(tp,aux.Stringid(id,5),aux.Stringid(id,6)) end
-	
 	if op==0 then 
 		local lv=sg:GetLevel()
 	    local reduction=4
-	    if lv-reduction<1 then
-	        reduction=lv-1
-	    end
-		local e1=Effect.CreateEffect(e:GetHandler())
-		e1:SetType(EFFECT_TYPE_SINGLE)
-		e1:SetCode(EFFECT_UPDATE_LEVEL)
-		e1:SetValue(-reduction)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
-		sg:RegisterEffect(e1)
+	    if lv-reduction<0 then
+	        local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_CHANGE_LEVEL)
+			e1:SetValue(0)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+			sg:RegisterEffect(e1)
+		else
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_UPDATE_LEVEL)
+			e1:SetValue(-reduction)
+			e1:SetReset(RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD)
+			sg:RegisterEffect(e1)
+		end
 	else
-		local e1=Effect.CreateEffect(e:GetHandler())
+		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_LEVEL)
 		e1:SetValue(4)

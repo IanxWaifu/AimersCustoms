@@ -21,6 +21,7 @@ s.listed_series = {SET_VOLTAIC_ARTIFACT}
 function s.setcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	local tc=c:GetEquipTarget()
+	if tc==nil then return false end
 	if not tc:IsFaceup() or tc:IsDisabled() then return false end
 	if chk==0 then return tc:IsFaceup() and not tc:IsDisabled() end
 	Duel.NegateRelatedChain(tc,RESET_TURN_SET)
@@ -37,25 +38,6 @@ function s.setcost1(e,tp,eg,ep,ev,re,r,rp,chk)
 	tc:RegisterEffect(e2)
 end
 
-function s.setcost2(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	local tc=c:GetEquipTarget()
-	if not tc:IsFaceup() or tc:IsDisabled() or Duel.GetFlagEffect(tp,VOLTAICEQUQ)>0 then return false end
-	if chk==0 then return tc:IsFaceup() and not tc:IsDisabled() and Duel.GetFlagEffect(tp,VOLTAICEQUQ)==0 end
-	Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-	local e1=Effect.CreateEffect(e:GetHandler())
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_DISABLE)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	tc:RegisterEffect(e1)
-	local e2=Effect.CreateEffect(e:GetHandler())
-	e2:SetType(EFFECT_TYPE_SINGLE)
-	e2:SetCode(EFFECT_DISABLE_EFFECT)
-	e2:SetValue(RESET_TURN_SET)
-	e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-	tc:RegisterEffect(e2)
-	Duel.RegisterFlagEffect(tp,999564,RESET_PHASE+PHASE_END,0,1)
-end
 
 function s.setfilter(c,e,tp)
     return c:IsMonster() and (c:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and c:IsCanBeSpecialSummoned(e,0,tp,false,false,zone)
@@ -106,7 +88,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetTarget(s.indtg)
 		e1:SetLabelObject(eq)
 		e1:SetValue(0)
-		e1:SetReset(RESET_PHASE+PHASE_END)
+		e1:SetReset(RESET_PHASE|PHASE_END,2)
 		Duel.RegisterEffect(e1,tp)
 		local e2=e1:Clone()
 	    e2:SetCode(EFFECT_SET_DEFENSE)

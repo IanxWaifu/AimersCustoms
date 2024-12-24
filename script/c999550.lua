@@ -3,7 +3,7 @@
 local s, id = GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
-    Pendulum.AddProcedure(c, false)
+    --[[Pendulum.AddProcedure(c, false)--]]
     Aimer.AddVoltaicPendProcedure(c,reg,aux.Stringid(id,0))
     -- Remain on Field
     local e3=Effect.CreateEffect(c)
@@ -20,7 +20,7 @@ function s.initial_effect(c)
     -- Flip and Set
     local e5=Effect.CreateEffect(c)
     e5:SetDescription(aux.Stringid(id,1))
-    e5:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_POSITION)
+    e5:SetCategory(CATEGORY_POSITION)
     e5:SetType(EFFECT_TYPE_IGNITION)
     e5:SetProperty(EFFECT_FLAG_CARD_TARGET)
     e5:SetRange(LOCATION_PZONE)
@@ -106,7 +106,7 @@ function s.pcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.RaiseEvent(e:GetHandler(),EVENT_SSET,e,REASON_COST,tp,tp,0)
 end
 function s.cfilter(c)
-	return c:IsFacedown() and c:IsSetCard(SET_VOLTAIC)
+	return c:IsFacedown() --[[and c:IsSetCard(SET_VOLTAIC)--]]
 end
 function s.ptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -158,44 +158,36 @@ end
 
 
 
-
-function s.spcfilter(c,tp)
-    if c:GetControler()==1-tp --[[or not (c:IsSetCard(0x2A1) or c:IsType(TYPE_EQUIP))--]] then return false end
-    if --[[c:IsSetCard(0x2A1) and--]] c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD) 
-    	and (c:GetDestination()==LOCATION_GRAVE or c:GetDestination()==LOCATION_REMOVED) then
-        return true
-    end
-    return false
+function s.tspcfilter(c,tp)
+    if c:GetControler()~=tp then return false end
+    if not (c:IsSetCard(SET_VOLTAIC) and c:IsType(TYPE_EQUIP)) then return false end
+    return c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD) 
+        and (c:GetDestination()==LOCATION_GRAVE or c:GetDestination()==LOCATION_REMOVED)
 end
 
 
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
     local mc=e:GetHandler()
-    if chk==0 then return eg:IsExists(s.spcfilter,1,nil,tp) end
-	Duel.Hint(HINT_CARD,0,id)
-    local g=eg:Filter(s.spcfilter,nil,tp) 
-    local ct=g:GetCount()
-    if ct>1 then
-        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-        g=g:Select(tp,1,ct,nil)
-        for hc in g:Iter() do
-            hc:CancelToGrave()
-        end
-    end
-    local og=Group.CreateGroup()
+    if chk==0 then return eg:IsExists(s.tspcfilter,1,nil,tp) end
+    Duel.Hint(HINT_CARD,0,id)
+    -- Filter only archetype equip cards
+    local g=eg:Filter(s.repfilter,nil,tp) 
     for tc in g:Iter() do
-        og:AddCard(tc)
-        Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,false)
+    	tc:CancelToGrave()
         aux.DelayedOperation(tc,PHASE_END,id,e,tp,
-		function(ag)
-			Duel.SendtoDeck(ag,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
-		end)
+        function(ag)
+            Duel.SendtoDeck(ag,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
+        end)
     end
     return true
 end
 
+function s.repfilter(c,tp)
+	return c:IsSetCard(SET_VOLTAIC) and c:IsType(TYPE_EQUIP) and c:IsFaceup() and c:IsLocation(LOCATION_ONFIELD) and c:IsControler(tp) 
+end
+
 function s.repval(e,c)
-    return true
+	return s.repfilter(c,e:GetHandlerPlayer())
 end
 
 
