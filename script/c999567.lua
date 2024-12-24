@@ -38,11 +38,12 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 	-- Monsters same column flip face-down
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,1))
+	e4:SetDescription(aux.Stringid(id,2))
 	e4:SetCategory(CATEGORY_POSITION)
 	e4:SetType(EFFECT_TYPE_IGNITION)
 	e4:SetRange(LOCATION_MZONE)
 	e4:SetCountLimit(1,{id,2})
+	e4:SetCost(s.rthcost)
 	e4:SetTarget(s.rthtg)
 	e4:SetOperation(s.rthop)
 	c:RegisterEffect(e4)
@@ -185,6 +186,12 @@ end
 
 
 --Same Column as Facedowns
+function s.rthcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return c:IsFaceup() end
+	Duel.ChangePosition(c,POS_FACEDOWN_DEFENSE)
+	Duel.RaiseSingleEvent(e:GetHandler(),EVENT_MSET,e,REASON_COST,tp,tp,0)
+end
 function s.rthfilter(c,e)
 	return Aimer.VoltaicSameColumns(e,c) and c:IsCanTurnSet()
 end

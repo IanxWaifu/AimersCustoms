@@ -304,12 +304,12 @@ function Aimer.AddVoltaicPendProcedure(c,reg,desc)
     c:RegisterEffect(e1)
     --register by default
     if reg==nil or reg then
-    local e2=Effect.CreateEffect(c)
-    e2:SetDescription(1160)
-    e2:SetType(EFFECT_TYPE_ACTIVATE)
-    e2:SetCode(EVENT_FREE_CHAIN)
-    e2:SetRange(LOCATION_HAND)
-    c:RegisterEffect(e2)
+        local e2=Effect.CreateEffect(c)
+        e2:SetDescription(1160)
+        e2:SetType(EFFECT_TYPE_ACTIVATE)
+        e2:SetCode(EVENT_FREE_CHAIN)
+        e2:SetRange(LOCATION_HAND)
+        c:RegisterEffect(e2)
     end
 end
 function Aimer.VoltaicPendFilter(c,e,tp,lscale,rscale,lvchk)
