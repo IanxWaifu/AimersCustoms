@@ -2,7 +2,7 @@
 --Gotheatrè, Sérénité en Blanche
 local s,id=GetID()
 function s.initial_effect(c)
-	--Activate from Deck Top
+--[[	--Activate from Deck Top
 	local e0=Effect.CreateEffect(c)
 	e0:SetDescription(aux.Stringid(id,3))
 	e0:SetType(EFFECT_TYPE_QUICK_O)
@@ -13,7 +13,7 @@ function s.initial_effect(c)
 	e0:SetCondition(s.dactcon)
 	e0:SetTarget(s.dacttg)
 	e0:SetOperation(s.dactop)
-	c:RegisterEffect(e0)
+	c:RegisterEffect(e0)--]]
 	--Activate
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_ACTIVATE)
@@ -102,8 +102,11 @@ function s.filter(c)
 	return c:IsFaceup() and c:IsSetCard(0x12E5) 
 end
 function s.actcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_ONFIELD,0,1,nil)
+	local fc=Duel.GetFieldCard(tp,LOCATION_DECK,Duel.GetFieldGroupCount(tp,LOCATION_DECK,0)-1)
+	return Duel.IsExistingMatchingCard(s.filter,tp,LOCATION_ONFIELD,0,1,nil) or (fc:IsSetCard(0x12E5) and fc:IsFaceup())
 end
+
+
 function s.actfilter(c)
 	return c:IsFaceup() and not c:IsDisabled() and c:IsCanTurnSet()
 end

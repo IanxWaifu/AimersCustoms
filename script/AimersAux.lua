@@ -14,6 +14,7 @@ EVENT_PENDULUM_ZONE_CHANGE = EVENT_CUSTOM + 3200
 EVENT_ROVARIK = EVENT_CUSTOM + 3200
 EVENT_ASTRAL_SHIFT = EVENT_CUSTOM + 3300
 EVENT_ASTRAL_EFFECT_PROC = EVENT_CUSTOM + 3305
+EVENT_ASTRAL_SHIFT_END = EVENT_CUSTOM + 3310
 
 
 --Common used cards
@@ -58,11 +59,13 @@ SET_KNIGHTS_OF_THE_FALLEN = 0xFA0
 SET_REVELATIA = 0x19f
 SET_ZODIAKIERI = 0x12D7
 SET_AZHIMAOU = 0x311
+SET_NOVALXON = 0x313
 
 
 --Common used Flags
-local ASTRAL_FLAG = 0x3305  -- Astral Overlay Flag Check
+ASTRAL_FLAG = 999800  -- Astral Overlay Flag Check
 EFFECT_EXTRA_ASTRAL = 3305
+REGISTER_FLAG_ASTRAL_STATE = 999799
 
 --Common used Counters and Effects
 COUNTER_ICE = 0x1015
@@ -143,23 +146,8 @@ function Aimer.CanMoveCardToAppropriateZone(c,p,checkOpponent)
     return false
 end
 
-function Aimer.MoveCardToAppropriateZone(tc,p,zoneType)
-    local seq=-1
-    if tc:IsLocation(LOCATION_MZONE) then
-        seq=math.log(Duel.SelectDisableField(p,1,LOCATION_MZONE,0,0),2)
-    elseif tc:IsLocation(LOCATION_STZONE) and not tc:IsLocation(LOCATION_PZONE) then
-        local zone=Duel.SelectDisableField(p,1,LOCATION_SZONE,0,0)
-        seq=math.log(zone,2)-8
-        if not Duel.CheckLocation(p,LOCATION_SZONE,seq) then return end
-    elseif tc:IsLocation(LOCATION_PZONE) then
-        seq=tc:IsSequence(0) and 1 or 0
-        zoneType=zoneType or LOCATION_PZONE
-    end
-    if seq>=0 then
-        Duel.MoveSequence(tc,seq,zoneType)
-    end
-end
 
+--Gets the cards current Position (Monsters/Spell/Traps)
 function Aimer.GetCardPositionInfo(c)
     local seq=c:GetSequence()
     local pos=0 
@@ -183,6 +171,58 @@ function Aimer.GetCardPositionInfo(c)
     return seq,pos,seqbit
 end
 
+--Moves cards to another Appropriate Zone that the card can be in Normally
+function Aimer.MoveCardToAppropriateZone(tc,p,zoneType)
+    local seq=-1
+    if tc:IsLocation(LOCATION_MZONE) then
+        seq=math.log(Duel.SelectDisableField(p,1,LOCATION_MZONE,0,0),2)
+    elseif tc:IsLocation(LOCATION_STZONE) and not tc:IsLocation(LOCATION_PZONE) then
+        local zone=Duel.SelectDisableField(p,1,LOCATION_SZONE,0,0)
+        seq=math.log(zone,2)-8
+        if not Duel.CheckLocation(p,LOCATION_SZONE,seq) then return end
+    elseif tc:IsLocation(LOCATION_PZONE) then
+        seq=tc:IsSequence(0) and 1 or 0
+        zoneType=zoneType or LOCATION_PZONE
+    end
+    if seq>=0 then
+        Duel.MoveSequence(tc,seq,zoneType)
+    end
+end
+
+--Flips both Monster and Spell/Traps (opposite position they have currently)
+function Aimer.FlipCard(e,tc,tp)
+    local chpos=0
+    local pos=tc:GetPosition()
+    local faceup=(pos&POS_FACEUP)~=0
+    if tc:IsMonster() then
+        local facedown=(pos&POS_FACEDOWN_DEFENSE)~=0
+        if faceup then
+            chpos=POS_FACEDOWN_DEFENSE
+        elseif facedown then
+            -- Choose between POS_FACEUP_ATTACK and POS_FACEUP_DEFENSE
+            chpos=Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEUP_DEFENSE)
+        end
+        Duel.ChangePosition(tc,chpos)
+    else
+        local facedown=(pos&POS_FACEDOWN)~=0
+        if faceup then
+            chpos=POS_FACEDOWN
+        elseif facedown then
+            chpos=POS_FACEUP
+        end
+        if chpos==POS_FACEDOWN then
+            Duel.ChangePosition(tc,chpos)
+            Duel.RaiseSingleEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+            Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
+        elseif chpos==POS_FACEUP then
+            Duel.ChangePosition(tc,chpos)
+            Duel.RaiseSingleEvent(tc,EVENT_CHANGE_POS,e,REASON_EFFECT,tp,tp,0)
+            Duel.RaiseEvent(tc,EVENT_CHANGE_POS,e,REASON_EFFECT,tp,tp,0)
+        end
+    end
+end
+
+--Specifies the Token to be Summoned
 function Aimer.DeathrallSummonByRaceCheck(tp,race,p,pos,seqbit)
     local token_id=0
     if race==RACE_FIEND then token_id=TOKEN_LEGION_F
@@ -196,7 +236,7 @@ end
 
 
 -- Add Voltaic Equip Per Chain Effect
-function Aimer.AddVoltaicEquipEffect(c,id)
+function Aimer.AddVoltaicEquipEffect(c,id,s)
     --Apply Flag for One Name per Turn
     local function hdexcost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.GetFlagEffect(tp,id)==0 end
@@ -204,19 +244,20 @@ function Aimer.AddVoltaicEquipEffect(c,id)
     end
     -- Check if there are "Voltaic" monsters on the field
     local function hdexfilter(c,tp)
-        return c:IsType(TYPE_MONSTER) and c:IsSetCard(SET_VOLTAIC) and not c:IsCode(id) and c:IsControler(tp) and c:IsFaceup()
+        return c:IsMonster() and c:IsSetCard(SET_VOLTAIC) and c:IsControler(tp) and c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
     end
     local function hdexcon(e,tp,eg,ep,ev,re,r,rp)
-        local g=eg:Filter(hdexfilter,nil,tp)
-        return #g>0
+        local g=eg:IsExists(hdexfilter,1,nil,tp)
+        return g
     end
     -- Targeting condition for the Equip effect
     local function hdextg(e,tp,eg,ep,ev,re,r,rp,chk)
         local c=e:GetHandler()
+        local g=eg:IsExists(hdexfilter,1,nil,tp)
         if chk==0 then
             return Duel.GetFlagEffect(tp,999566)==0 and #eg>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:CheckUniqueOnField(tp) and not c:IsForbidden()
         end
-        Duel.RegisterFlagEffect(tp,999566,RESET_EVENT|RESETS_STANDARD|RESET_CHAIN,0,1)
+        Duel.RegisterFlagEffect(tp,999566,RESET_CHAIN,0,1)
         local g=eg:Filter(hdexfilter,nil,tp)
         Duel.SetOperationInfo(0,CATEGORY_EQUIP,g,1,tp,0)
     end
@@ -230,15 +271,13 @@ function Aimer.AddVoltaicEquipEffect(c,id)
             Duel.Equip(tp,c,g:GetFirst())
         end
     end
-    local function equipfilter(c,tp)
-        return c:IsLocation(LOCATION_MZONE) and c:IsControler(tp)
-    end
     local function regop(e,tp,eg,ep,ev,re,r,rp)
-        local tg=eg:Filter(hdexfilter,nil,tp)
-        if #tg>0 then
-            for tc in tg:Iter() do
-                    tc:RegisterFlagEffect(999567,RESET_CHAIN,0,1)
-                end
+    local tg=eg:Filter(hdexfilter,nil,tp)
+        for tc in aux.Next(eg) do
+            if tc:IsSummonType(SUMMON_TYPE_PENDULUM) and tc:GetFlagEffect(100000001)>0  then return end
+                tc:RegisterFlagEffect(999567,RESET_CHAIN,0,1)
+                Duel.RaiseSingleEvent(tc,EVENT_CUSTOM+999567,re,r,tp,ep,ev)
+            end
                 local g=e:GetLabelObject():GetLabelObject()
                 if Duel.GetCurrentChain()==0 then g:Clear() end
                 g:Merge(tg)
@@ -246,8 +285,25 @@ function Aimer.AddVoltaicEquipEffect(c,id)
                 e:GetLabelObject():SetLabelObject(g)
                 if #g>0 and not Duel.HasFlagEffect(tp,999567) then
                     Duel.RegisterFlagEffect(tp,999567,RESET_CHAIN,0,1)
-                    Duel.RaiseEvent(g,EVENT_CUSTOM+999567,re,r,tp,ep,ev)
+                    Duel.RaiseEvent(g,EVENT_CUSTOM+999567,re,r,tp,ep,ev) 
+        end
+    end
+    local function regop2(e,tp,eg,ep,ev,re,r,rp)
+    local tg=eg:Filter(hdexfilter,nil,tp)
+        for tc in aux.Next(eg) do
+            Debug.Message("Position" .. tc:GetPosition())
+            if tc:IsSummonType(SUMMON_TYPE_PENDULUM) and tc:GetFlagEffect(100000001)==0 and tc:IsFacedown() then return end
+                tc:RegisterFlagEffect(999567,RESET_CHAIN,0,1)
+                Duel.RaiseSingleEvent(tc,EVENT_CUSTOM+999567,re,r,tp,ep,ev)
             end
+                local g=e:GetLabelObject():GetLabelObject()
+                if Duel.GetCurrentChain()==0 then g:Clear() end
+                g:Merge(tg)
+                g:Remove(function(c) return c:GetFlagEffect(999567)==0 end,nil)
+                e:GetLabelObject():SetLabelObject(g)
+                if #g>0 and not Duel.HasFlagEffect(tp,999567) then
+                    Duel.RegisterFlagEffect(tp,999567,RESET_CHAIN,0,1)
+                    Duel.RaiseEvent(g,EVENT_CUSTOM+999567,re,r,tp,ep,ev) 
         end
     end
     local e1=Effect.CreateEffect(c)
@@ -282,6 +338,14 @@ function Aimer.AddVoltaicEquipEffect(c,id)
     local e3c=e3a:Clone()
     e3c:SetCode(EVENT_FLIP)
     c:RegisterEffect(e3c)
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e4:SetCode(EVENT_CUSTOM+999568)
+    e4:SetRange(LOCATION_DECK)
+    e4:SetLabelObject(e1)
+    e4:SetOperation(regop2)
+    c:RegisterEffect(e4)
 end
 
 
@@ -302,16 +366,33 @@ function Aimer.AddVoltaicPendProcedure(c,reg,desc)
     e1:SetOperation(Aimer.VoltaicPendOperation())
     e1:SetValue(SUMMON_TYPE_PENDULUM)
     c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+    e2:SetRange(LOCATION_PZONE)
+    e2:SetTargetRange(LOCATION_SZONE,0)
+    e2:SetCondition(Aimer.VoltaicPendGrantCon)
+    e2:SetTarget(aux.TargetBoolFunction(Card.IsLocation,LOCATION_PZONE))
+    e2:SetLabelObject(e1)
+    c:RegisterEffect(e2)
     --register by default
     if reg==nil or reg then
-        local e2=Effect.CreateEffect(c)
-        e2:SetDescription(1160)
-        e2:SetType(EFFECT_TYPE_ACTIVATE)
-        e2:SetCode(EVENT_FREE_CHAIN)
-        e2:SetRange(LOCATION_HAND)
-        c:RegisterEffect(e2)
+        local e3=Effect.CreateEffect(c)
+        e3:SetDescription(1160)
+        e3:SetType(EFFECT_TYPE_ACTIVATE)
+        e3:SetCode(EVENT_FREE_CHAIN)
+        e3:SetRange(LOCATION_HAND)
+        c:RegisterEffect(e3)
     end
 end
+
+function Aimer.VoltaicPendGrantCon(e,c)
+    local c=e:GetHandler()
+    local tp=c:GetControler()
+    local pgl=Duel.GetFieldCard(tp,LOCATION_PZONE,0)
+    local pgr=Duel.GetFieldCard(tp,LOCATION_PZONE,1)
+    return pgr==c and pgl and not pgl:IsOriginalSetCard(SET_VOLTAIC)
+end
+
 function Aimer.VoltaicPendFilter(c,e,tp,lscale,rscale,lvchk)
     if lscale>rscale then lscale,rscale=rscale,lscale end
     local lv=0
@@ -366,23 +447,42 @@ function Aimer.VoltaicPendOperation()
         end
         if #sg<=0 then return end
         local id=c:GetCode()
-        --[[Duel.Hint(HINT_CARD,0,id)--]]
         Duel.RegisterFlagEffect(tp,10000000,RESET_PHASE+PHASE_END+RESET_SELF_TURN,0,1)
         Duel.HintSelection(c,true)
         Duel.HintSelection(rpz,true)
-        local fg=Group.CreateGroup()
+        local ge1=Effect.CreateEffect(e:GetHandler())
+        ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        ge1:SetCode(EVENT_ADJUST)
+        ge1:SetLabelObject(sg)
+        ge1:SetCountLimit(1)
+        ge1:SetCondition(Aimer.VPRCon)
+        ge1:SetOperation(Aimer.VPRegop)
+        Duel.RegisterEffect(ge1,0)
+        Duel.RegisterFlagEffect(tp,100000001,RESET_PHASE+PHASE_END,0,1)
         for tc in sg:Iter() do
-            if tc:IsSetCard(SET_VOLTAIC) and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP|POS_FACEDOWN_DEFENSE)~=0 and tc:IsFacedown() then
-                fg:AddCard(tc)
-            elseif not tc:IsSetCard(SET_VOLTAIC) then
-                Duel.SpecialSummonStep(tc,SUMMON_TYPE_PENDULUM,tp,tp,true,false,POS_FACEUP)
-            end
+            tc:RegisterFlagEffect(100000001,RESET_EVENT+RESET_TURN_SET,0,1)
         end
-        if #fg>0 then
-            Duel.ConfirmCards(1-tp,fg)
-        end
-        Duel.SpecialSummonComplete()
     end
+end
+
+
+function Aimer.VPRCon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.GetCurrentChain()==0
+end
+
+function Aimer.VPRfilter(c)
+    return c:IsSetCard(SET_VOLTAIC) and c:IsFaceup() and c:IsLocation(LOCATION_MZONE)
+end
+
+--Raise Custom Event
+function Aimer.VPRegop(e,tp,eg,ep,ev,re,r,rp)
+    local sg=e:GetLabelObject()
+    local tg=sg:Filter(Aimer.VPRfilter,nil)
+    if Duel.GetFlagEffect(tp,100000001)==0 then return end
+    Duel.ResetFlagEffect(tp,100000001)
+    local sg=aux.SelectUnselectGroup(tg,e,tp,0,#tg,nil,1,tp,HINTMSG_POS_CHANGE)
+    Duel.ChangePosition(sg,POS_FACEDOWN_DEFENSE)
+    Duel.RaiseEvent(tg,EVENT_CUSTOM+999568,re,r,tp,ep,ev)
 end
 
 --Synchro monster, m-n tuners + m-n monsters
@@ -1537,7 +1637,7 @@ function Aimer.AddAstralShift(c)
     e1:SetCode(EVENT_MOVE)
     e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
     e1:SetRange(LOCATION_MZONE)
-    e1:SetCondition(function(e) return e:GetHandler():IsPreviousLocation(LOCATION_MZONE) end)
+    e1:SetCondition(function(e) return e:GetHandler():IsPreviousLocation(LOCATION_MZONE) and e:GetHandler():IsLocation(LOCATION_MZONE) and e:GetHandler():GetPreviousSequence()~=e:GetHandler():GetSequence() end)
     e1:SetOperation(Aimer.HandleAstralShift)
     c:RegisterEffect(e1)
    -- Register the continuous effect that triggers on EVENT_ASTRAL_EFFECT_PROC
@@ -1614,8 +1714,9 @@ function Aimer.HandleAstralShift(e,tp,eg,ep,ev,re,r,rp)
         for _, tc in ipairs(intersectedCards) do
             -- Overlay the two monsters
             Duel.Overlay(c,Group.FromCards(tc)) -- Place the moved monster (c) on top of the intersected monster (tc)
-            Duel.RaiseSingleEvent(c,EVENT_ASTRAL_SHIFT,e,0,0,0,0)
-            Duel.RaiseSingleEvent(tc,EVENT_ASTRAL_SHIFT,e,0,0,0,0)
+            if c:GetFlagEffect(REGISTER_FLAG_ASTRAL_STATE)==0 then c:RegisterFlagEffect(REGISTER_FLAG_ASTRAL_STATE,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET,0,0) end
+            Duel.RaiseEvent(c,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
+            Duel.RaiseEvent(tc,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
         end
          -- Check for cards with "EFFECT_EXTRA_ASTRAL" in all locations
         local extraAstralCards = Duel.GetMatchingGroup(Aimer.FilterExtraAstralCards,tp,LOCATION_ALL,0,nil)
@@ -1626,8 +1727,8 @@ function Aimer.HandleAstralShift(e,tp,eg,ep,ev,re,r,rp)
             -- Add the selected card to the overlay group
             Duel.Hint(HINT_CARD,0,selectedCard:GetCode())
             Duel.Overlay(c,Group.FromCards(selectedCard))
-            Duel.RaiseSingleEvent(selectedCard,EVENT_ASTRAL_SHIFT,e,0,0,0,0)
-            Aimer.ApplyFlagToAllWithSameName(selectedCard, tp)
+            Duel.RaiseEvent(selectedCard,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
+            Aimer.ApplyFlagToAllWithSameName(selectedCard,tp)
         end
     end
 end
@@ -1714,8 +1815,10 @@ function Aimer.AstralEffectSwapProc(e,tp,eg,ep,ev,re,r,rp)
     end
     -- Finally, overlay the handler (c) last
     Duel.Overlay(BottomMaterial,c)
+    -- Place Effect Condition Flag first on the new Top Material
+    if BottomMaterial:GetFlagEffect(REGISTER_FLAG_ASTRAL_STATE)==0 then BottomMaterial:RegisterFlagEffect(REGISTER_FLAG_ASTRAL_STATE,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET,0,0) end
     -- Set the Astral flag effect on the current handler (c)
-    c:RegisterFlagEffect(ASTRAL_FLAG,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET,0,1)
+    if c:GetFlagEffect(ASTRAL_FLAG)==0 then c:RegisterFlagEffect(ASTRAL_FLAG,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET,0,1) end
     -- Check if both BottomMaterial and the current monster (c) have the Astral flag
     if c:GetFlagEffect(ASTRAL_FLAG)>0 and BottomMaterial:GetFlagEffect(ASTRAL_FLAG)>0 then
         -- Register an End Phase effect to send the handler and materials to the bottom of the deck
@@ -1751,6 +1854,7 @@ function Aimer.SendToDeckOperation(e,tp,eg,ep,ev,re,r,rp)
     end
     -- Now send the handler (c) to the bottom of the deck
     Duel.SendtoDeck(c,nil,SEQ_DECKBOTTOM,REASON_RULE)
+    Duel.RaiseEvent(c,EVENT_ASTRAL_SHIFT_END,e,REASON_EFFECT,tp,tp,0)
     -- Collect all overlay materials into a table, in the correct order (top to bottom)
     local materialsTable={}
     for tc in aux.Next(og) do

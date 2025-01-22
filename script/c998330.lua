@@ -132,7 +132,7 @@ function s.atkfilter(c)
 	return c:IsFaceup()  and c:IsSetCard(0x12E5)
 end
 function s.hcondition(e,tp,eg,ep,ev,re,r,rp)
-    return eg:IsExists(aux.FilterFaceupFunction(Card.IsSetCard,0x12E5),1,nil)
+    return eg:IsExists(aux.FaceupFilter(Card.IsSetCard,0x12E5),1,nil)
 end
 function s.hcondition2(e,tp,eg,ep,ev,re,r,rp)
     return ep~=tp and eg:GetFirst():IsSetCard(0x12E5)

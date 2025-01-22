@@ -31,6 +31,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_SZONE)
 	e3:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e3:SetCountLimit(1,{id,1})
+	e3:SetCondition(s.rmcon)
 	e3:SetTarget(s.rmtg)
 	e3:SetOperation(s.rmop)
 	c:RegisterEffect(e3)
@@ -47,11 +48,17 @@ function s.initial_effect(c)
 	c:RegisterEffect(e4)
 	--Check for Special Summon of a Deathrall Link Monster
 	aux.GlobalCheck(s,function()
-		local ge1=Effect.CreateEffect(c)
-		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-		ge1:SetCode(EVENT_SPSUMMON_SUCCESS)
-		ge1:SetOperation(s.checkop)
-		Duel.RegisterEffect(ge1,0)
+	    s[0]=false
+	    s[1]=false
+	    local ge1=Effect.CreateEffect(c)
+	    ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	    ge1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	    ge1:SetOperation(s.checkop)
+	    Duel.RegisterEffect(ge1,0)
+	    aux.AddValuesReset(function()
+	        s[0]=false
+	        s[1]=false
+	    end)
 	end)
 end
 
@@ -59,11 +66,16 @@ s.listed_names={id}
 s.listed_series={SET_DEATHRALL,SET_LEGION_TOKEN}
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
-	for tc in eg:Iter() do
-		if tc:IsSetCard(SET_DEATHRALL) and tc:IsType(TYPE_LINK) then 
-			Duel.RegisterFlagEffect(tc:GetControler(),id,RESET_PHASE+PHASE_END,0,1)
-		end
-	end
+    for tc in aux.Next(eg) do
+        if tc:IsSetCard(SET_DEATHRALL) and tc:IsType(TYPE_LINK) and tc:IsSummonType(SUMMON_TYPE_SPECIAL) then
+            local p=tc:GetSummonPlayer()
+            s[p]=true -- Set the respective player
+        end
+    end
+end
+
+function s.rmcon(e,tp,eg,ep,ev,re,r,rp)
+    return s[tp] or s[1-tp] --Return either player
 end
 
 function s.lkcon(e,tp,eg,ep,ev,re,r,rp)
@@ -99,10 +111,7 @@ end
 
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_ONFIELD|LOCATION_GRAVE) and chkc:IsAbleToRemove() end
-	if chk==0 then
-		e:SetLabel(0)
-		return Duel.GetFlagEffect(tp,id)>0 and Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_ONFIELD|LOCATION_GRAVE,LOCATION_ONFIELD|LOCATION_GRAVE,1,nil)
-	end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_ONFIELD|LOCATION_GRAVE,LOCATION_ONFIELD|LOCATION_GRAVE,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 	local g=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,LOCATION_ONFIELD|LOCATION_GRAVE,LOCATION_ONFIELD|LOCATION_GRAVE,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)

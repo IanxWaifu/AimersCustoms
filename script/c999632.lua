@@ -136,7 +136,15 @@ function s.valcheck1(e,c)
 	local g=c:GetMaterial()
 	if not g then return end
 	local ct=g:FilterCount(Card.IsRace,nil,RACE_FIEND)
-	if ct==#g then e:GetHandler():RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1) end
+	if ct==#g then 
+		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetDescription(aux.Stringid(id,4))
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE))
+		e:GetHandler():RegisterEffect(e1)
+	end
 end
 
 -- Check Materials
@@ -152,8 +160,14 @@ function s.valcheck2(e, c)
         end
     end
     if uniqueRaceCount>=3 then
-    	e:GetHandler():RegisterFlagEffect(id+1,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1)
-    end
+    	e:GetHandler():RegisterFlagEffect(id+3,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1)
+    	local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetDescription(aux.Stringid(id,5))
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE))
+		e:GetHandler():RegisterEffect(e1)
+	end
 end
 
 
@@ -189,26 +203,26 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 			e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
 			tc:RegisterEffect(e2)
 			if not tc:IsFaceup() then return end
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetCode(EFFECT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-			tc:RegisterEffect(e1)
-			local e2=Effect.CreateEffect(c)
-			e2:SetType(EFFECT_TYPE_SINGLE)
-			e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e2:SetCode(EFFECT_DISABLE_EFFECT)
-			e2:SetValue(RESET_TURN_SET)
-			e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-			tc:RegisterEffect(e2)
+			local e3=Effect.CreateEffect(c)
+			e3:SetType(EFFECT_TYPE_SINGLE)
+			e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e3:SetCode(EFFECT_DISABLE)
+			e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e3)
+			local e4=Effect.CreateEffect(c)
+			e4:SetType(EFFECT_TYPE_SINGLE)
+			e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+			e4:SetCode(EFFECT_DISABLE_EFFECT)
+			e4:SetValue(RESET_TURN_SET)
+			e4:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+			tc:RegisterEffect(e4)
 			if tc:IsType(TYPE_TRAPMONSTER) then
-				local e3=Effect.CreateEffect(c)
-				e3:SetType(EFFECT_TYPE_SINGLE)
-				e3:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-				e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
-				e3:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-				tc:RegisterEffect(e3)
+				local e5=Effect.CreateEffect(c)
+				e5:SetType(EFFECT_TYPE_SINGLE)
+				e5:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e5:SetCode(EFFECT_DISABLE_TRAPMONSTER)
+				e5:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+				tc:RegisterEffect(e5)
 			end
 		end
 	end
@@ -224,7 +238,7 @@ function s.tgcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return e:GetHandler():GetFlagEffect(id+1)>0 and eg end
+	if chk==0 then return e:GetHandler():GetFlagEffect(id+3)>0 and eg end
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,eg,#eg,0,0)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)

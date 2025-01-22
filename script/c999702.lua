@@ -3,8 +3,6 @@
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
-	--Apply Astral Shift
-    Aimer.AddAstralShift(c)
 	--Special summon
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -36,15 +34,6 @@ function s.initial_effect(c)
 	e3:SetCountLimit(1)
 	e3:SetOperation(s.ctop)
 	c:RegisterEffect(e3)
-	--Extra Material
-	local e4=Effect.CreateEffect(c)
-	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetRange(LOCATION_HAND)
-	e4:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
-	e4:SetCode(EFFECT_EXTRA_ASTRAL)
-	e4:SetTarget(s.extratg)
-	--[[e4:SetCondition(s.extracon)--]]
-	c:RegisterEffect(e4)
 end
 
 s.listed_series={SET_ICYENE}

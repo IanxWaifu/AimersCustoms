@@ -151,7 +151,15 @@ function s.valcheck1(e,c)
 	local g=c:GetMaterial()
 	if not g then return end
 	local ct=g:FilterCount(Card.IsRace,nil,RACE_ZOMBIE)
-	if ct==#g then e:GetHandler():RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1) end
+	if ct==#g then 
+		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1)
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetDescription(aux.Stringid(id,5))
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE))
+		e:GetHandler():RegisterEffect(e1) 
+	end
 end
 
 -- Check Materials
@@ -168,6 +176,12 @@ function s.valcheck2(e, c)
     end
     if uniqueRaceCount>=3 then
     	e:GetHandler():RegisterFlagEffect(id+3,RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE),0,1)
+    	local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetDescription(aux.Stringid(id,6))
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD&~(RESET_TOFIELD|RESET_LEAVE|RESET_TEMP_REMOVE))
+		e:GetHandler():RegisterEffect(e1)
     end
 end
 

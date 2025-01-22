@@ -28,9 +28,9 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	if g2:GetCount()>0 then
 		local td=g2:Select(tp,1,1,nil):GetFirst()
 		Duel.BreakEffect()
-		Duel.ShuffleDeck(tp)
 		Duel.MoveSequence(td,0)
 		Duel.ConfirmDecktop(tp,1)
+		Duel.DisableShuffleCheck()
 		td:ReverseInDeck()
 		if not Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsCode,998395),tp,LOCATION_FZONE,0,1,nil) and
 			Duel.IsExistingMatchingCard(s.actfilter,tp,LOCATION_DECK+LOCATION_GRAVE,0,1,nil,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then

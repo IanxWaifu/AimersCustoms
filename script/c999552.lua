@@ -64,13 +64,14 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmCards(1-tp,dr)
 	Duel.BreakEffect()
 	local opt=0
-	if (dr:IsSetCard(SET_VOLTAIC) or dr:IsType(TYPE_EQUIP)) and Duel.SelectYesNo(tp,aux.Stringid(id,5)) then return end
 	if (dr:IsSetCard(SET_VOLTAIC) and dr:IsAbleToGrave()) and (#eqg>0 and dr:CheckUniqueOnField(tp) and not dr:IsForbidden() and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and dr:IsType(TYPE_EQUIP)) then
-		opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
-	elseif (dr:IsSetCard(SET_VOLTAIC) and dr:IsAbleToGrave()) then
-		opt=Duel.SelectOption(tp,aux.Stringid(id,1))
+		opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2),aux.Stringid(id,5))
+	elseif (dr:IsSetCard(SET_VOLTAIC) or c:IsSetCard(SET_VOLDRAGO)) and dr:IsAbleToGrave() then
+		opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,5))
+		if opt==1 then opt=2 end
 	elseif (#eqg>0 and dr:CheckUniqueOnField(tp) and not dr:IsForbidden() and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and dr:IsType(TYPE_EQUIP)) then
-		opt=Duel.SelectOption(tp,aux.Stringid(id,2))+1
+		opt=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,5))
+		if opt==1 then opt=2 end
 	else opt=2 return end
 	if opt==0 then
 		if Duel.SendtoGrave(dr,REASON_EFFECT)~=0 and #dg>0 then 

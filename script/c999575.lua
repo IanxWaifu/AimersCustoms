@@ -1,5 +1,5 @@
 --Scripted by IanxWaifu
---Voltaic Vanguard, Raikina
+--Voltaic Vanguard, Gaizahar
 local s, id = GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
@@ -181,38 +181,7 @@ function s.flipop(e,tp,eg,ep,ev,re,r,rp)
 		local g=fg:Select(tp,1,1,nil)
 		Duel.HintSelection(g)
     	for tc in aux.Next(g) do
-            if tc:IsMonster() then
-                local chpos=0
-                local pos=tc:GetPosition()
-                local isFaceup=(pos&POS_FACEUP)~=0
-                local isFacedown=(pos&POS_FACEDOWN_DEFENSE)~=0
-                if isFaceup then
-                    chpos=POS_FACEDOWN_DEFENSE
-                elseif isFacedown then
-                    -- Choose between POS_FACEUP_ATTACK and POS_FACEUP_DEFENSE
-                    chpos=Duel.SelectPosition(tp,tc,POS_FACEUP_ATTACK+POS_FACEUP_DEFENSE)
-                end
-                Duel.ChangePosition(tc,chpos)
-            else
-                local chpos=0
-                local pos=tc:GetPosition()
-                local isFaceup=(pos&POS_FACEUP)~=0
-                local isFacedown=(pos&POS_FACEDOWN)~=0
-                if isFaceup then
-                    chpos=POS_FACEDOWN
-                elseif isFacedown then
-                    chpos=POS_FACEUP
-                end
-                if chpos==POS_FACEDOWN then
-                    Duel.ChangePosition(tc,chpos)
-                    Duel.RaiseSingleEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
-                    Duel.RaiseEvent(tc,EVENT_SSET,e,REASON_EFFECT,tp,tp,0)
-                elseif chpos==POS_FACEUP then
-                    Duel.ChangePosition(tc,chpos)
-                    Duel.RaiseSingleEvent(tc,EVENT_CHANGE_POS,e,REASON_EFFECT,tp,tp,0)
-                    Duel.RaiseEvent(tc,EVENT_CHANGE_POS,e,REASON_EFFECT,tp,tp,0)
-                end
-            end
+            Aimer.FlipCard(e,tc,tp)
         end
     end
 end

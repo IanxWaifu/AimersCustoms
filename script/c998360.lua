@@ -42,7 +42,7 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	return (Duel.GetTurnPlayer()==tp and e:GetHandler():GetFlagEffect(id)==0) or (Duel.GetTurnPlayer()==1-tp and Duel.IsPlayerAffectedByEffect(tp,998365) and e:GetHandler():GetFlagEffect(id)==0)
 end
 function s.cfilter1(c,e,tp)
-	return c:IsSetCard(0x12E5) and c:IsAbleToGrave() 
+	return c:IsSetCard(0x12E5) and c:IsAbleToGrave() and Duel.GetMZoneCount(tp,c)>0
 		and Duel.IsExistingMatchingCard(s.cfilter2,tp,LOCATION_GRAVE+LOCATION_HAND,0,1,nil,e,tp,c:GetCode())		
 end
 function s.cfilter2(c,e,tp,code)
@@ -57,14 +57,14 @@ end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local dg=Duel.GetMatchingGroup(s.cfilter1,tp,LOCATION_ONFIELD,0,nil,e,tp,c:GetCode())
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=-1 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
 	Duel.Hint(HINT_CARD,0,id)
 	local g=Duel.SelectMatchingCard(tp,s.cfilter1,tp,LOCATION_ONFIELD,0,1,1,nil,e,tp,c:GetCode())
 	e:SetLabel(g:GetFirst():GetCode())
 	local tc=g:GetFirst()
-	if tc and e:GetHandler():GetFlagEffect(id)==0 and Duel.SendtoGrave(tc,REASON_EFFECT)>0 then
-		e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,0)
+	if tc and c:GetFlagEffect(id)==0 and Duel.SendtoGrave(tc,REASON_EFFECT)>0 then
+		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,0)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 		local g2=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.cfilter2),tp,LOCATION_GRAVE+LOCATION_HAND,0,1,1,nil,e,tp,e:GetLabel())
 		if #g2>0 then
@@ -148,7 +148,7 @@ function s.atkfilter(c)
 	return c:IsFaceup()  and c:IsSetCard(0x12E5)
 end
 function s.hcondition(e,tp,eg,ep,ev,re,r,rp)
-    return eg:IsExists(aux.FilterFaceupFunction(Card.IsSetCard,0x12E5),1,nil)
+    return eg:IsExists(aux.FaceupFilter(Card.IsSetCard,0x12E5),1,nil)
 end
 function s.hcondition2(e,tp,eg,ep,ev,re,r,rp)
     return ep~=tp and eg:GetFirst():IsSetCard(0x12E5)

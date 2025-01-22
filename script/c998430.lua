@@ -101,7 +101,7 @@ function s.spfilter1(c)
 	return c:IsFaceup() and c:IsSetCard(0x12E5) and c:IsAbleToGraveAsCost() and (c:IsType(TYPE_TUNER) or c:IsCode(998385)) and not c:IsCode(id) and c:IsCanBeSynchroMaterial(c)
 end
 function s.spfilter2(c)
-	return c:IsFaceup() and c:IsSetCard(0x12E5) and (c:IsType(TYPE_SYNCHRO) and not c:IsType(TYPE_TUNER)) and c:IsAbleToGraveAsCost() and not c:IsCode(id) and c:IsCanBeSynchroMaterial(c)
+	return c:IsFaceup() and c:IsSetCard(0x12E5) and (c:IsType(TYPE_SYNCHRO|TYPE_RITUAL) and not c:IsType(TYPE_TUNER)) and c:IsAbleToGraveAsCost() and not c:IsCode(id) and c:IsCanBeSynchroMaterial(c)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
@@ -136,11 +136,12 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	end
 end
 function s.atklimit(e,tp,eg,ep,ev,re,r,rp)
-	local e1=Effect.CreateEffect(e:GetHandler())
+	local c=e:GetHandler()
+	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_SINGLE)
 	e1:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
 	e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	e:GetHandler():RegisterEffect(e1)
+	c:RegisterEffect(e1)
 end
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsSummonType(SUMMON_TYPE_SYNCHRO)
@@ -243,22 +244,10 @@ function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ConfirmDecktop(tp,1)
 	tc:ReverseInDeck()
 end
-function s.atkop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetProperty(EFFECT_FLAG_COPY_INHERIT)
-	e1:SetCode(EFFECT_UPDATE_ATTACK)
-	e1:SetValue(500)
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD_DISABLE)
-	c:RegisterEffect(e1)
-	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_DEFENSE)
-	c:RegisterEffect(e2)
-end
 
-function s.efilter(e,te,re,rp)
+function s.efilter(e,re,rp)
+	if not re:IsActiveType(TYPE_SPELL+TYPE_TRAP+TYPE_MONSTER) then return false end
 	if not re:IsHasProperty(EFFECT_FLAG_CARD_TARGET) then return true end
 	local g=Duel.GetChainInfo(0,CHAININFO_TARGET_CARDS)
-	return not g:IsContains(e:GetHandler()) and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
+	return (not g:IsContains(e:GetHandler())) and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
 end

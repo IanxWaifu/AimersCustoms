@@ -63,14 +63,9 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
 	end
 end
 --tribute to summon a synchro
-function s.tspfilter(c,e,tp)
-	local counter=Duel.GetCounter(tp,LOCATION_MZONE,0,COUNTER_ICE)
-	return c:IsType(TYPE_SYNCHRO)
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
-		and c:GetLevel()<=counter
-		and c:IsLocation(LOCATION_EXTRA)
-		and c:IsSetCard(SET_DRAGOCYENE)
-		and Duel.IsExistingMatchingCard(s.countfilter,tp,LOCATION_MZONE,0,1,nil)
+function s.tspfilter(c,e,tp,icecounter)
+	return c:IsType(TYPE_SYNCHRO) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and c:GetLevel()<=icecounter and c:IsLocation(LOCATION_EXTRA)
+		and c:IsSetCard(SET_DRAGOCYENE) and Duel.IsExistingMatchingCard(s.countfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 
 function s.countfilter(c)
@@ -78,16 +73,20 @@ function s.countfilter(c)
 end
 
 function s.tsptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local g=Duel.GetMatchingGroup(s.tspfilter,tp,LOCATION_EXTRA,0,nil,e,tp)
-	if chk==0 then
-		return #g>0 and Duel.GetCounter(tp,LOCATION_MZONE,0,COUNTER_ICE)>0
-			and Duel.IsExistingMatchingCard(s.countfilter,tp,LOCATION_MZONE,0,1,nil)
+	-- Calculate the total ICE counters only from monsters
+	local mcounter=Duel.GetMatchingGroup(function(c) return c:IsType(TYPE_MONSTER) end,tp,LOCATION_MZONE,0,nil)
+	local icecounter=0
+	local tc=mcounter:GetFirst()
+	while tc do
+		icecounter=icecounter+tc:GetCounter(COUNTER_ICE)
+		tc=mcounter:GetNext()
 	end
+	local g=Duel.GetMatchingGroup(s.tspfilter,tp,LOCATION_EXTRA,0,nil,e,tp,icecounter)
+	if chk==0 then return #g>0 and icecounter>0 and Duel.IsExistingMatchingCard(s.countfilter,tp,LOCATION_MZONE,0,1,nil) end
 	local tc=g:Select(tp,1,1,nil):GetFirst()
-	e:SetLabelObject(tc)
 	local lv=tc:GetLevel()
-	local iceCounter=Duel.GetCounter(tp,LOCATION_MZONE,0,COUNTER_ICE)
-	if iceCounter<lv then return false end
+	if icecounter<lv then return end
+	e:SetLabelObject(tc)
 	local sg=Group.CreateGroup()
 	local counter=0
 	while counter<lv do
@@ -103,20 +102,30 @@ function s.tsptg(e,tp,eg,ep,ev,re,r,rp,chk)
 		sg:AddCard(card)
 		counter=counter+card:GetCounter(COUNTER_ICE)
 	end
-	e:SetLabel(lv)
 	Duel.Release(sg,REASON_COST)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,tc,1,tp,LOCATION_EXTRA)
 end
 
 
 function s.tspop(e,tp,eg,ep,ev,re,r,rp)
-	local lv=e:GetLabel()
 	local tc=e:GetLabelObject()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	if tc then
-		Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+	local tc=g:GetFirst()
+	if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+		e1:SetValue(0)
+		e1:SetReset(RESETS_STANDARD_PHASE_END)
+		tc:RegisterEffect(e1,true)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_SET_DEFENSE_FINAL)
+		tc:RegisterEffect(e2,true)
 	end
+	Duel.SpecialSummonComplete()
 end
+
+
 
 --Place Counter
 function s.ctop(e,tp,eg,ep,ev,re,r,rp)

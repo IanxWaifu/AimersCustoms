@@ -4,7 +4,7 @@ local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	aux.AddEquipProcedure(c,nil,aux.FilterBoolFunction(Card.IsSetCard,SET_VOLTAIC))
-	Aimer.AddVoltaicEquipEffect(c,id)
+	Aimer.AddVoltaicEquipEffect(c,id,s)
 	-- Negate Effects of Equipped Monster
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,3))

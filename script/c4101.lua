@@ -40,17 +40,19 @@ function c4101.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 	local rg=Duel.SelectMatchingCard(tp,c4101.filter1,tp,LOCATION_HAND+LOCATION_DECK,0,1,1,nil,e,tp)
 	e:SetLabel(rg:GetFirst():GetAttribute())
+	e:SetLabelObject(rg:GetFirst())
 	Duel.SendtoGrave(rg,REASON_EFFECT)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND)
 end
 function c4101.activate(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local code=e:GetLabel()
+	local mat=e:GetLabelObject()
 	local tcode=c4101.list[code]
 	local tg=Duel.SelectMatchingCard(tp,c4101.filter2,tp,LOCATION_HAND,0,1,1,nil,tcode,e,tp)
 	local tc=tg:GetFirst()
 	if tc then
-		tc:SetMaterial(nil)
+		tc:SetMaterial(mat)
 		Duel.SpecialSummon(tc,SUMMON_TYPE_RITUAL,tp,tp,true,false,POS_FACEUP)
 		tc:CompleteProcedure()
 	end

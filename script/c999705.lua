@@ -3,8 +3,6 @@
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
-	--Apply Astral Shift
-	Aimer.AddAstralShift(c)
 	--Place 2 Ice Counters
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))

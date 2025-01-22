@@ -29,7 +29,6 @@ function s.initial_effect(c)
 end
 s.listed_series={SET_ICYENE,SET_DRAGOCYENE}
 s.counter_list={COUNTER_ICE}
-s.astral_shift={id}
 
 
 --Special from hand
@@ -130,8 +129,8 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local sync=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp,c,mg):GetFirst()
 	if sync then
-		if not sync:IsSetCard(SET_DRAGOCYENE) then
-		local mg2=Duel.GetMatchingGroup(s.matfilter,tp,LOCATION_MZONE,0,nil,tp)
+		if sync:IsSetCard(SET_DRAGOCYENE) then
+		local mg2=Duel.GetMatchingGroup(s.matfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil,tp)
 		Duel.SynchroSummon(tp,sync,c,mg2)
 	
 	else
