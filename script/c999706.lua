@@ -108,7 +108,7 @@ end
 
 
 function s.tspop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=e:GetLabelObject()
+	local g=e:GetLabelObject()
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local tc=g:GetFirst()
 	if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then

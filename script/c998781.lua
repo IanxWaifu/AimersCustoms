@@ -44,17 +44,18 @@ function s.cfilter(c,seq,p)
 	return c:IsFaceup() and c:IsSetCard(0x12EE) and c:IsColumn(seq,p,LOCATION_MZONE)
 end
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
+	if not Duel.IsChainDisablable(ev) then return false end
 	if not re:IsActiveType(TYPE_SPELL+TYPE_TRAP+TYPE_MONSTER) then return false end
 	local rc=re:GetHandler()
 	local p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
-	return loc==LOCATION_SZONE and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil,seq,p) and Duel.IsChainDisablable(ev)
+	return loc==LOCATION_ONFIELD and Duel.IsExistingMatchingCard(s.cfilter,tp,LOCATION_MZONE,0,1,nil,seq,p)
 end
 
 --Choice Effect
 function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
 	local cg=e:GetHandler():GetColumnGroup()
 	local b1=Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_ONFIELD,0,1,nil) 
-	local b2=Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_ONFIELD,0,1,nil)  and cg:IsExists(s.cgfilter,1,nil)
+	local b2=Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_ONFIELD,0,1,nil) and cg:IsExists(s.cgfilter,1,nil)
 	if chk==0 then return b1 end
 	local op=0
 	if b1 and b2 then

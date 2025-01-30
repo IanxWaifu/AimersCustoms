@@ -43,6 +43,7 @@ function s.initial_effect(c)
 	e4:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
 	e4:SetCountLimit(1,id+2)
 	e4:SetCondition(s.atkcon)
+	e4:SetCondition(s.atktg)
 	e4:SetOperation(s.atkop)
 	c:RegisterEffect(e4)
 end

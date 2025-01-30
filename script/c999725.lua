@@ -1,11 +1,11 @@
---Dragocyene Crystallagmite
+--Dragocyene Icyene Queen - The Progenitor
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Link Summon procedure
-	Link.AddProcedure(c,nil,3,nil,s.matcheck)
+	Link.AddProcedure(c,nil,3,nil,s.lcheck)
 	--indestructable
 	local e1=Effect.CreateEffect(c)
 	e1:SetType(EFFECT_TYPE_FIELD)
@@ -59,6 +59,10 @@ end
 
 s.listed_series={SET_ICYENE,SET_DRAGOCYENE}
 s.counter_list={COUNTER_ICE}
+
+function s.lcheck(g,lc,sumtype,tp)
+	return g:IsExists(Card.IsSetCard,1,nil,SET_CYENE,lc,sumtype,tp)
+end
 
 --indes
 function s.indtg(e,c)

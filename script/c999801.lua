@@ -79,7 +79,7 @@ function s.zfilter(c,tp)
 	return c:IsSetCard(SET_NOVALXON) and c:IsFaceup() and c:IsControler(tp) and c:IsMonster()
 end
 function s.seqcon(e,tp,eg,ep,ev,re,r,rp)
-	return eg:IsExists(s.zfilter,2,nil,tp)
+	return eg:IsExists(s.zfilter,2,nil,tp) and e:GetHandler():GetFlagEffect(REGISTER_FLAG_ASTRAL_STATE)==0
 end
 function s.seqfilter(c)
 	local tp=c:GetControler()

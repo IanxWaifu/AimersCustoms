@@ -118,6 +118,7 @@ function s.cop(e,tp,eg,ep,ev,re,r,rp)
 		e3:SetDescription(aux.Stringid(id,2))
 		e3:SetCountLimit(1)
 		e3:SetProperty(EFFECT_FLAG_NO_TURN_RESET+EFFECT_FLAG_CLIENT_HINT)
+		e3:SetReset(RESET_EVENT+RESETS_STANDARD)
 		e3:SetOperation(s.rgop)
 		rc:RegisterEffect(e3,true)
 end

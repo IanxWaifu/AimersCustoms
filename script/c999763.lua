@@ -234,7 +234,7 @@ end
 
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
-    Duel.SetOperationInfo(0,CATEGORY_DISABLE,nil,0,tp,1)
+    Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,0,tp,1)
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()

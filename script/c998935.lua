@@ -14,6 +14,7 @@ function s.initial_effect(c)
 	e0:SetRange(LOCATION_EXTRA)
 	e0:SetHintTiming(0,TIMING_END_PHASE)
 	e0:SetCountLimit(1,id)
+	e0:SetTarget(s.xyztgEP)
 	e0:SetCondition(s.xyzconEP)
 	e0:SetOperation(s.xyzopEP)
 	e0:SetValue(SUMMON_TYPE_XYZ)
@@ -120,10 +121,16 @@ function s.rescon(checkfunc)
     end
 end
 
+
+function s.xyztgEP(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_REMOVED+LOCATION_GRAVE,0,1,nil,e,tp) end
+	Duel.SetChainLimit(aux.FALSE)
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_EXTRA)
+end
+
 --Xyz Conditions
 function s.xyzconEP(e,tp,eg,ep,ev,re,r,rp)
     return Duel.GetFlagEffect(tp,998970)>0 and Duel.GetFlagEffect(tp,998971)>0 and Duel.GetFlagEffect(tp,998972)>0 and Duel.GetFlagEffect(tp,998973)>0
-   		and Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_HAND+LOCATION_MZONE+LOCATION_REMOVED+LOCATION_GRAVE,0,1,nil,e,tp) 
 end
 
 

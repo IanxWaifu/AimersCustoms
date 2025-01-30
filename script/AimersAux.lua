@@ -1715,9 +1715,10 @@ function Aimer.HandleAstralShift(e,tp,eg,ep,ev,re,r,rp)
             -- Overlay the two monsters
             Duel.Overlay(c,Group.FromCards(tc)) -- Place the moved monster (c) on top of the intersected monster (tc)
             if c:GetFlagEffect(REGISTER_FLAG_ASTRAL_STATE)==0 then c:RegisterFlagEffect(REGISTER_FLAG_ASTRAL_STATE,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET,0,0) end
-            Duel.RaiseEvent(c,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
-            Duel.RaiseEvent(tc,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
+            --[[Duel.RaiseEvent(c,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)--]]
+            --[[Duel.RaiseEvent(tc,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)--]]
         end
+        Duel.RaiseEvent(c,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
          -- Check for cards with "EFFECT_EXTRA_ASTRAL" in all locations
         local extraAstralCards = Duel.GetMatchingGroup(Aimer.FilterExtraAstralCards,tp,LOCATION_ALL,0,nil)
         -- Prompt the player to select one card from the group
@@ -1727,7 +1728,7 @@ function Aimer.HandleAstralShift(e,tp,eg,ep,ev,re,r,rp)
             -- Add the selected card to the overlay group
             Duel.Hint(HINT_CARD,0,selectedCard:GetCode())
             Duel.Overlay(c,Group.FromCards(selectedCard))
-            Duel.RaiseEvent(selectedCard,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)
+            --[[Duel.RaiseEvent(selectedCard,EVENT_ASTRAL_SHIFT,e,0,tp,tp,0)--]]
             Aimer.ApplyFlagToAllWithSameName(selectedCard,tp)
         end
     end
@@ -1825,7 +1826,7 @@ function Aimer.AstralEffectSwapProc(e,tp,eg,ep,ev,re,r,rp)
         local e1=Effect.CreateEffect(c)
         e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
         e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_IGNORE_IMMUNE)
-        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCode(EVENT_ADJUST)
         e1:SetCountLimit(1)
         e1:SetCondition(Aimer.SendToDeckCondition)
         e1:SetOperation(Aimer.SendToDeckOperation)

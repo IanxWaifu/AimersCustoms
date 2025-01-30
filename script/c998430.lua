@@ -28,7 +28,7 @@ function s.initial_effect(c)
 	e3:SetRange(LOCATION_MZONE)
 	e3:SetCondition(s.discon)
 	e3:SetTargetRange(0,LOCATION_ONFIELD)
-	e3:SetValue(s.val)
+	e3:SetTarget(s.disable)
 	c:RegisterEffect(e3)
 	local e4=e3:Clone()
 	e4:SetCode(EFFECT_DISABLE_EFFECT)
@@ -112,6 +112,7 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then local pg=aux.GetMustBeMaterialGroup(tp,Group.CreateGroup(),tp,nil,nil,REASON_SYNCHRO)
 		return #pg<=0 and  Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and #g1>0 and #g2>0 
 		and c:IsCanBeSpecialSummoned(e,SUMMON_TYPE_SYNCHRO,tp,true,false) end
+	Duel.SetChainLimit(aux.FALSE)
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,LOCATION_EXTRA)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
@@ -193,6 +194,11 @@ end
 function s.damop(e,tp,eg,ep,ev,re,r,rp)
 	Duel.ChangeBattleDamage(1-tp,Duel.GetBattleDamage(tp),false)
 end
+
+function s.disable(e,c)
+	return c:IsFaceup()
+end
+
 function s.val(e,re,dam,r,rp,rc)
 	if bit.band(r,REASON_EFFECT)~=0 then
 		return dam/2
