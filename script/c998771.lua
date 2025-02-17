@@ -121,12 +121,6 @@ function s.seop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		e1:SetValue(-1000)
 		tc:RegisterEffect(e1)
-		local e2=Effect.CreateEffect(e:GetHandler())
-		e2:SetType(EFFECT_TYPE_SINGLE)
-		e2:SetCode(EFFECT_UPDATE_DEFENSE)
-		e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-		e2:SetValue(-1000)
-		tc:RegisterEffect(e2)
 	end
 end
 
