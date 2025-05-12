@@ -1,7 +1,9 @@
 --Scripted by IanxWaifu
 --Shio to Suna ★ Amber
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.ShiotoSunaAddProcedure(c,id,s)
 	--pendulum summon
 	Pendulum.AddProcedure(c)
 	c:EnableUnsummonable()
@@ -39,19 +41,6 @@ function s.initial_effect(c)
 	e3:SetTarget(s.addtg)
 	e3:SetOperation(s.addop)
 	c:RegisterEffect(e3)
-	--Ritual Proc
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,1))
-	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_SPSUMMON_PROC)
-	e4:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e4:SetRange(LOCATION_HAND+LOCATION_EXTRA)
-	e4:SetCountLimit(1,{id,3})
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
-	e4:SetValue(SUMMON_TYPE_RITUAL)
-	c:RegisterEffect(e4)
 	--Place
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(id,2))
@@ -68,6 +57,7 @@ function s.initial_effect(c)
 	e7:SetDescription(aux.Stringid(id,5))
 	e7:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
 	e7:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e7:SetCondition(s.sumcon)
 	e7:SetOperation(s.sumop)
 	c:RegisterEffect(e7)
 end
@@ -105,47 +95,6 @@ function s.addop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 
-function s.flfilter(c,lv)
-	return c:IsFaceup() and c:GetLeftScale()>=lv
-end
-function s.spcon(e,c,tp)
-	if c==nil then return true end
-	if e:GetHandler():IsLocation(LOCATION_EXTRA) and e:GetHandler():IsFacedown() then return end
-	local lv=e:GetHandler():GetLevel()
-	local tp=e:GetHandlerPlayer()
-	local rg=Duel.GetMatchingGroup(s.flfilter,tp,LOCATION_PZONE,0,nil,lv)
-	return ((e:GetHandler():IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,c,sc)>0) or (e:GetHandler():IsLocation(LOCATION_HAND) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0))
-		and #rg>0 and aux.SelectUnselectGroup(rg,e,tp,1,1,nil,0)
-end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
-	local c=e:GetHandler()
-	local lv=e:GetHandler():GetLevel()
-	local rg=Duel.GetMatchingGroup(s.flfilter,tp,LOCATION_PZONE,0,nil,lv)
-	local g=aux.SelectUnselectGroup(rg,e,tp,1,1,nil,1,tp,HINTMSG_ADJUST,nil,nil,true)
-	if #g>0 then
-		g:KeepAlive()
-		e:SetLabelObject(g)
-		return true
-	end
-	return false
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local c=e:GetHandler()
-	local g=e:GetLabelObject()
-	if not g then return end
-	local tc=g:GetFirst()
-	e:SetLabel(c:GetLevel())
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_LSCALE)
-	e1:SetValue(-e:GetLabel())
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	tc:RegisterEffect(e1)
-	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_RSCALE)
-	tc:RegisterEffect(e2)
-	g:DeleteGroup()
-end
 
 function s.pcfilter(c)
 	return c:IsType(TYPE_PENDULUM) and c:IsSetCard(0x12F0) and not c:IsForbidden() and not c:IsCode(id)
@@ -235,6 +184,10 @@ elseif not (tc:GetLeftScale()==1 and ac==2) and not (tc:GetLeftScale()==0 and ac
 	end
 end
 
+
+function s.sumcon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsSummonType(SUMMON_TYPE_PENDULUM)
+end
 
 function s.sumop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFlagEffect(tp,id)~=0 then return end

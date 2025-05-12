@@ -115,7 +115,8 @@ end
 
 --Sp from GY
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return (r&REASON_EFFECT+REASON_BATTLE)~=0
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_FUSION)
 end
 function s.spfilter(c,e,tp)
 	local clv=e:GetHandler():GetLevel()

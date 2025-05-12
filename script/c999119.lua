@@ -51,11 +51,12 @@ function s.negop(e,tp,eg,ep,ev,re,r,rp)
 		end
 	end
 end
+
 --Special
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return (r&REASON_EFFECT+REASON_BATTLE)~=0
+	local c=e:GetHandler()
+	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_FUSION)
 end
-
 function s.spfilter1(c,e,tp)
 	return c:IsSetCard(0x12A7) and c:IsType(TYPE_PENDULUM) and  c:IsCanBeSpecialSummoned(e,4775,tp,false,false)
 		and Duel.IsExistingMatchingCard(s.spfilter2,tp,LOCATION_HAND+LOCATION_GRAVE,0,1,nil,e,tp,c:GetCode())

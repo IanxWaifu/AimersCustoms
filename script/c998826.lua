@@ -1,7 +1,9 @@
 --Scripted by IanxWaifu
 --Shio to Suna ★ Ayaka
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.ShiotoSunaAddProcedure(c,id,s)
 	--pendulum summon
 	Pendulum.AddProcedure(c)
 	c:EnableUnsummonable()
@@ -38,19 +40,6 @@ function s.initial_effect(c)
 	e3:SetCondition(s.indcon)
 	e3:SetOperation(s.indop)
 	c:RegisterEffect(e3)
-	--Ritual Proc
-	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,1))
-	e4:SetType(EFFECT_TYPE_FIELD)
-	e4:SetCode(EFFECT_SPSUMMON_PROC)
-	e4:SetProperty(EFFECT_FLAG_UNCOPYABLE)
-	e4:SetRange(LOCATION_HAND+LOCATION_EXTRA)
-	e4:SetCountLimit(1,{id,3})
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
-	e4:SetValue(SUMMON_TYPE_RITUAL)
-	c:RegisterEffect(e4)
 	--Reduce Target Destroy
 	local e5=Effect.CreateEffect(c)
 	e5:SetDescription(aux.Stringid(id,2))
@@ -69,8 +58,9 @@ function s.initial_effect(c)
 	e6:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e6:SetCode(EVENT_BE_MATERIAL)
 	e6:SetCountLimit(1,{id,6})
-	e6:SetProperty(EFFECT_FLAG_DELAY+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_IGNORE_IMMUNE)
+	e6:SetProperty(EFFECT_FLAG_DELAY)
 	e6:SetCondition(s.sccon)
+	e6:SetTarget(s.sctg)
 	e6:SetOperation(s.scop)
 	c:RegisterEffect(e6)
 end
@@ -115,48 +105,6 @@ end
 function s.unaval(e,te)
 	local tc=te:GetOwner()
 	return tc:IsSummonType(SUMMON_TYPE_SPECIAL) and tc:IsSummonLocation(LOCATION_EXTRA) and te:GetOwnerPlayer()~=e:GetHandlerPlayer()
-end
-
-function s.flfilter(c,lv)
-	return c:IsFaceup() and c:GetLeftScale()>=lv
-end
-function s.spcon(e,c,tp)
-	if c==nil then return true end
-	if e:GetHandler():IsLocation(LOCATION_EXTRA) and e:GetHandler():IsFacedown() then return end
-	local lv=e:GetHandler():GetLevel()
-	local tp=e:GetHandlerPlayer()
-	local rg=Duel.GetMatchingGroup(s.flfilter,tp,LOCATION_PZONE,0,nil,lv)
-	return ((e:GetHandler():IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,c,sc)>0) or (e:GetHandler():IsLocation(LOCATION_HAND) and Duel.GetLocationCount(tp,LOCATION_MZONE)>0))
-		and #rg>0 and aux.SelectUnselectGroup(rg,e,tp,1,1,nil,0)
-end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,c)
-	local c=e:GetHandler()
-	local lv=e:GetHandler():GetLevel()
-	local rg=Duel.GetMatchingGroup(s.flfilter,tp,LOCATION_PZONE,0,nil,lv)
-	local g=aux.SelectUnselectGroup(rg,e,tp,1,1,nil,1,tp,HINTMSG_ADJUST,nil,nil,true)
-	if #g>0 then
-		g:KeepAlive()
-		e:SetLabelObject(g)
-		return true
-	end
-	return false
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp,c)
-	local c=e:GetHandler()
-	local g=e:GetLabelObject()
-	if not g then return end
-	local tc=g:GetFirst()
-	e:SetLabel(c:GetLevel())
-	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_SINGLE)
-	e1:SetCode(EFFECT_UPDATE_LSCALE)
-	e1:SetValue(-e:GetLabel())
-	e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-	tc:RegisterEffect(e1)
-	local e2=e1:Clone()
-	e2:SetCode(EFFECT_UPDATE_RSCALE)
-	tc:RegisterEffect(e2)
-	g:DeleteGroup()
 end
 
 
@@ -209,7 +157,7 @@ end
 function s.sccon(e,tp,eg,ep,ev,re,r,rp)
 	local rc=e:GetHandler():GetReasonCard()
 	local c=e:GetHandler()
-	return rc:IsSetCard(0x12E5) and c:IsPreviousLocation(LOCATION_MZONE) and c:IsSummonType(SUMMON_TYPE_RITUAL)
+	return rc:IsSetCard(0x12F0)
 end
 function s.scfilter(c)
 	return c:IsFaceup() and c:IsSetCard(0x12F0)

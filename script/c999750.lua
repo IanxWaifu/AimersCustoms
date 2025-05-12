@@ -26,25 +26,19 @@ function s.initial_effect(c)
     e2:SetOperation(s.drop)
     c:RegisterEffect(e2)
     aux.GlobalCheck(s,function()
-        --Clear Materials from Table
-        local ge1=Effect.CreateEffect(c)
-        ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-        ge1:SetCode(EVENT_PHASE+PHASE_END)
-        ge1:SetCountLimit(1,{id,2})
-        ge1:SetCondition(s.check_table)
-        ge1:SetOperation(s.clear_materials)
-        Duel.RegisterEffect(ge1,0)
+        aeternum_material_table={} 
+        aux.AddValuesReset(function() aeternum_material_table={} end)
     end)
 end
 
-aeternum_material_table = {}
+
 
 -- Condition to check if the table contains IDs
 function s.check_table(e,tp,eg,ep,ev,re,r,rp)
-    return #aeternum_material_table > 0 -- Returns true if the table has IDs
+    return #aeternum_material_table>0 
 end
 function s.clear_materials(e,tp,eg,ep,ev,re,r,rp)
-    aeternum_material_table = {} -- Reset the global table
+    aeternum_material_table={} 
 end
 
 

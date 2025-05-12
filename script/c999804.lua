@@ -56,7 +56,6 @@ end
 
 s.listed_series={SET_NOVALXON}
 s.listed_names={id}
-s.astral_shift={id}
 
 function s.cfilter(c,tp)
 	return c:IsControler(tp)

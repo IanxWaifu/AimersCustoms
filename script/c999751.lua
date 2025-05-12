@@ -46,7 +46,7 @@ function s.initial_effect(c)
     e6:SetCategory(CATEGORY_DRAW)
     e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
     e6:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
-    e6:SetCode(EVENT_DESTROYED)
+    e6:SetCode(EVENT_LEAVE_FIELD)
     e6:SetRange(LOCATION_MZONE)
     e6:SetCountLimit(1,id)
     e6:SetCondition(s.drcon)
@@ -86,11 +86,13 @@ end
 function s.valcheck(e,c)
     local g=c:GetMaterial()
     local ct=g:Filter(s.valchkfilter,nil)
-    e:GetLabelObject():SetLabelObject(ct)
-    for tc in aux.Next(ct) do
+    local tc=ct:GetFirst()
+    while tc do
         tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+        tc=ct:GetNext()
     end
     ct:KeepAlive()
+    e:GetLabelObject():SetLabelObject(ct)
 end
 function s.sregcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
@@ -114,9 +116,10 @@ function s.sregop(e,tp,eg,ep,ev,re,r,rp)
     c:RegisterEffect(e4)
 end
 
-
 function s.actcost(e,te,tp)
     local tc=te:GetHandler()
+    local mat=e:GetHandler():GetMaterial()
+    if not mat:IsContains(tc) then return false end
     if tc:GetFlagEffect(id)>0 and tc:IsLocation(LOCATION_SZONE) and tc:IsFacedown() then
         e:SetLabelObject(tc)
         return true
@@ -127,6 +130,7 @@ end
 function s.costchk(e,te_or_c,tp)
     return Duel.CheckLPCost(tp,500)
 end
+
 function s.costop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     local tc=e:GetLabelObject()

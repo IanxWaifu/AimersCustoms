@@ -46,7 +46,7 @@ function s.initial_effect(c)
     e6:SetCategory(CATEGORY_DISABLE)
     e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
     e6:SetProperty(EFFECT_FLAG_DAMAGE_STEP+EFFECT_FLAG_DELAY)
-    e6:SetCode(EVENT_DESTROYED)
+    e6:SetCode(EVENT_LEAVE_FIELD)
     e6:SetRange(LOCATION_MZONE)
     e6:SetCountLimit(1,id)
     e6:SetCondition(s.negcon)
@@ -87,11 +87,13 @@ end
 function s.valcheck(e,c)
     local g=c:GetMaterial()
     local ct=g:Filter(s.valchkfilter,nil)
-    e:GetLabelObject():SetLabelObject(ct)
-    for tc in aux.Next(ct) do
+    local tc=ct:GetFirst()
+    while tc do
         tc:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+        tc=ct:GetNext()
     end
     ct:KeepAlive()
+    e:GetLabelObject():SetLabelObject(ct)
 end
 function s.sregcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
@@ -118,6 +120,8 @@ end
 
 function s.actcost(e,te,tp)
     local tc=te:GetHandler()
+    local mat=e:GetHandler():GetMaterial()
+    if not mat:IsContains(tc) then return false end
     if tc:GetFlagEffect(id)>0 and tc:IsLocation(LOCATION_SZONE) and tc:IsFacedown() then
         e:SetLabelObject(tc)
         return true
@@ -134,19 +138,18 @@ end
 
 -- Cost filter (modification to exclude Azhimaou Ritual if only one exists)
 function s.costopfilter(c,tp)
-    -- Check if it's an "Azhimaou" Ritual Monster
-    if c:IsSetCard(SET_AZHIMAOU) and (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO)) then
-        local azhimaouCount=Duel.GetMatchingGroupCount(s.ritfilter,tp,LOCATION_ONFIELD|LOCATION_HAND,0,nil)
-        if azhimaouCount==1 then
+    -- Check if it's an "Azhimaou" Ritual/Synchro Monster
+    if c:IsSetCard(SET_AZHIMAOU) and ((c:IsType(TYPE_RITUAL) or c:IsType(TYPE_SYNCHRO)) and c:IsType(TYPE_MONSTER)) and (c:IsFaceup() or c:IsLocation(LOCATION_HAND)) then
+        -- Count valid "Azhimaou" Ritual/Synchro monsters
+        local g=Duel.GetMatchingGroup(function(tc) return tc:IsSetCard(SET_AZHIMAOU) and ((tc:IsType(TYPE_RITUAL) or tc:IsType(TYPE_SYNCHRO)) and tc:IsType(TYPE_MONSTER)) and (tc:IsFaceup() or tc:IsLocation(LOCATION_HAND)) end,tp,LOCATION_ONFIELD|LOCATION_HAND,0,nil)
+        -- Exclude this card if it's the only valid one
+        if #g==1 and g:IsContains(c) then
             return false
         end
     end
     return c:IsAbleToGraveAsCost()
 end
 
-function s.ritfilter(c)
-    return c:IsSetCard(SET_AZHIMAOU) and (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO))
-end
 
 -- Cost operation function
 function s.costop(e,tp,eg,ep,ev,re,r,rp)

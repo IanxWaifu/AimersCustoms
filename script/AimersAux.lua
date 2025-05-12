@@ -60,6 +60,7 @@ SET_REVELATIA = 0x19f
 SET_ZODIAKIERI = 0x12D7
 SET_AZHIMAOU = 0x311
 SET_NOVALXON = 0x313
+SET_ALEKRON = 0x316
 
 
 --Common used Flags
@@ -1696,7 +1697,7 @@ function Aimer.HandleAstralShift(e,tp,eg,ep,ev,re,r,rp)
             if RangeOverlap(cStart,cEnd,tcStart,tcEnd) then
                 -- Check if the card has the astral_shift metatable property
                 local mt = Duel.GetMetatable(tc:GetCode())
-                if mt and mt.astral_shift then
+                if mt and mt.astral_shift and tc:GetFlagEffect(REGISTER_FLAG_ASTRAL_STATE)==0 then
                     table.insert(intersectedCards,tc)
                 end
             end
@@ -1866,4 +1867,122 @@ function Aimer.SendToDeckOperation(e,tp,eg,ep,ev,re,r,rp)
         local mat=materialsTable[i]
         Duel.SendtoDeck(mat,nil,SEQ_DECKBOTTOM,REASON_RULE)
     end
+end
+
+
+
+--Shio to Suna Ritual Proc
+function Aimer.ShiotoSunaAddProcedure(c,id,s)
+    local function flfilter(c)
+        return c:IsFaceup() and c:GetLeftScale()>=0
+    end
+    local function spcon(e,c,tp)
+        if c==nil then return true end
+        if (e:GetHandler():IsLocation(LOCATION_EXTRA) and e:GetHandler():IsFacedown()) then return false end
+        local lv=e:GetHandler():GetLevel()
+        local tp=e:GetHandlerPlayer()
+        local rg=Duel.GetMatchingGroup(flfilter,tp,LOCATION_PZONE,0,nil)
+        local emzcheck=((not e:GetHandler():IsLocation(LOCATION_EXTRA) and aux.ChkfMMZ(1)(sg,e,tp,mg)) or (e:GetHandler():IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,sg,e:GetHandler())>0))
+        if #rg==1 then return rg:GetFirst():GetLeftScale()>=lv and emzcheck end
+        return aux.SelectUnselectGroup(rg,e,tp,1,2,function(sg,e,tp,mg) return sg:GetSum(Card.GetLeftScale)>=lv and emzcheck end,0)
+    end
+    local function sptg(e,tp,eg,ep,ev,re,r,rp,c)
+        local c=e:GetHandler()
+        local lv=c:GetLevel()
+        local rg=Duel.GetMatchingGroup(flfilter,tp,LOCATION_PZONE,0,nil)
+        local emzcheck=((not e:GetHandler():IsLocation(LOCATION_EXTRA) and aux.ChkfMMZ(1)(sg,e,tp,mg)) or (e:GetHandler():IsLocation(LOCATION_EXTRA) and Duel.GetLocationCountFromEx(tp,tp,sg,e:GetHandler())>0))
+        local g=aux.SelectUnselectGroup(rg,e,tp,1,2,function(sg,e,tp,mg) return sg:GetSum(Card.GetLeftScale)>=lv and emzcheck end,1,tp,HINTMSG_ADJUST,nil,nil,true)
+        if #g>0 then
+            local total_scale=g:GetSum(Card.GetLeftScale)
+            if total_scale<lv then return false end
+            g:KeepAlive()
+            e:SetLabelObject(g)
+            return true
+        end
+        return false
+    end
+        local function spop(e,tp,eg,ep,ev,re,r,rp,c)
+        local c=e:GetHandler()
+        local g=e:GetLabelObject()
+        if not g then return end
+        local lv=c:GetLevel()
+        local total_reduction=lv
+        if #g==1 then
+            local tc=g:GetFirst()
+            local max_reduce=math.min(tc:GetLeftScale(),total_reduction)
+            local reduce=max_reduce
+            if reduce>0 then
+                local e1=Effect.CreateEffect(c)
+                e1:SetType(EFFECT_TYPE_SINGLE)
+                e1:SetCode(EFFECT_UPDATE_LSCALE)
+                e1:SetValue(-reduce)
+                e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+                tc:RegisterEffect(e1)
+                local e2=e1:Clone()
+                e2:SetCode(EFFECT_UPDATE_RSCALE)
+                tc:RegisterEffect(e2)
+            end
+            c:SetMaterial(tc)
+        else
+            local remaining_reduction=total_reduction
+            -- Filter the cards in g for the one in the left pendulum zone
+            local left_tc=g:Filter(function(c) return c:IsLocation(LOCATION_PZONE) and c:GetSequence()==0 end,nil)
+            local right_tc=g:Filter(function(c) return c:IsLocation(LOCATION_PZONE) and c:GetSequence()==4 end,nil)
+            left_tc=left_tc:GetFirst()
+            right_tc=right_tc:GetFirst()
+            -- Get the first card that matches
+            if left_tc then
+                local left_max_reduce=math.min(left_tc:GetLeftScale(),remaining_reduction)
+                local check_max_reduce=math.min(right_tc:GetLeftScale()+1,math.max(0,remaining_reduction-right_tc:GetLeftScale()))
+                local left_choices={}
+                for i=check_max_reduce,left_max_reduce do table.insert(left_choices,i) end
+                Duel.Hint(HINTMSG_NUMBER,tp,HINT_NUMBER)
+                local left_reduce=Duel.AnnounceNumber(tp,table.unpack(left_choices))
+                if left_reduce>0 then
+                    local e1=Effect.CreateEffect(c)
+                    e1:SetType(EFFECT_TYPE_SINGLE)
+                    e1:SetCode(EFFECT_UPDATE_LSCALE)
+                    e1:SetValue(-left_reduce)
+                    e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+                    left_tc:RegisterEffect(e1)
+                    local e2=e1:Clone()
+                    e2:SetCode(EFFECT_UPDATE_RSCALE)
+                    left_tc:RegisterEffect(e2)
+                end
+                remaining_reduction=remaining_reduction-left_reduce
+            end
+            if right_tc and remaining_reduction>0 then
+                local right_max_reduce=math.min(right_tc:GetLeftScale(),remaining_reduction)
+                if right_max_reduce>0 then
+                    local e2=Effect.CreateEffect(c)
+                    e2:SetType(EFFECT_TYPE_SINGLE)
+                    e2:SetCode(EFFECT_UPDATE_LSCALE)
+                    e2:SetValue(-right_max_reduce)
+                    e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+                    right_tc:RegisterEffect(e2)
+                    local e3=e2:Clone()
+                    e3:SetCode(EFFECT_UPDATE_RSCALE)
+                    right_tc:RegisterEffect(e3)
+                end
+            end
+            --Set materials for both left and right pendulum zones if applicable
+            local mg=Group.CreateGroup()
+            if left_tc then mg:AddCard(left_tc) end
+            if right_tc then mg:AddCard(right_tc) end
+            c:SetMaterial(mg)
+        end
+        g:DeleteGroup()
+    end
+    local e1=Effect.CreateEffect(c)
+    e1:SetDescription(4501)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_SPSUMMON_PROC)
+    e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+    e1:SetRange(LOCATION_HAND+LOCATION_EXTRA)
+    e1:SetCountLimit(1,{id,10})
+    e1:SetCondition(spcon)
+    e1:SetTarget(sptg)
+    e1:SetOperation(spop)
+    e1:SetValue(SUMMON_TYPE_RITUAL)
+    c:RegisterEffect(e1)
 end

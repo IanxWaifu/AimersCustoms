@@ -40,26 +40,29 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 	local g=Duel.SelectMatchingCard(tp,s.desfilter,tp,LOCATION_ONFIELD+LOCATION_HAND,0,1,1,e:GetHandler())
 	local tg=g:GetFirst()
 		if tg and Duel.Destroy(tg,REASON_EFFECT)~=0 then
-			if tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsDisabled() then
-			Duel.NegateEffect(ev)
-			Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_DISABLE)
-			e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			tc:RegisterEffect(e1)
-			local e2=Effect.CreateEffect(c)
-			e2:SetType(EFFECT_TYPE_SINGLE)
-			e2:SetCode(EFFECT_DISABLE_EFFECT)
-			e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
-			e2:SetValue(RESET_TURN_SET)
-			e2:SetReset(RESET_EVENT+RESETS_STANDARD)
-			tc:RegisterEffect(e2)
-			if not tg:IsType(TYPE_FUSION) then return end
-			if tc:IsOnField() and tc:IsAbleToRemove() and tc:IsRelateToEffect(e) then 
-				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-				Duel.Remove(tc,POS_FACEDOWN,REASON_EFFECT)
+			if tc:IsRelateToEffect(e) and tc:IsSetCard(0x12A7) then
+				Duel.Destroy(tc,REASON_EFFECT)
+			else if tc:IsRelateToEffect(e) and tc:IsFaceup() and not tc:IsDisabled() then
+				Duel.NegateEffect(ev)
+				Duel.NegateRelatedChain(tc,RESET_TURN_SET)
+				local e1=Effect.CreateEffect(c)
+				e1:SetType(EFFECT_TYPE_SINGLE)
+				e1:SetCode(EFFECT_DISABLE)
+				e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e1)
+				local e2=Effect.CreateEffect(c)
+				e2:SetType(EFFECT_TYPE_SINGLE)
+				e2:SetCode(EFFECT_DISABLE_EFFECT)
+				e2:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+				e2:SetValue(RESET_TURN_SET)
+				e2:SetReset(RESET_EVENT+RESETS_STANDARD)
+				tc:RegisterEffect(e2)
+				if not tg:IsType(TYPE_FUSION) then return end
+					if tc:IsOnField() and tc:IsAbleToRemove() and tc:IsRelateToEffect(e) then 
+						Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+						Duel.Remove(tc,POS_FACEDOWN,REASON_EFFECT)
+					end
 				end
 			end
 		end

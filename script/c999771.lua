@@ -36,6 +36,11 @@ function s.initial_effect(c)
     e3:SetCondition(s.sumcon)
     e3:SetOperation(s.sumop)
     c:RegisterEffect(e3)
+    --can be treated as a Tuner if used as Synchro Material
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_SINGLE)
+    e4:SetCode(EFFECT_CAN_BE_TUNER)
+    c:RegisterEffect(e4)
     -- Global check for "SET_AZHIMAOU" activation this turn
     aux.GlobalCheck(s,function()
         local ge1=Effect.CreateEffect(c)
@@ -83,7 +88,7 @@ function s.fusfilter(c,code,fc,sumtype,tp)
 end
 
 function s.splimit(e,se,sp,st)
-    return (not e:GetHandler():IsLocation(LOCATION_EXTRA) or aux.fuslimit(e,se,sp,st)) or se:IsHasType(EFFECT_TYPE_ACTIONS) and se:GetHandler():IsSetCard(SET_AZHIMAOU)
+    return (not e:GetHandler():IsLocation(LOCATION_EXTRA) or bit.band(st,SUMMON_TYPE_FUSION)==SUMMON_TYPE_FUSION) or se:IsHasType(EFFECT_TYPE_ACTIONS) and se:GetHandler():IsSetCard(SET_AZHIMAOU)
 end
 
 --[[--Mill 3
