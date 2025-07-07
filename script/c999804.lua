@@ -97,7 +97,7 @@ function s.selfspop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.spfilter(c,e,tp)
-	if c:IsLocation(LOCATION_REMOVED) then return c:IsFaceup() end
+	if c:IsLocation(LOCATION_REMOVED) then return c:IsFaceup() and c:IsSetCard(SET_NOVALXON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	return c:IsSetCard(SET_NOVALXON) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
