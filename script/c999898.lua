@@ -1,7 +1,9 @@
 --Kegai - Man’ei no Seishu
 --Scripted by Aimer
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.KegaiAddSynchroMaterialEffect(c)
 	--Add to hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
@@ -101,7 +103,7 @@ function s.targop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-		e1:SetValue(1)
+		e4:SetValue(aux.tgoval)
 		e1:SetReset(RESETS_STANDARD_DISABLE_PHASE_END,2)
 		tc:RegisterEffect(e1)
 	end

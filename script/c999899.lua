@@ -1,7 +1,9 @@
 --Kegai - Gimen no Yügai
 --Scripted by Aimer
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.KegaiAddSynchroMaterialEffect(c)
 	--Add to hand
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))

@@ -1,8 +1,9 @@
---Kegai - Hakkai Daimetsu
+--Kegai - Kokufu no Korinsha
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.KegaiAddSynchroMaterialEffect(c)
 	c:EnableReviveLimit()
 	c:AddMustFirstBeRitualSummoned()
 	--Target banished "Kegai", add/Special
@@ -75,6 +76,14 @@ end
 
 s.listed_names={id}
 s.listed_series={SET_KEGAI}
+
+function s.syncon(e,tp,eg,ep,ev,re,r,rp)
+	return e:GetHandler():IsFaceup() and e:GetHandler():IsLocation(LOCATION_STZONE)
+end
+
+function s.synval(e,mc,sc) --this effect, this card and the monster to be summoned
+	return sc:IsType(TYPE_SYNCHRO) and (sc:IsCode(999902) or sc:IsCode(999903))
+end
 
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=eg:GetFirst()

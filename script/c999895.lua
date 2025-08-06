@@ -1,7 +1,9 @@
 --Scripted by Aimer
 --Kegai - Akujü Madowashi Yöma
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.KegaiAddSynchroMaterialEffect(c)
 	--Special Summon this card if it is a Continuous Spell
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))

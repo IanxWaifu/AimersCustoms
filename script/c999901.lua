@@ -8,7 +8,7 @@ function s.initial_effect(c)
     extrafil=s.extragroup,
     extraop=s.extraop,
     matfilter=s.matfilter,
-    location=LOCATION_GRAVE|LOCATION_REMOVED,
+    location=LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,
     forcedselection=s.ritcheck,
     extratg=s.extratg}
     --No Chain Link
@@ -117,7 +117,7 @@ function s.target(rittg,ritop)
         local rit=rittg(e,tp,eg,ep,ev,re,r,rp,0)
         if chk==0 then return rit end
         Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_GRAVE|LOCATION_REMOVED|LOCATION_ONFIELD)
-        Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE|LOCATION_REMOVED)
+        Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED)
         if diff>=4 then
             Duel.SetChainLimit(s.chlimit)
         end

@@ -1,8 +1,9 @@
---Kegai - Hakkai Daimetsu
+--Kegai - Hakumetsu no Korinsha
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.KegaiAddSynchroMaterialEffect(c)
 	c:EnableReviveLimit()
 	c:AddMustFirstBeRitualSummoned()
 	--Target banished "Kegai", add/Special

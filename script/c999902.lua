@@ -1,9 +1,11 @@
 --Kegai - Hakuryü Aratame
 --Scripted by Aimer
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+    Aimer.KegaiAddSynchroMaterialEffect(c)
 	--synchro summon
-	Synchro.AddProcedure(c,nil,1,1,aux.FilterBoolFunctionEx(Card.IsType,TYPE_RITUAL),1,1)
+    Aimer.KegaiSynchroAddProcedure(c,nil,1,1,aux.FilterBoolFunctionEx(Card.IsType,TYPE_RITUAL),1,1)
 	c:EnableReviveLimit()
 	c:SetSPSummonOnce(id)
 	local rparams={filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),lvtype=RITPROC_GREATER,

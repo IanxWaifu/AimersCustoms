@@ -1,7 +1,9 @@
 --Scripted by Aimer
 --Kegai - Shin’en Okami
 local s,id=GetID()
+Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+	Aimer.KegaiAddSynchroMaterialEffect(c)
 	--Lv Changes
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))

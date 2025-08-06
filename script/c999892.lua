@@ -65,17 +65,17 @@ function s.actcon(e)
     return Duel.IsExistingMatchingCard(s.actfilter,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,1,nil)
 end
 
-function s.pcfilter(c)
-    return c:IsSetCard(SET_KEGAI) and c:IsMonster() and not c:IsForbidden() and (c:IsLocation(LOCATION_HAND) or (c:IsFaceup() and (c:IsLocation(LOCATION_REMOVED) or c:IsLocation(LOCATION_GRAVE))))
+function s.pcfilter(c,tp)
+    return c:IsSetCard(SET_KEGAI) and c:IsMonster() and not c:IsForbidden() and c:CheckUniqueOnField(tp) and (c:IsLocation(LOCATION_HAND) or (c:IsFaceup() and (c:IsLocation(LOCATION_REMOVED) or c:IsLocation(LOCATION_GRAVE))))
 end
 function s.pctg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0 
-        and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil) end
+        and Duel.IsExistingMatchingCard(s.pcfilter,tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,nil,tp) end
 end
 function s.pcop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-    local g=Duel.SelectMatchingCard(aux.NecroValleyFilter(tp,s.pcfilter),tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
+    local g=Duel.SelectMatchingCard(aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,tp)
     local tc=g:GetFirst()
     if tc then
         Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
