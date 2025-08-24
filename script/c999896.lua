@@ -58,8 +58,15 @@ end
 function s.tfop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)==0 then return end
 	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+	if tc:IsRelateToEffect(e) and Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
+		--Treated as a Continuous Spell
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetValue(TYPE_TRAP+TYPE_CONTINUOUS)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD-RESET_TURN_SET)
+		c:RegisterEffect(e1)
 	end
 end
 
@@ -67,7 +74,7 @@ end
 function s.descon(e,tp,eg,ep,ev,re,r,rp)
 	local a,at=Duel.GetAttacker(),Duel.GetAttackTarget()
 	if a:IsControler(1-tp) then a,at=at,a end
-	return a and at and a:IsSetCard(SET_KEGAI) and a:IsType(TYPE_RITUAL) and a:IsFaceup() and at:IsControler(1-tp)
+	return a and at and a:IsSetCard(SET_KEGAI) and a:IsType(TYPE_RITUAL) and a:IsFaceup() and at:IsControler(1-tp) and e:GetHandler():IsContinuousTrap()
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end

@@ -17,7 +17,7 @@ function s.initial_effect(c)
     e1:SetCategory(CATEGORY_TODECK+CATEGORY_SPECIAL_SUMMON)
     e1:SetType(EFFECT_TYPE_ACTIVATE)
     e1:SetCode(EVENT_FREE_CHAIN)
-    e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
+    e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
     e1:SetCondition(s.clcondition1)
     e1:SetTarget(s.target(Ritual.Target(rparams),Ritual.Operation(rparams)))
     e1:SetCost(s.cost)
@@ -29,7 +29,7 @@ function s.initial_effect(c)
     e2:SetCategory(CATEGORY_TODECK+CATEGORY_SPECIAL_SUMMON)
     e2:SetType(EFFECT_TYPE_ACTIVATE)
     e2:SetCode(EVENT_CHAINING)
-    e2:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
+    e2:SetCountLimit(1,{id+EFFECT_COUNT_CODE_OATH,1})
     e2:SetTarget(s.target2(Ritual.Target(rparams),Ritual.Operation(rparams)))
     e2:SetCost(s.cost)
     e2:SetOperation(s.operation2(Ritual.Target(rparams),Ritual.Operation(rparams)))
@@ -94,7 +94,7 @@ function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
     local c=e:GetHandler()
     local diff=Duel.GetFieldGroupCount(1-tp,LOCATION_ONFIELD,0)-Duel.GetFieldGroupCount(tp,LOCATION_ONFIELD,0)
-    if diff>=2 then
+    if diff>=1 then
         --cannot disable
         local e0=Effect.CreateEffect(c)
         e0:SetType(EFFECT_TYPE_FIELD)
@@ -118,7 +118,7 @@ function s.target(rittg,ritop)
         if chk==0 then return rit end
         Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_GRAVE|LOCATION_REMOVED|LOCATION_ONFIELD)
         Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED)
-        if diff>=4 then
+        if diff>=2 then
             Duel.SetChainLimit(s.chlimit)
         end
     end
@@ -155,10 +155,10 @@ function s.target2(rittg,ritop)
         if chk==0 then return rit end
         Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_GRAVE|LOCATION_REMOVED|LOCATION_ONFIELD)
         Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE|LOCATION_REMOVED)
-        if diff>=4 then
+        if diff>=2 then
             Duel.SetChainLimit(s.chlimit)
         end
-        if diff>=6 then
+        if diff>=3 then
             local ng=Group.CreateGroup()
             for i=1,ev do
                 local te,tgp=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)
@@ -181,7 +181,7 @@ function s.operation2(rittg,ritop)
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
             ritop(e,tp,eg,ep,ev,re,r,rp)
         end
-        if diff>=6 then
+        if diff>=3 then
             local dg=Group.CreateGroup()
             for i=1,ev do
                 local te,tgp=Duel.GetChainInfo(i,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_PLAYER)

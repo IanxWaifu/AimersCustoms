@@ -26,6 +26,7 @@ function s.initial_effect(c)
 	e3:SetCode(EFFECT_SEND_REPLACE)
 	e3:SetTarget(s.reptg)
 	e3:SetCountLimit(1,{id,1})
+	e3:SetCondition(function(e,tp,eg,ep,ev,re,r,rp) return e:GetHandler():IsContinuousTrap() end)
 	e3:SetValue(s.repval)
 	e3:SetOperation(s.repop)
 	c:RegisterEffect(e3)
@@ -63,7 +64,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.repfilter(c,tp)
-	return c:GetDestination()==LOCATION_REMOVED and c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) --[[and c:IsType(TYPE_RITUAL)--]]
+	return c:GetDestination()==LOCATION_REMOVED and c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_RITUAL) and c:IsSetCard(SET_KEGAI) and c:IsOriginalType(TYPE_MONSTER)
 		and not c:IsReason(REASON_REPLACE)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -103,7 +104,7 @@ function s.targop(e,tp,eg,ep,ev,re,r,rp)
 		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
-		e4:SetValue(aux.tgoval)
+		e1:SetValue(aux.tgoval)
 		e1:SetReset(RESETS_STANDARD_DISABLE_PHASE_END,2)
 		tc:RegisterEffect(e1)
 	end

@@ -4,7 +4,7 @@ local s,id=GetID()
 function s.initial_effect(c)
     --Xyz Summon
     	--Xyz Summon
-	Xyz.AddProcedure(c,nil,7,2)
+	Xyz.AddProcedure(c,aux.FilterBoolFunctionEx(Card.IsType,TYPE_RITUAL),7,2)
     c:EnableReviveLimit()
     -- Unaffected by opponent's card effects
     local e1=Effect.CreateEffect(c)
@@ -38,6 +38,8 @@ function s.initial_effect(c)
     e3:SetOperation(s.tgop)
     c:RegisterEffect(e3,false,REGISTER_FLAG_DETACH_XMAT)
 end
+
+s.ritual_material_required=1
 
 --[[-- Filter for Xyz Summon
 function s.ovfilter(c)

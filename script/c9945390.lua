@@ -46,6 +46,9 @@ function c9945390.initial_effect(c)
 	e4:SetOperation(c9945390.spop)
 	c:RegisterEffect(e4)
 end
+
+c9945390.ritual_material_required=1
+
 function c9945390.syncfilter(c)
 	return c:IsSetCard(0x204F) or c:IsType(TYPE_RITUAL)
 end

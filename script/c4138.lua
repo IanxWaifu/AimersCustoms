@@ -59,6 +59,8 @@ function c4138.initial_effect(c)
 	e7:SetOperation(c4138.operation)
 	c:RegisterEffect(e7)
 end
+
+c4138.ritual_material_required=1
 c4138.minxyzct=2
 c4138.maxxyzct=2
 c4138.maintain_overlay=true

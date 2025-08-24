@@ -54,6 +54,9 @@ function c9945380.initial_effect(c)
 	e5:SetOperation(c9945380.reop)
 	c:RegisterEffect(e5)	
 end
+
+c9945380.ritual_material_required=1
+
 function c9945380.condition(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():GetSummonType()==SUMMON_TYPE_SYNCHRO
 end

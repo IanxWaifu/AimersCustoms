@@ -43,6 +43,9 @@ function c9945260.initial_effect(c)
 	e4:SetLabelObject(e3)
 	c:RegisterEffect(e4)
 end
+
+c9945260.ritual_material_required=1
+
 function c9945260.syncfilter(c)
 	return c:IsSetCard(0x204F) or c:IsType(TYPE_RITUAL)
 end

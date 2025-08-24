@@ -72,8 +72,9 @@ end
 
 
 function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetTurnPlayer()==tp and not Duel.CheckPhaseActivity()
+	return Duel.GetTurnPlayer()==tp and not Duel.CheckPhaseActivity() and e:GetHandler():IsContinuousTrap()
 end
+
 function s.atkfilter(c)
 	return c:IsFaceup() and c:IsSetCard(SET_KEGAI) and c:GetEffectCount(EFFECT_EXTRA_ATTACK)==0 and c:IsMonster() and c:IsType(TYPE_RITUAL)
 end

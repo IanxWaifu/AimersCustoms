@@ -92,14 +92,14 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 	    if #g>0 then
 	        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 	        local tc=g:Select(tp,1,1,nil):GetFirst()
-	        if tc and Duel.MoveToField(tc,tp,tc:GetOwner(),LOCATION_SZONE,POS_FACEUP,true) then
+	        if tc and Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
 	            --Treat it as a Continuous Spell
 	            local e1=Effect.CreateEffect(c)
 	            e1:SetType(EFFECT_TYPE_SINGLE)
 	            e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
 	            e1:SetCode(EFFECT_CHANGE_TYPE)
-	            e1:SetValue(TYPE_SPELL|TYPE_CONTINUOUS)
-	            e1:SetReset(RESET_EVENT|(RESETS_STANDARD&~RESET_TURN_SET))
+	            e1:SetValue(TYPE_TRAP|TYPE_CONTINUOUS)
+	            e1:SetReset(RESET_EVENT|RESETS_STANDARD-RESET_TURN_SET)
 	            tc:RegisterEffect(e1)
 	        end
 	    end
@@ -114,9 +114,16 @@ function s.effop(e,tp,eg,ep,ev,re,r,rp)
 			e1:SetDescription(aux.Stringid(id,3))
 			e1:SetType(EFFECT_TYPE_SINGLE)
 			e1:SetProperty(EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+			e1:SetCondition(s.actcon)
 			e1:SetCode(EFFECT_TRAP_ACT_IN_SET_TURN)
 			e1:SetReset(RESETS_STANDARD_PHASE_END)
 			g:RegisterEffect(e1)
 		end
 	end
+end
+
+function s.actcon(e,c)
+	local ct1=Duel.GetMatchingGroupCount(nil,e:GetHandlerPlayer(),LOCATION_ONFIELD,0,nil)
+	local ct2=Duel.GetMatchingGroupCount(nil,e:GetHandlerPlayer(),0,LOCATION_ONFIELD,nil)
+	return ct1<ct2
 end

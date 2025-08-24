@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	--Activate
 	local e1=Ritual.CreateProc({handler=c,lvtype=RITPROC_GREATER,filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),extrafil=s.extragroup,extraop=s.extraop,matfilter=s.matfilter,stage2=s.stage2,location=LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,forcedselection=s.ritcheck,extratg=s.extratg})
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
-	e1:SetCountLimit(1,id+EFFECT_COUNT_CODE_OATH)
+	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	c:RegisterEffect(e1)
      --Register destruction of monsters
     aux.GlobalCheck(s,function()
@@ -65,7 +65,7 @@ function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.matfilter(c,e)
-    return c:IsDestructable(e) and c:IsOriginalType(TYPE_MONSTER) and (c:IsSetCard(SET_KIJIN) or c:IsSetCard(SET_KEGAI))
+    return c:IsDestructable(e) and c:IsOriginalType(TYPE_MONSTER) and c:IsSetCard(SET_KEGAI)
 end
 
 function s.ritcheck(e,tp,g,sc)

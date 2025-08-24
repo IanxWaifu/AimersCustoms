@@ -41,19 +41,10 @@ function s.initial_effect(c)
 	--Cannot be material
     local e4=Effect.CreateEffect(c)
 	e4:SetType(EFFECT_TYPE_SINGLE)
-	e4:SetCode(EFFECT_CANNOT_BE_LINK_MATERIAL)
+	e4:SetCode(EFFECT_CANNOT_BE_MATERIAL)
 	e4:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
-	e4:SetValue(s.matlimit)
+	e4:SetValue(aux.AND(s.matlimit,aux.cannotmatfilter(SUMMON_TYPE_FUSION,SUMMON_TYPE_SYNCHRO,SUMMON_TYPE_XYZ,SUMMON_TYPE_LINK,SUMMON_TYPE_RITUAL)))
 	c:RegisterEffect(e4)
-	local e5=e4:Clone()
-	e5:SetCode(EFFECT_CANNOT_BE_XYZ_MATERIAL)
-	c:RegisterEffect(e5)
-	local e6=e4:Clone()
-	e6:SetCode(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL)
-	c:RegisterEffect(e6)
-	local e7=e4:Clone()
-	e7:SetCode(EFFECT_CANNOT_BE_FUSION_MATERIAL)
-	c:RegisterEffect(e7)
 end
 
 function s.matlimit(e,c)
@@ -88,9 +79,19 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_DECK,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+	local tc=g:GetFirst()
+	if tc and Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP) then
+		--Cannot be Material
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetDescription(aux.Stringid(id,3))
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		e1:SetValue(aux.AND(s.matlimit,aux.cannotmatfilter(SUMMON_TYPE_FUSION,SUMMON_TYPE_SYNCHRO,SUMMON_TYPE_XYZ,SUMMON_TYPE_LINK,SUMMON_TYPE_RITUAL)))
+		tc:RegisterEffect(e1)
 	end
+	Duel.SpecialSummonComplete()
 end
 
 --Destroy and place self
@@ -112,7 +113,15 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	if #dg>0 and Duel.Destroy(dg,REASON_EFFECT)>0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:IsRelateToEffect(e) and not c:IsForbidden() then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 		Duel.BreakEffect()
-		Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+		if c and Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
+	        --Treat it as a Continuous Spell
+	        local e1=Effect.CreateEffect(c)
+	        e1:SetType(EFFECT_TYPE_SINGLE)
+	        e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+	        e1:SetCode(EFFECT_CHANGE_TYPE)
+	        e1:SetValue(TYPE_TRAP|TYPE_CONTINUOUS)
+	        e1:SetReset(RESET_EVENT|RESETS_STANDARD-RESET_TURN_SET)
+	        c:RegisterEffect(e1)
+		end
 	end
 end
-

@@ -58,7 +58,10 @@ function s.initial_effect(c)
 	e6:SetTarget(s.rmtg)
 	e6:SetOperation(s.rmop)
 	c:RegisterEffect(e6)
-end		
+end
+
+s.ritual_material_required=1
+
 function s.imcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsSummonType(SUMMON_TYPE_SYNCHRO) and c:GetMaterial():IsExists(s.pmfilter,1,nil,c)

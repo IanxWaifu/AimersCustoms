@@ -44,6 +44,10 @@ function s.initial_effect(c)
     c:RegisterEffect(e3)
 end
 
+s.ritual_material_required=1
+s.listed_names={id}
+s.listed_series={SET_KEGAI}
+
 function s.statfilter(c)
     return c:IsFaceup() and c:IsSetCard(SET_KEGAI) and c:IsOriginalType(TYPE_MONSTER)
 end

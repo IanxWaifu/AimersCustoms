@@ -19,8 +19,10 @@ function s.initial_effect(c)
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetType(EFFECT_TYPE_QUICK_O)
+	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_SZONE)
+	e2:SetCondition(function(e,tp,eg,ep,ev,re,r,rp) return e:GetHandler():IsContinuousTrap() end)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetTarget(s.sptg)
 	e2:SetOperation(s.spop)
@@ -45,7 +47,7 @@ function s.matlimit(e,c)
 end
 
 function s.lvfilter(c,lv)
-	return c:IsFaceup() and c:IsLevelAbove(1) and ((c:GetLevel()+lv)~=10) and c:IsSetCard(SET_KEGAI)
+	return c:IsFaceup() and c:IsLevelAbove(1) and ((c:GetLevel()+lv)~=10) and c:IsSetCard(SET_KEGAI) and c:IsLevelBelow(10)
 end
 
 function s.lvtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -90,11 +92,24 @@ function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+		if c:IsRelateToEffect(e) and Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP) then
+		--Cannot be Material
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetDescription(aux.Stringid(id,3))
+		e1:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetCode(EFFECT_CANNOT_BE_MATERIAL)
+		e1:SetReset(RESET_EVENT+0x1fe0000)
+		e1:SetValue(aux.AND(s.matlimit,aux.cannotmatfilter(SUMMON_TYPE_FUSION,SUMMON_TYPE_SYNCHRO,SUMMON_TYPE_XYZ,SUMMON_TYPE_LINK,SUMMON_TYPE_RITUAL)))
+		c:RegisterEffect(e1)
 	end
+	Duel.SpecialSummonComplete()
 end
 
+function s.matlimit(e,c)
+	if not c then return false end
+	return not c:IsSetCard(SET_KEGAI)
+end 
 
 --place on bottom and draw
 function s.drcon(e,tp,eg,ep,ev,re,r,rp)

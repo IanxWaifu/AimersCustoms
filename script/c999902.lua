@@ -33,11 +33,15 @@ function s.initial_effect(c)
 	e3:SetCode(EVENT_CHAINING)
 	e3:SetRange(LOCATION_MZONE)
     e3:SetCountLimit(1,id)
-    e3:SetCondition(function(e,tp,eg,ep,ev,re) return re:IsSpellTrapEffect() and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and Duel.IsChainNegatable(ev) end)
+    e3:SetCondition(function(e,tp,eg,ep,ev,re) return ep==1-tp and re:IsSpellTrapEffect() and not e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) and Duel.IsChainNegatable(ev) end)
     e3:SetTarget(s.target(Ritual.Target(rparams),Ritual.Operation(rparams)))
     e3:SetOperation(s.operation(Ritual.Target(rparams),Ritual.Operation(rparams)))
     c:RegisterEffect(e3)
 end
+
+s.ritual_material_required=1
+s.listed_names={id}
+s.listed_series={SET_KEGAI}
 
 function s.indtg(e,c)
 	return c:IsType(TYPE_RITUAL)

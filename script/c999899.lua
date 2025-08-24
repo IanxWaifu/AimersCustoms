@@ -26,6 +26,7 @@ function s.initial_effect(c)
 	e3:SetCode(EFFECT_DESTROY_REPLACE)
 	e3:SetTarget(s.reptg)
 	e3:SetCountLimit(1,{id,1})
+	e3:SetCondition(function(e,tp,eg,ep,ev,re,r,rp) return e:GetHandler():IsContinuousTrap() end)
 	e3:SetValue(s.repval)
 	e3:SetOperation(s.repop)
 	c:RegisterEffect(e3)
@@ -63,7 +64,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.repfilter(c,tp)
-	return c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) --[[and c:IsType(TYPE_RITUAL)--]]
+	return c:IsFaceup() and c:IsControler(tp) and c:IsLocation(LOCATION_MZONE) and c:IsType(TYPE_RITUAL) and c:IsSetCard(SET_KEGAI) and c:IsOriginalType(TYPE_MONSTER)
 		and not c:IsReason(REASON_REPLACE)
 end
 function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)

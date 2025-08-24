@@ -110,25 +110,34 @@ function s.pcop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local g=Duel.GetMatchingGroup(s.rfilter,tp,LOCATION_HAND,0,e:GetHandler())
 	local ag=Duel.GetMatchingGroup(s.tffilter,tp,LOCATION_DECK,0,nil,tp)
-	if c:IsRelateToEffect(e) and Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true) and #g>0 and #ag>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
-		Duel.BreakEffect()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
-		local sg=g:Select(tp,1,1,nil):GetFirst()
-		Duel.ConfirmCards(1-tp,sg)
-		if Duel.SendtoDeck(sg,tp,SEQ_DECKSHUFFLE,REASON_EFFECT)==0 then return end
-		if not Duel.GetOperatedGroup():GetFirst():IsLocation(LOCATION_DECK|LOCATION_EXTRA) then return end
-		local tf=ag:Select(tp,1,1,nil):GetFirst()
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-	    if tf then
-	        if tf:IsType(TYPE_FIELD) then
-	            Duel.MoveToField(tf,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
-	        else
-	            Duel.MoveToField(tf,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-	        end
-	    end
+	if c:IsRelateToEffect(e) and Duel.MoveToField(c,tp,tp,LOCATION_SZONE,POS_FACEUP,true) then
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetValue(TYPE_TRAP+TYPE_CONTINUOUS)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD-RESET_TURN_SET)
+		c:RegisterEffect(e1)
+		if #g>0 and #ag>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then 
+			Duel.BreakEffect()
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_CONFIRM)
+			local sg=g:Select(tp,1,1,nil):GetFirst()
+			Duel.ConfirmCards(1-tp,sg)
+			if Duel.SendtoDeck(sg,tp,SEQ_DECKSHUFFLE,REASON_EFFECT)==0 then return end
+			if not Duel.GetOperatedGroup():GetFirst():IsLocation(LOCATION_DECK|LOCATION_EXTRA) then return end
+			local ag2=Duel.GetMatchingGroup(s.tffilter,tp,LOCATION_DECK,0,nil,tp)
+			local tf=ag2:Select(tp,1,1,nil):GetFirst()
+			Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+		    if tf then
+		        if tf:IsType(TYPE_FIELD) then
+		            Duel.MoveToField(tf,tp,tp,LOCATION_FZONE,POS_FACEUP,true)
+		        else
+		            Duel.MoveToField(tf,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+		        end
+		    end
+		end
 	end
 end
-
 --Be Material
 function s.ccon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()

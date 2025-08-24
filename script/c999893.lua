@@ -10,7 +10,7 @@ function s.initial_effect(c)
     c:RegisterEffect(e1)
     --Additional Normal summon
     local e2=Effect.CreateEffect(c)
-    e2:SetDescription(aux.Stringid(id,0))
+    e2:SetDescription(aux.Stringid(id,4))
     e2:SetType(EFFECT_TYPE_FIELD)
     e2:SetCode(EFFECT_EXTRA_SUMMON_COUNT)
     e2:SetRange(LOCATION_SZONE)
@@ -20,7 +20,7 @@ function s.initial_effect(c)
     --Return to hand and activate Field Spell
     local e3=Effect.CreateEffect(c)
     e3:SetDescription(aux.Stringid(id,3))
-    e3:SetCategory(CATEGORY_TOHAND)
+    e3:SetCategory(CATEGORY_TOGRAVE)
     e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
     e3:SetCode(EVENT_PHASE+PHASE_END)
     e3:SetRange(LOCATION_SZONE)
@@ -37,6 +37,7 @@ function s.initial_effect(c)
     e4:SetCode(EVENT_CUSTOM+id)
     e4:SetRange(LOCATION_SZONE)
     e4:SetCountLimit(1,{id,1})
+    --[[e4:SetCondition(s.regcon)--]]
     e4:SetTarget(s.lfsptg)
     e4:SetOperation(s.lfspop)
     c:RegisterEffect(e4)
@@ -90,7 +91,7 @@ end
 
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if not (c:IsRelateToEffect(e) and Duel.SendtoHand(c,nil,REASON_EFFECT)>0 and c:IsLocation(LOCATION_HAND)) then return end 
+    if not (c:IsRelateToEffect(e) and Duel.SendtoGrave(c,REASON_EFFECT)>0 and c:IsLocation(LOCATION_GRAVE)) then return end 
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
     local sg=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.actfilter),tp,LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,tp)
     local tc=sg:GetFirst()
@@ -205,7 +206,13 @@ end
 --If used as Ritual Material
 function s.regfilter(c,e,tp)
     return c:IsSetCard(SET_KEGAI) and c:IsType(TYPE_MONSTER) and c:IsCanBeEffectTarget(e) and 
-    c:IsLocation(LOCATION_GRAVE|LOCATION_REMOVED) and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+    c:IsLocation(LOCATION_GRAVE|LOCATION_REMOVED) and c:IsFaceup() and c:IsCanBeSpecialSummoned(e,0,tp,false,false) and ((c:IsReason(REASON_RITUAL) or c:IsReason(REASON_SYNCHRO)) and c:IsReason(REASON_MATERIAL))
+end
+
+--Check for if used as Ritual/Synchro Material
+function s.regcon(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    return c:IsReason(REASON_RITUAL) or c:IsReason(REASON_SYNCHRO)
 end
 
 -- Use map inside e4's LabelObject (passed via e:GetLabelObject())

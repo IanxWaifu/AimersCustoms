@@ -59,6 +59,9 @@ function cod.initial_effect(c)
     e5:SetLabelObject(e4)
     c:RegisterEffect(e5)
 end
+
+cod.ritual_material_required=1
+
 function cod.sfilter(c)
 	return c:IsSetCard(0x204F) or c:IsType(TYPE_RITUAL)
 end
