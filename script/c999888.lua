@@ -111,7 +111,7 @@ function s.thspfilter(c,e,tp,ft)
         and c:IsControler(tp) and c:IsLocation(LOCATION_GRAVE|LOCATION_REMOVED) and c:IsCanBeEffectTarget(e) and c:IsFaceup() and (c:IsAbleToHand() or (ft>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false,POS_FACEUP_DEFENSE) and c:IsMonster()))
 end
 function s.onfilter(c)
-    return c:IsFaceup() and c:IsType(TYPE_RITUAL) and c:IsMonster() and c:IsSetCard(SET_KEGAI)
+    return c:IsFaceup() and (c:IsType(TYPE_RITUAL) or c:IsType(TYPE_SYNCHRO)) and c:IsMonster() and c:IsSetCard(SET_KEGAI)
 end
 function s.thspcon(e,tp,eg,ep,ev,re,r,rp)
     return eg:IsExists(s.thspfilter,1,nil,e,tp,ft) and Duel.IsExistingMatchingCard(s.onfilter,tp,LOCATION_MZONE,0,1,nil)

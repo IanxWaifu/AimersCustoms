@@ -75,7 +75,7 @@ end
 function s.pcop(e,tp,eg,ep,ev,re,r,rp)
     if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
-    local g=Duel.SelectMatchingCard(aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,tp)
+    local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.pcfilter),tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,tp)
     local tc=g:GetFirst()
     if tc then
         Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)

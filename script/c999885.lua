@@ -6,7 +6,7 @@ function s.initial_effect(c)
 	--Activate
 	local e1=Ritual.CreateProc({handler=c,lvtype=RITPROC_GREATER,filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),extrafil=s.extragroup,extraop=s.extraop,matfilter=s.matfilter,stage2=s.stage2,location=LOCATION_HAND|LOCATION_GRAVE|LOCATION_DECK,forcedselection=s.ritcheck,specificmatfilter=s.specificfilter,extratg=s.extratg})
 	e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
-	e1:SetCountLimit(1,{id+EFFECT_COUNT_CODE_OATH,1})
+	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	c:RegisterEffect(e1)
 end
 
