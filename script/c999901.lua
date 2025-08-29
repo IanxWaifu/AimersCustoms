@@ -40,6 +40,9 @@ function s.initial_effect(c)
         ge1:SetCode(EVENT_CHAIN_NEGATED)
         ge1:SetOperation(s.checkop)
         Duel.RegisterEffect(ge1,0)
+        local ge2=ge1:Clone()
+        ge2:SetCode(EVENT_CHAIN_DISABLED)
+        Duel.RegisterEffect(ge2,0)
     end)
 end
 
@@ -48,7 +51,7 @@ s.listed_series={SET_KEGAI}
 function s.checkop(e,tp,eg,ep,ev,re,r,rp)
     local de,dp=Duel.GetChainInfo(ev,CHAININFO_DISABLE_REASON,CHAININFO_DISABLE_PLAYER)
     if re:IsHasCategory(CATEGORY_SUMMON) or re:IsHasCategory(CATEGORY_SPECIAL_SUMMON) then return end
-    if de then
+    if rp==tp and de and dp~=tp then
         Duel.RegisterFlagEffect(tp,id,RESET_PHASE|PHASE_END,0,1)
     end
 end
@@ -76,8 +79,8 @@ function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.matfilter(c,e,tp)
-    if c:IsControler(1-tp) then return c:IsFaceup() end
-    return c:IsAbleToDeck() and c:IsOriginalType(TYPE_MONSTER) and (c:IsLocation(LOCATION_ONFIELD) or c:IsLocation(LOCATION_REMOVED) or c:IsLocation(LOCATION_GRAVE))
+    return c:IsAbleToDeck() and (((c:IsOriginalType(TYPE_MONSTER)) and (c:IsLocation(LOCATION_ONFIELD) or c:IsLocation(LOCATION_REMOVED) or c:IsLocation(LOCATION_GRAVE)))
+    or (c:IsControler(1-tp) and c:IsLocation(LOCATION_MZONE) and c:IsFaceup()))
 end
 
 function s.ritcheck(e,tp,g,sc)
