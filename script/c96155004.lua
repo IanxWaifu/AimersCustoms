@@ -1,18 +1,17 @@
 --Epithex Divine Aurelia
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
+SET_IGNOMA = 0x91C8
 function s.initial_effect(c)
 	--Special Summon itself (hand or GY) if 3+ different-named "Ignoma" are on field
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
-	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetRange(LOCATION_HAND+LOCATION_GRAVE)
-	e1:SetCountLimit(1,id)
-	e1:SetCondition(s.spcon)
-	e1:SetTarget(s.sptg)
-	e1:SetOperation(s.spop)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetCode(EFFECT_SPSUMMON_PROC)
+	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
+	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+	e1:SetCondition(s.selfspcon)
 	c:RegisterEffect(e1)
 	--Negate once while its current name ≠ original
 	local e2=Effect.CreateEffect(c)
@@ -20,6 +19,7 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
+	e2:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetCondition(s.negcon)
@@ -39,26 +39,29 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
--- e1: Special Summon if 3+ Ignoma with different names
+s.listed_names={id}
+s.listed_series={SET_EPITHEX,SET_IGNOMA}
+
+-- filter: face-up Ignoma monsters
 function s.ignomafilter(c)
-	return c:IsFaceup() and c:IsSetCard(SET_EPITHEX)
+	return c:IsFaceup() and c:IsSetCard(SET_IGNOMA)
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	local g=Duel.GetMatchingGroup(s.ignomafilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
-	return g:GetClassCount(Card.GetCode)>=3
-end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local c=e:GetHandler()
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) then
-		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+
+-- Special Summon condition
+function s.selfspcon(e,c)
+	if c==nil then return true end
+	local tp=c:GetControler()
+	-- Check Necrovalley effects that could prevent summon
+	local eff={c:GetCardEffect(EFFECT_NECRO_VALLEY)}
+	for _,te in ipairs(eff) do
+		local op=te:GetOperation()
+		if not op or op(e,c) then return false end
 	end
+	local g=Duel.GetMatchingGroup(s.ignomafilter,tp,LOCATION_MZONE,0,nil)
+	local ct=g:GetClassCount(Card.GetCode)
+	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and ct>=3
 end
+
 
 -- e2: Negate once if current name ≠ original name
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)

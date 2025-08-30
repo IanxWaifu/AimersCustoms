@@ -15,13 +15,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	--Table for Fusion Properties
-	local params = {s.fusfilter,--Fusion Monster filter
-	aux.FALSE,--material filter (here just aux.FALSE = no extra filter)
-	s.extrafilter,--extrafil (adds extra materials)
-	nil,--extra check (not used)
-	s.stage2}--stage2 (after material selection, before summon) 
-	--Fusion Summon Effect
+	local params={s.fusfilter,aux.FALSE,s.extrafilter,nil,s.stage2}
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
@@ -32,6 +26,9 @@ function s.initial_effect(c)
 	e2:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
 	c:RegisterEffect(e2)
 end
+
+s.listed_names={id}
+s.listed_series={SET_EPITHEX,SET_IGNOMA}
 
 -- e1: Special Summon + change target name
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -52,6 +49,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 		e1:SetValue(CARD_IGNOMA_FIRE)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)

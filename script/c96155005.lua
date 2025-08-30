@@ -18,32 +18,58 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sstg)
 	e1:SetOperation(s.ssop)
 	c:RegisterEffect(e1)
-	--When this card's name changes: Target 1 card on field or in either GY, shuffle into Deck
 	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,2))
-	e2:SetCategory(CATEGORY_TODECK)
-	e2:SetType(EFFECT_TYPE_QUICK_O)
-	e2:SetCode(EVENT_FREE_CHAIN)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EVENT_ADJUST)
 	e2:SetRange(LOCATION_MZONE)
-	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,{id,1})
-	e2:SetCondition(s.namechangedcon)
-	e2:SetTarget(s.tdtg)
-	e2:SetOperation(s.tdop)
+	e2:SetOperation(s.namecheck)
 	c:RegisterEffect(e2)
-	--If leaves field with changed name: Special Summon, then change 1 monster's name to "Ignoma-Light"
+	--When this card's name changes: Target 1 card on field or in either GY, shuffle into Deck
 	local e3=Effect.CreateEffect(c)
-	e3:SetDescription(aux.Stringid(id,3))
-	e3:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e3:SetDescription(aux.Stringid(id,2))
+	e3:SetCategory(CATEGORY_TODECK)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e3:SetProperty(EFFECT_FLAG_DELAY)
-	e3:SetCode(EVENT_LEAVE_FIELD)
-	e3:SetCountLimit(1,{id,2})
-	e3:SetCondition(s.spcon)
-	e3:SetTarget(s.sptg)
-	e3:SetOperation(s.spop)
+	e3:SetCode(EVENT_CUSTOM+id)
+	e3:SetRange(LOCATION_MZONE)
+	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
+	e3:SetCountLimit(1,{id,1})
+	e3:SetTarget(s.tdtg)
+	e3:SetOperation(s.tdop)
 	c:RegisterEffect(e3)
+	--If leaves field with changed name: Special Summon, then change 1 monster's name to "Ignoma-Light"
+	local e4=Effect.CreateEffect(c)
+	e4:SetDescription(aux.Stringid(id,3))
+	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e4:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e4:SetProperty(EFFECT_FLAG_DELAY)
+	e4:SetCode(EVENT_LEAVE_FIELD)
+	e4:SetCountLimit(1,{id,2})
+	e4:SetCondition(s.spcon)
+	e4:SetTarget(s.sptg)
+	e4:SetOperation(s.spop)
+	c:RegisterEffect(e4)
 end
+
+s.listed_names={id}
+s.listed_series={SET_EPITHEX,SET_IGNOMA}
+
+function s.namecheck(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local orig=c:GetOriginalCode()
+	local current=c:GetCode()
+	local last=e:GetLabel()
+	if last==0 then
+		e:SetLabel(current)
+		return
+	end
+	-- trigger only when last was original, and current is different
+	if last==orig and current~=orig then
+		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
+	end
+	e:SetLabel(current)
+end
+
+
 
 function s.mfilter1(c)
 	return c:IsSetCard(SET_EPITHEX) or c:IsSetCard(SET_IGNOMA)
@@ -67,12 +93,6 @@ function s.ssop(e,tp,eg,ep,ev,re,r,rp)
 	aux.ToHandOrElse(tc,tp)
 end
 
--- e2: Condition: this card's name changed
-function s.namechangedcon(e,tp,eg,ep,ev,re,r,rp)
-	local c=e:GetHandler()
-	return c:GetCode()~=c:GetOriginalCode()
-end
-
 -- e2: Target 1 card on field or in GY, shuffle into Deck
 function s.tdfilter(c)
 	return c:IsAbleToDeck()
@@ -94,28 +114,35 @@ end
 -- e3: Special Summon if leaves field with changed name, then change 1 monster's name to "Ignoma-Light"
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetCode()~=c:GetOriginalCode()
+	return c:GetPreviousCodeOnField()~=c:GetOriginalCode()
 end
+
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
 		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
+
+-- Check face-up monster
+function s.faceupcheck(c,e)
+	return c:IsFaceup() and not c:IsImmuneToEffect(e)
+end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
+	local g=Duel.GetMatchingGroup(s.faceupcheck,tp,LOCATION_MZONE,LOCATION_MZONE,e:GetHandler(),e)
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)~=0 and #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,4)) then
 		--Then change 1 monster's name to "Ignoma-Light"
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_FACEUP)
-		local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
-		if #g>0 then
-			local tc=g:GetFirst()
-			local e1=Effect.CreateEffect(c)
-			e1:SetType(EFFECT_TYPE_SINGLE)
-			e1:SetCode(EFFECT_CHANGE_CODE)
-			e1:SetValue(CARD_IGNOMA_LIGHT)
-			e1:SetReset(RESET_EVENT+RESETS_STANDARD)
-			tc:RegisterEffect(e1)
-		end
+		Duel.BreakEffect()
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
+		local tc=g:Select(tp,1,1,nil):GetFirst()
+		Duel.HintSelection(tc)
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CHANGE_CODE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
+		e1:SetValue(CARD_IGNOMA_LIGHT)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		tc:RegisterEffect(e1)
 	end
 end

@@ -41,6 +41,9 @@ function s.initial_effect(c)
 	c:RegisterEffect(e3)
 end
 
+s.listed_names={id}
+s.listed_series={SET_EPITHEX,SET_IGNOMA}
+
 function s.mfilter1(c)
 	return c:IsSetCard(SET_EPITHEX) or c:IsSetCard(SET_IGNOMA)
 end
@@ -66,6 +69,7 @@ function s.nameop(e,tp,eg,ep,ev,re,r,rp)
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 		e1:SetValue(CARD_IGNOMA_DARK)
 		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
 		tc:RegisterEffect(e1)
@@ -75,7 +79,7 @@ end
 -- e3: Special Summon if leaves field while name ≠ original
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetCode()~=c:GetOriginalCode()
+	return c:GetPreviousCodeOnField()~=c:GetOriginalCode()
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()

@@ -67,7 +67,7 @@ end
 function s.matop(e,tp,eg,ep,ev,re,r,rp)
     local rc=e:GetHandler():GetReasonCard()
     if not rc then return end
-    local e1=Effect.CreateEffect(rc)
+    local e1=Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_SINGLE)
     e1:SetCode(EFFECT_INDESTRUCTIBLE_EFFECT)
     e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
