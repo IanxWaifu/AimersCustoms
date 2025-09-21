@@ -104,7 +104,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		local tcode=tc:GetCode()
 		if code~=0 and tc:IsLocation(LOCATION_SZONE) then
 			local mg=Duel.GetMatchingGroup(s.adfilter,tp,LOCATION_DECK,0,nil,code,tcode)
-			if ct>1 and #mg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+			if ct>2 and #mg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 				Duel.BreakEffect()
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 				local sg=mg:Select(tp,1,1,nil)

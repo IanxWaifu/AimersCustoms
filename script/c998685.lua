@@ -25,15 +25,21 @@ function s.initial_effect(c)
 	e3:SetCategory(CATEGORY_TOHAND)
 	e3:SetType(EFFECT_TYPE_IGNITION)
 	e3:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e3:SetRange(LOCATION_MZONE)
+	e3:SetRange(LOCATION_MZONE|LOCATION_GRAVE)
 	e3:SetCountLimit(1,{id,1})
 	e3:SetCost(s.thcost)
 	e3:SetTarget(s.thtg)
 	e3:SetOperation(s.thop)
 	c:RegisterEffect(e3)
 end
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==1
+
+function s.spcon(e,tp,eg,ep,ev,re,r,rp) 
+	return not Duel.IsExistingMatchingCard(aux.AND(Card.IsFaceup,aux.NOT(aux.FilterBoolFunction(Card.IsSetCard,0x12EA))),tp,LOCATION_MZONE,0,1,nil) 
+end
+
+function s.extraattackcon(e)
+	local g=Duel.GetFieldGroup(e:GetHandlerPlayer(),LOCATION_MZONE,0)
+	return #g==1 and g:IsExists(aux.FaceupFilter(Card.IsLevelBelow,4),1,nil) and g:FilterCount(aux.FaceupFilter(Card.IsLevelAbove,5),nil)==0
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(0x12EA) and c:IsLevel(4) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
@@ -90,7 +96,7 @@ end
 
 function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() end
-	Duel.Remove(e:GetHandler(),POS_FACEDOWN,REASON_COST)
+	Duel.Remove(e:GetHandler(),POS_FACEUP,REASON_COST)
 end
 function s.filter(c)
 	return c:IsSetCard(0x12EA) and c:IsType(TYPE_SPELL+TYPE_TRAP) and c:IsAbleToHand()

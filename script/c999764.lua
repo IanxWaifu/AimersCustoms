@@ -82,11 +82,11 @@ end
 
 --Mill 3
 function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,3) end
-    Duel.SetOperationInfo(0,CATEGORY_DECKDES,nil,0,tp,3)
+    if chk==0 then return Duel.IsPlayerCanDiscardDeck(tp,2) end
+    Duel.SetOperationInfo(0,CATEGORY_DECKDES,nil,0,tp,2)
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
-    Duel.DiscardDeck(tp,3,REASON_EFFECT)
+    Duel.DiscardDeck(tp,2,REASON_EFFECT)
 end
 
 

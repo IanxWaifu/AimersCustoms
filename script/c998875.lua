@@ -77,7 +77,7 @@ function s.edescost(e,tp,eg,ep,ev,re,r,rp,chk)
 	Duel.SendtoGrave(c,REASON_COST)
 	c:RegisterFlagEffect(id,RESET_EVENT+RESET_PHASE+PHASE_END,0,0)
 end
-function s.cdfilter(c,tp)
+--[[function s.cdfilter(c,tp)
 	return c:IsOnField() and c:IsControler(tp) and c:IsSetCard(0x19f)
 end
 function s.edescon(e,tp,eg,ep,ev,re,r,rp)
@@ -106,8 +106,47 @@ function s.edesop(e,tp,eg,ep,ev,re,r,rp)
 		tc:RegisterEffect(e1)
 	end
 end
+--]]
 
+function s.cdfilter(c,tp)
+	return c:IsOnField() and c:IsControler(tp) and c:IsSetCard(0x19f)
+end
 
+function s.edescon(e,tp,eg,ep,ev,re,r,rp)
+	if rp==tp or not re then return false end
+	local category=re:GetCategory()
+	local ex,tg,tc=Duel.GetOperationInfo(ev,category)
+	if category&(CATEGORY_DESTROY+CATEGORY_RELEASE+CATEGORY_TOGRAVE+CATEGORY_REMOVE+CATEGORY_TODECK+CATEGORY_TOHAND)~=0 then
+		return tg and tg:IsExists(s.cdfilter,1,nil,tp)
+	end
+	return ex and tg~=nil and tg:IsExists(s.cdfilter,1,nil,tp)
+end
+
+function s.edestg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return true end
+	local category=re:GetCategory()
+	local ex,tg,tc=Duel.GetOperationInfo(ev,category)
+	local g=Group.CreateGroup()
+	if tg then g=tg:Filter(s.cdfilter,nil,tp) end
+	Duel.SetTargetCard(g)
+end
+
+function s.edesop(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetTargetCards(e)
+	if not g or #g==0 then return end
+	for tc in aux.Next(g) do
+		local e1=Effect.CreateEffect(e:GetHandler())
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_IMMUNE_EFFECT)
+		e1:SetValue(function(eff,re2) return re2==re end)
+		e1:SetReset(RESET_CHAIN)
+		tc:RegisterEffect(e1)
+	end
+	local rc=re:GetHandler()
+	if rc and rc:IsRelateToEffect(re) then
+		Duel.Remove(rc,POS_FACEUP,REASON_EFFECT)
+	end
+end
 
 
 
@@ -163,7 +202,7 @@ end
 
 
 function s.tgfilter(c,tp)
-	return c:IsControler(1-tp)
+	return c:IsControler(1-tp) and c:IsReason(REASON_EFFECT)
 end
 function s.discon2(e,tp,eg,ep,ev,re,r,rp)
 	if not re then return false end

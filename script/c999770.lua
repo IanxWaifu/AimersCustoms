@@ -43,6 +43,7 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Draw(tp,2,REASON_EFFECT)
 		local tc=Duel.GetOperatedGroup()
 		Duel.ConfirmCards(1-tp,tc)
+		Duel.ShuffleHand(tp)  
 		local dg=tc:Filter(s.rmfilter,nil)
 			if #dg>0 then
 			Duel.BreakEffect()

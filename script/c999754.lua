@@ -75,7 +75,7 @@ function s.adop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) or not e:IsHasType(EFFECT_TYPE_ACTIVATE) then return end
     local ct=Duel.GetCurrentChain()
     local dg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_SZONE,LOCATION_SZONE,e:GetHandler())
-    if ct>1 and #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
+    if ct>2 and #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
         Duel.BreakEffect()
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
         local dg2=dg:Select(tp,1,1,nil)

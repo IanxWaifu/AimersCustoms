@@ -14,15 +14,6 @@ s.listed_series={SET_KEGAI}
 
 function s.extragroup(e,tp,eg,ep,ev,re,r,rp,chk)
     local g=Duel.GetMatchingGroup(s.matfilter,tp,LOCATION_HAND+LOCATION_DECK+LOCATION_GRAVE+LOCATION_ONFIELD,0,nil)
-    --[[local newgroup=Group.CreateGroup()
-    local nametable={}
-    for tc in aux.Next(g) do
-        local name=tc:GetCode()
-        if not nametable[name] then
-            nametable[name]=true
-            newgroup:AddCard(tc)
-        end
-    end--]]
     return g
 end
 

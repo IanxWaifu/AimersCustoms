@@ -1,17 +1,27 @@
 --Epithex Divine Aurelia
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
 SET_IGNOMA = 0x91C8
 function s.initial_effect(c)
+	-- Name-change monitor (while on field)
+	local e0=Effect.CreateEffect(c)
+	e0:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e0:SetCode(EVENT_ADJUST)
+	e0:SetRange(LOCATION_MZONE)
+	e0:SetOperation(s.namecheck)
+	c:RegisterEffect(e0)
 	--Special Summon itself (hand or GY) if 3+ different-named "Ignoma" are on field
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_SPSUMMON_PROC)
-	e1:SetProperty(EFFECT_FLAG_UNCOPYABLE)
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_IGNITION)
 	e1:SetRange(LOCATION_HAND|LOCATION_GRAVE)
-	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
-	e1:SetCondition(s.selfspcon)
+	e1:SetCountLimit(1,id)
+	e1:SetCondition(s.spcon)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
 	--Negate once while its current name ≠ original
 	local e2=Effect.CreateEffect(c)
@@ -19,7 +29,6 @@ function s.initial_effect(c)
 	e2:SetCategory(CATEGORY_NEGATE+CATEGORY_DESTROY)
 	e2:SetType(EFFECT_TYPE_QUICK_O)
 	e2:SetCode(EVENT_CHAINING)
-	e2:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetCountLimit(1,{id,1})
 	e2:SetCondition(s.negcon)
@@ -48,25 +57,46 @@ function s.ignomafilter(c)
 end
 
 -- Special Summon condition
-function s.selfspcon(e,c)
-	if c==nil then return true end
-	local tp=c:GetControler()
-	-- Check Necrovalley effects that could prevent summon
-	local eff={c:GetCardEffect(EFFECT_NECRO_VALLEY)}
-	for _,te in ipairs(eff) do
-		local op=te:GetOperation()
-		if not op or op(e,c) then return false end
-	end
-	local g=Duel.GetMatchingGroup(s.ignomafilter,tp,LOCATION_MZONE,0,nil)
+function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(s.ignomafilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
 	local ct=g:GetClassCount(Card.GetCode)
 	return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and ct>=3
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local c=e:GetHandler()
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and c:IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,tp,0)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	end
 end
 
 
 -- e2: Negate once if current name ≠ original name
+function s.namecheck(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if not c:IsFaceup() then return end
+	local orig=c:GetOriginalCode()
+	local current=c:GetCode()
+	local last=e:GetLabel()
+	if last==0 then
+		e:SetLabel(current)
+		return
+	end
+	if current~=last and current~=orig then
+		c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD,0,1)
+	end
+	e:SetLabel(current)
+end
+
+
 function s.negcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetCode()~=c:GetOriginalCode() and Duel.IsChainNegatable(ev)
+	return Duel.IsChainNegatable(ev) and c:HasFlagEffect(id)
 end
 function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return true end
@@ -76,9 +106,11 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	end
 end
 function s.negop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
 	if Duel.NegateActivation(ev) and re:GetHandler():IsRelateToEffect(re) then
 		Duel.Destroy(eg,REASON_EFFECT)
 	end
+	c:ResetFlagEffect(id)
 end
 
 -- e3: Recycle "Epithex" from GY

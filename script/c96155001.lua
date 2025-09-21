@@ -1,7 +1,9 @@
 --Epithex Nyssara
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
-CARD_IGNOMA_FIRE = 96155009
+CARD_IGNOMA_FIRE = 96155059
 function s.initial_effect(c)
 	--Special Summon itself (Quick Effect) and change target's name
 	local e1=Effect.CreateEffect(c)
@@ -12,6 +14,7 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e1:SetCountLimit(1,id)
+	e1:SetCondition(function(e,tp,eg,ep,ev,re,r,rp) return Duel.IsMainPhase() end)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)

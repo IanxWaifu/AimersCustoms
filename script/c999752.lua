@@ -75,7 +75,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		if not e:GetHandler():IsRelateToEffect(e) or not e:IsHasType(EFFECT_TYPE_ACTIVATE) then return end
         local ct=Duel.GetCurrentChain()
         local dg=Duel.GetFieldGroup(tp,LOCATION_MZONE,LOCATION_MZONE)
-        if ct>1 and #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+        if ct>2 and #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
             Duel.BreakEffect()
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
             local dg2=dg:Select(tp,1,1,nil)

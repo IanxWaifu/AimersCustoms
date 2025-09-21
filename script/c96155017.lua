@@ -1,8 +1,10 @@
 --Epithex Curse
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
 SET_IGNOMA = 0x91C8
-CARD_IGNOMA_HEX = 96155013
+CARD_IGNOMA_HEX = 96155063
 function s.initial_effect(c)
 	--Activate
 	local e0=Effect.CreateEffect(c)
@@ -57,6 +59,7 @@ end
 function s.nameop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) then
+		--change name to "Ignoma-Hex"
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)

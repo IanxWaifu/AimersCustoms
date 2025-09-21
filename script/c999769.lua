@@ -67,7 +67,7 @@ function s.atkfilter(c)
 	return c:IsFaceup() and (c:GetLevel()>0 or c:GetLink()>0 or c:GetRank()>0) and (c:GetAttack()>0 or c:GetDefense()>0)
 end
 function s.chkfilter(c)
-	return not c:IsStatus(STATUS_ACT_FROM_HAND) 
+	return not (c:IsStatus(STATUS_ACT_FROM_HAND) and not (c:IsContinuousSpellTrap() or c:IsFieldSpell())) and c:IsFaceup()
 end
 function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
@@ -107,19 +107,33 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
 	end
     if not e:GetHandler():IsRelateToEffect(e) or not e:IsHasType(EFFECT_TYPE_ACTIVATE) then return end
     local ct=Duel.GetCurrentChain()
-    local dg=Duel.GetMatchingGroup(s.chkfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,nil)
-    if ct>1 and #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+    local dg=Duel.GetMatchingGroup(s.chkfilter,tp,0,LOCATION_ONFIELD,nil)
+    if ct>3 and #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
         Duel.BreakEffect()
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
         local dg2=dg:Select(tp,1,1,nil)
         Duel.HintSelection(dg2)
-        --Cannot activate its effects
-		local e3=Effect.CreateEffect(c)
-		e3:SetDescription(3302)
-		e3:SetProperty(EFFECT_FLAG_CLIENT_HINT)
-		e3:SetType(EFFECT_TYPE_SINGLE)
-		e3:SetCode(EFFECT_CANNOT_TRIGGER)
-		e3:SetReset(RESET_EVENT+RESET_PHASE+PHASE_END)
-		dg2:GetFirst():RegisterEffect(e3)
+       -- Apply on the monster you want to restrict
+		local tc=dg2:GetFirst()
+		if tc then
+		    local e2=Effect.CreateEffect(c)
+		    e2:SetDescription(aux.Stringid(id,2))
+		    e2:SetProperty(EFFECT_FLAG_CLIENT_HINT+EFFECT_FLAG_SET_AVAILABLE)
+		    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+		    e2:SetCode(EVENT_CHAINING)
+		    e2:SetRange(LOCATION_ONFIELD)
+		    e2:SetOperation(function(e,tp,eg,ep,ev,re,r,rp)
+		    -- when YOU activate a card/effect
+		        if ep~=tp then
+		            -- prevent THIS monster from chaining
+		            Duel.SetChainLimit(function(eff,rp,tp)
+		                return eff:GetHandler()~=e:GetHandler()
+		            end)
+		        end
+		    end)
+		    e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
+		    tc:RegisterEffect(e2)
+		end
     end 
 end
+

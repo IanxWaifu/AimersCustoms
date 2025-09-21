@@ -1,8 +1,10 @@
 --Epithex Master Xirelle
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
 SET_IGNOMA = 0x91C8
-CARD_IGNOMA_LIGHT = 96155011
+CARD_IGNOMA_LIGHT = 96155061
 function s.initial_effect(c)
 	--Fusion procedure
 	c:EnableReviveLimit()
@@ -62,12 +64,12 @@ function s.namecheck(e,tp,eg,ep,ev,re,r,rp)
 		e:SetLabel(current)
 		return
 	end
-	-- trigger only when last was original, and current is different
-	if last==orig and current~=orig then
+	if current~=last and current~=orig then
 		Duel.RaiseSingleEvent(c,EVENT_CUSTOM+id,e,0,tp,tp,0)
 	end
 	e:SetLabel(current)
 end
+
 
 
 
@@ -80,7 +82,7 @@ end
 
 -- e1: Add or send 1 "Epithex" card from Deck
 function s.ssfilter(c)
-	return c:IsSetCard(SET_EPITHEX) and c:IsAbleToHand() or c:IsAbleToGrave()
+	return c:IsSetCard(SET_EPITHEX) and (c:IsAbleToHand() or c:IsAbleToGrave())
 end
 function s.sstg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.IsExistingMatchingCard(s.ssfilter,tp,LOCATION_DECK,0,1,nil) end
@@ -137,6 +139,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SELECT)
 		local tc=g:Select(tp,1,1,nil):GetFirst()
 		Duel.HintSelection(tc)
+		--change name to "Ignoma-Light"
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)

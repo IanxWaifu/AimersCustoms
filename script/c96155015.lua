@@ -1,4 +1,6 @@
 --Epithex Scriting
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
 function s.initial_effect(c)

@@ -232,7 +232,7 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
         if Duel.GetCurrentChain()==0 then g:Clear() end
         g:Merge(tg)
         g:Remove(function(c) return c:GetFlagEffect(id)==0 end,nil)
-        e4:SetLabelObject({g,map})
+        e:SetLabelObject({g,map})
         if Duel.GetFlagEffect(tp,id)==0 then
             Duel.RegisterFlagEffect(tp,id,RESET_CHAIN,0,1)
             Duel.RaiseSingleEvent(e:GetHandler(),EVENT_CUSTOM+id,e,0,tp,tp,0)
@@ -251,15 +251,14 @@ function s.lfsptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,tg,1,tp,0)
 end
 
---access the map from e:GetLabelObject()
 function s.lfspop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
     local _,map=table.unpack(e:GetLabelObject())
     local ritraceCard=map[tc]
-    if not ritraceCard then return end
-    local ritrace=ritraceCard:GetRace()
+    local ritrace=ritraceCard and ritraceCard:GetRace() or nil
     if tc:IsRelateToEffect(e) and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)>0 then
-        if ritrace&RACE_DRAGON~=0 then
+        -- Only apply extra effect if race matches
+        if ritrace and ritrace&RACE_DRAGON~=0 then
             Duel.BreakEffect()
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_DESTROY)
             local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
@@ -268,7 +267,7 @@ function s.lfspop(e,tp,eg,ep,ev,re,r,rp)
                 Duel.BreakEffect()
                 Duel.Destroy(g,REASON_EFFECT)
             end
-        elseif ritrace&RACE_REPTILE~=0 then
+        elseif ritrace and ritrace&RACE_REPTILE~=0 then
             Duel.BreakEffect()
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
             local g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
@@ -278,9 +277,8 @@ function s.lfspop(e,tp,eg,ep,ev,re,r,rp)
                 Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
             end
         end
+        -- If ritrace is nil or any other type, do nothing extra
     end
-    -- Clear map here if you want to avoid stale data next chain
-    for k in pairs(map) do
-        map[k]=nil
-    end
+    -- Clear map
+    for k in pairs(map) do map[k]=nil end
 end

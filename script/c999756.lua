@@ -82,14 +82,8 @@ end
 function s.thfilter(c)
 	return c:IsSetCard(SET_AZHIMAOU) and c:IsType(TYPE_RITUAL) and c:IsAbleToHand() 
 end
-function s.tdfilter(c,tp,tcode)
-	return c:IsSetCard(SET_AZHIMAOU) and c:IsAbleToDeck() and Duel.IsExistingMatchingCard(s.adfilter,tp,LOCATION_DECK,0,1,nil,c:GetCode(),tcode)
-end
-function s.adfilter(c,code,tcode)
-	return c:IsSetCard(SET_AZHIMAOU) and c:IsMonster() and c:IsAbleToHand() and not c:IsCode(code) and not c:IsCode(tcode)
-end
 function s.chkfilter(c)
-	return c:IsSetCard(SET_AZHIMAOU) and c:IsType(TYPE_RITUAL)
+	return c:IsSetCard(SET_AZHIMAOU) and c:IsAbleToDeck()
 end
 function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
@@ -97,28 +91,18 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 	if #g>0 and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
 		local sg=g:Select(tp,1,1,nil):GetFirst()
-		if sg and Duel.SendtoHand(sg,nil,REASON_EFFECT)~=0 and sg:IsLocation(LOCATION_HAND) then
+		if sg then
+			Duel.SendtoHand(sg,nil,REASON_EFFECT)
 			Duel.ConfirmCards(1-tp,sg)
-			Duel.ShuffleHand(tp)
-			local chkmg=Duel.GetMatchingGroup(s.chkfilter,tp,LOCATION_GRAVE,0,nil)
-			local mg=Duel.GetMatchingGroup(s.tdfilter,tp,LOCATION_GRAVE,0,nil,tp,sg:GetCode())
-			if #mg>0 and #chkmg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+			local chkmg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.chkfilter),tp,LOCATION_GRAVE,0,nil)
+			if #chkmg~=0 and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 				Duel.BreakEffect()
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-				local td=mg:Select(tp,1,1,nil):GetFirst()
-				local smg=Duel.GetMatchingGroup(s.adfilter,tp,LOCATION_DECK,0,nil,sg:GetCode(),td:GetCode())
-				if td and #smg>0 and Duel.SendtoDeck(td,nil,2,REASON_EFFECT)>0 then
-					Duel.BreakEffect()
-					Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
-					local thg=smg:Select(tp,1,1,nil):GetFirst()
-					Duel.SendtoHand(thg,nil,REASON_EFFECT)
-					Duel.ConfirmCards(1-tp,thg)
-				end
+				Duel.SendtoDeck(chkmg:Select(tp,1,1,nil),nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
 			end
 		end
 	end
 end
-
 
 function s.lvfilter(c)
 	return c:HasLevel() and c:IsSetCard(SET_AZHIMAOU) and (c:IsType(TYPE_RITUAL) or c:IsType(TYPE_SYNCHRO)) and ((c:IsLocation(LOCATION_HAND) and not c:IsPublic()) or (c:IsLocation(LOCATION_MZONE) and c:IsFaceup()))

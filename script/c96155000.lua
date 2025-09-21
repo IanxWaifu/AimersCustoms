@@ -1,7 +1,9 @@
 --Epithex Seralyn
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
-CARD_IGNOMA_WATER = 96155008
+CARD_IGNOMA_WATER = 96155058
 function s.initial_effect(c)
 	--Special Summon itself (Quick Effect) and change target's name
 	local e1=Effect.CreateEffect(c)
@@ -12,6 +14,7 @@ function s.initial_effect(c)
 	e1:SetRange(LOCATION_HAND)
 	e1:SetHintTiming(0,TIMINGS_CHECK_MONSTER+TIMING_MAIN_END)
 	e1:SetCountLimit(1,id)
+	e1:SetCondition(function(e,tp,eg,ep,ev,re,r,rp) return Duel.IsMainPhase() end)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
@@ -45,7 +48,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not (c:IsRelateToEffect(e) and tc:IsRelateToEffect(e)) then return end
 	if Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP) then
-		--change name to "Ignoma-Fire"
+		--change name to "Ignoma-Water"
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)

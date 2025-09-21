@@ -60,10 +60,13 @@ function s.negtg(e,tp,eg,ep,ev,re,r,rp,chk)
             count=count+1
         end
     end
+    --Cap count at 3
+    count=math.min(count,3)
     if chkc then return chkc:IsControler(1-tp) and chkc:IsLocation(LOCATION_ONFIELD) and s.negtgfilter(chkc) end
     if chk==0 then return #tg>0 and count>0 and Duel.IsExistingTarget(s.negtgfilter,tp,0,LOCATION_ONFIELD,1,nil) end
-    local trg=Duel.SelectTarget(tp,s.negtgfilter,tp,0,LOCATION_ONFIELD,1,count,nil)
-    Duel.SetOperationInfo(0,CATEGORY_DISABLE,trg,count,0,0)
+    local scount=math.min(count,#tg)
+    local trg=Duel.SelectTarget(tp,s.negtgfilter,tp,0,LOCATION_ONFIELD,1,scount,nil)
+    Duel.SetOperationInfo(0,CATEGORY_DISABLE,trg,scount,0,0)
 end
 
 -- Negation operation: DISABLE the effects of the targeted cards
@@ -108,7 +111,7 @@ end
 
 function s.spcfilter(c,tp)
     if c:GetControler()==1-tp or not (c:IsSetCard(SET_AZHIMAOU)) or not (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO)) then return false end
-    if Duel.GetFlagEffect(tp,id)==0 and (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO)) and c:IsSetCard(SET_AZHIMAOU) then
+    if Duel.GetFlagEffect(tp,id)==0 and (c:IsRitualMonster() or c:IsType(TYPE_SYNCHRO)) and c:IsSetCard(SET_AZHIMAOU) and c:IsReason(REASON_EFFECT) and not c:IsReason(REASON_MATERIAL) and not c:IsLevel(4) then
         return true
     end
     return false

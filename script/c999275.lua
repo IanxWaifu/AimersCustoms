@@ -127,16 +127,18 @@ function s.sccon(e,c)
 	return cg:IsExists(s.cgfilter,1,nil)
 end
 
+function s.tdfilter(c)
+	return c:IsSetCard({0x718,0x719}) and c:IsAbleToDeck()
+end
 
 function s.sctg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local b1=Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,LOCATION_ONFIELD+LOCATION_GRAVE,LOCATION_ONFIELD+LOCATION_GRAVE,1,nil)
-	local b2=(Duel.IsExistingMatchingCard(Card.IsAbleToDeck,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,nil) and Duel.IsPlayerCanDraw(tp,1))
-	local g=Duel.GetMatchingGroup(Card.IsAbleToRemove,tp,LOCATION_ONFIELD+LOCATION_GRAVE,LOCATION_ONFIELD+LOCATION_GRAVE,nil)
-	if chk==0 then return (b1 and #g>0) or b2 end
+	local b1=Duel.IsExistingMatchingCard(Card.IsAbleToRemove,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,nil)
+	local b2=(Duel.IsExistingMatchingCard(s.tdfilter,tp,LOCATION_GRAVE,0,3,nil) and Duel.IsPlayerCanDraw(tp,1))
+	if chk==0 then return b1 or b2 end
 	local op=0
-	if (b1 and #g>0)  and b2 then
+	if b1 and b2 then
 		op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
-	elseif (b1 and #g>0)  then
+	elseif b1 then
 		op=Duel.SelectOption(tp,aux.Stringid(id,2))
 	else
 		op=Duel.SelectOption(tp,aux.Stringid(id,2))+1
@@ -144,10 +146,10 @@ function s.sctg(e,tp,eg,ep,ev,re,r,rp,chk)
 	e:SetLabel(op)
 	if op==0 then
 		e:SetCategory(CATEGORY_REMOVE)
-		Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,LOCATION_ONFIELD+LOCATION_GRAVE)
+		Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,LOCATION_GRAVE)
 	else
 		e:SetCategory(CATEGORY_TODECK+CATEGORY_DRAW)
-		Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,1,tp,LOCATION_DECK)
+		Duel.SetOperationInfo(0,CATEGORY_TODECK,nil,3,tp,LOCATION_DECK)
 		Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
 	end
 end
@@ -157,13 +159,13 @@ function s.scop(e,tp,eg,ep,ev,re,r,rp)
 	local op=e:GetLabel()
 	if op==0 then
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,LOCATION_ONFIELD+LOCATION_GRAVE,LOCATION_ONFIELD+LOCATION_GRAVE,1,1,nil)
+		local g=Duel.SelectMatchingCard(tp,Card.IsAbleToRemove,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,1,nil)
 		if #g>0 then
 			Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
 		end
 	else 
 		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
-		local g=Duel.SelectMatchingCard(tp,Card.IsAbleToDeck,tp,LOCATION_GRAVE,LOCATION_GRAVE,1,5,nil)
+		local g=Duel.SelectMatchingCard(tp,s.tdfilter,tp,LOCATION_GRAVE,0,3,3,nil)
 		local ctg=g:GetCount()
 		Duel.SendtoDeck(g,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)
 		local og=Duel.GetOperatedGroup()

@@ -12,56 +12,65 @@ function s.initial_effect(c)
 	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
 	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetCountLimit(1,id)
-	e1:SetTarget(s.tgtg)
-	e1:SetOperation(s.tgop)
+	e1:SetTarget(s.efftg)
+	e1:SetOperation(s.effop)
 	c:RegisterEffect(e1)
-	--RM
-	local e2=Effect.CreateEffect(c)
-	e2:SetDescription(aux.Stringid(id,1))
-	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
-	e2:SetCode(EVENT_SPSUMMON_SUCCESS)
-	e2:SetProperty(EFFECT_FLAG_DELAY)
-	e2:SetCountLimit(1,id)
-	e2:SetTarget(s.rmtg)
-	e2:SetOperation(s.rmop)
-	c:RegisterEffect(e2)
 	--Set
-	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_IGNITION)
-	e3:SetRange(LOCATION_MZONE)
-	e3:SetCountLimit(1,id+1)
-	e3:SetTarget(s.target)
-	e3:SetOperation(s.activate)
-	c:RegisterEffect(e3)
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_IGNITION)
+	e2:SetRange(LOCATION_MZONE)
+	e2:SetCountLimit(1,{id,1})
+	e2:SetTarget(s.target)
+	e2:SetOperation(s.activate)
+	c:RegisterEffect(e2)
 end
-function s.tgfilter(c)
-	return c:IsSetCard(0x12EA) and c:IsAbleToGrave()
-end
-function s.tgtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
-end
-function s.tgop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-	local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 then
-		Duel.SendtoGrave(g,REASON_EFFECT)
+
+function s.efftg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local b1=Duel.IsExistingMatchingCard(s.tgfilter,tp,LOCATION_DECK,0,1,nil)
+	local b2=Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_DECK,0,1,nil)
+	if chk==0 then return b1 or b2 end
+	local opt=0
+	if b1 and b2 then
+		opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
+	elseif b1 then
+		opt=Duel.SelectOption(tp,aux.Stringid(id,0))
+	elseif b2 then
+		opt=Duel.SelectOption(tp,aux.Stringid(id,1))+1
+	else opt=2 end
+	e:SetLabel(opt)
+	if opt==0 then
+		e:SetCategory(CATEGORY_TOGRAVE)
+		Duel.SetOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+	elseif opt==1 then
+		e:SetCategory(CATEGORY_REMOVE)
+		Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_DECK)
 	end
 end
-function s.rmfilter(c)
-	return c:IsSetCard(0x12EA) and c:IsAbleToRemove()
-end
-function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_DECK,0,1,nil) end
-	Duel.SetOperationInfo(0,CATEGORY_REMOVE,nil,1,tp,LOCATION_DECK)
-end
-function s.rmop(e,tp,eg,ep,ev,re,r,rp)
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_DECK,0,1,1,nil)
-	if #g>0 then
-		Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+function s.effop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local opt=e:GetLabel()
+	local success=false
+	if opt==0 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
+		local g=Duel.SelectMatchingCard(tp,s.tgfilter,tp,LOCATION_DECK,0,1,1,nil)
+		if #g>0 and Duel.SendtoGrave(g,REASON_EFFECT)>0 then success=true end
+	elseif opt==1 then
+		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
+		local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_DECK,0,1,1,nil)
+		if #g>0 and Duel.Remove(g,POS_FACEUP,REASON_EFFECT)>0 then success=true end
+	end
+	if success and c:IsFaceup() and c:IsRelateToEffect(e) then
+		local e1=Effect.CreateEffect(c)
+		e1:SetDescription(aux.Stringid(id,3))
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_CHANGE_TYPE)
+		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_CLIENT_HINT)
+		e1:SetValue(TYPE_MONSTER+TYPE_EFFECT+TYPE_RITUAL)
+		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		c:RegisterEffect(e1)
 	end
 end
+
 
 
 function s.setfilter(c)

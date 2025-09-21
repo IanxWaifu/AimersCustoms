@@ -1,4 +1,6 @@
 --Epithex Academia
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
 function s.initial_effect(c)
@@ -10,7 +12,7 @@ function s.initial_effect(c)
 	e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
 	e1:SetOperation(s.activate)
 	c:RegisterEffect(e1)
-	-- opponent cannot target monsters with changed names
+	-- Opponent cannot target monsters with changed names
 	local e2=Effect.CreateEffect(c)
 	e2:SetType(EFFECT_TYPE_FIELD)
 	e2:SetCode(EFFECT_CANNOT_BE_EFFECT_TARGET)
@@ -20,11 +22,11 @@ function s.initial_effect(c)
 	e2:SetTarget(s.tgtfilter)
 	e2:SetValue(aux.tgoval)
 	c:RegisterEffect(e2)
+	-- Effect 3: ATK boost during battle
 	local e3=Effect.CreateEffect(c)
-	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e3:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e3:SetCode(EVENT_PRE_DAMAGE_CALCULATE)
 	e3:SetRange(LOCATION_FZONE)
-	e3:SetCondition(s.atkcon)
 	e3:SetOperation(s.atkop)
 	c:RegisterEffect(e3)
 end
@@ -52,19 +54,13 @@ function s.tgtfilter(e,c)
 end
 
 -- Effect 2: ATK boost during battle
-function s.atkcon(e,tp,eg,ep,ev,re,r,rp)
-	local a=Duel.GetAttacker()
-	local d=Duel.GetAttackTarget()
-	if not d then return false end
-	if a:IsControler(1-tp) then a,d=d,a end
-	return a:IsControler(tp) and (a:GetCode()~=a:GetOriginalCode() or d:GetCode()~=d:GetOriginalCode())
-end
 function s.atkop(e,tp,eg,ep,ev,re,r,rp)
 	local a=Duel.GetAttacker()
 	local d=Duel.GetAttackTarget()
 	if not d then return end
 	if a:IsControler(1-tp) then a,d=d,a end
-	if a:IsRelateToBattle() and a:IsControler(tp) then
+	-- if your monster is battling AND one of the monsters has a different current name
+	if a and a:IsControler(tp) and (a:GetCode()~=a:GetOriginalCode() or d:GetCode()~=d:GetOriginalCode()) then
 		local e1=Effect.CreateEffect(e:GetHandler())
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_UPDATE_ATTACK)

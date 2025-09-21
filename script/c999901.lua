@@ -3,7 +3,8 @@
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
-    local rparams={filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),lvtype=RITPROC_GREATER,
+    local rparams={handler=c,
+    lvtype=RITPROC_GREATER,
     filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),
     extrafil=s.extragroup,
     extraop=s.extraop,

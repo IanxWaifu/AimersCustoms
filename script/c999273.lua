@@ -50,6 +50,8 @@ function s.initial_effect(c)
 	e4:SetLabelObject(g)
 	e4:SetOperation(s.regop)
 	c:RegisterEffect(e4)
+	--Checks to see if non-"Daemon" monsters were Summoned from the Extra Deck
+	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,function(c) return not c:IsSummonLocation(LOCATION_EXTRA) or c:IsSetCard(0x718) end)
 end
 function s.regop(e)
 	local c=e:GetHandler()
@@ -66,8 +68,9 @@ function s.regop(e)
 	e1:SetDescription(aux.Stringid(id,1))
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
-	e1:SetProperty(EFFECT_FLAG_DELAY)
+	e1:SetProperty(EFFECT_FLAG_NO_TURN_RESET)
 	e1:SetTargetRange(1,0)
+	e1:SetCost(s.addcost)
 	e1:SetTarget(s.addtg)
 	e1:SetOperation(s.addop)
 	e1:SetCountLimit(1,{id,1})
@@ -75,10 +78,10 @@ function s.regop(e)
 	Duel.RegisterEffect(e1,e:GetHandlerPlayer())
 end
 function s.chaincon(e,tp,eg,ep,ev,re,r,rp)
-    local c = e:GetHandler()
-    local te, p, loc, seq = Duel.GetChainInfo(ev, CHAININFO_TRIGGERING_EFFECT, CHAININFO_TRIGGERING_CONTROLER, CHAININFO_TRIGGERING_LOCATION, CHAININFO_TRIGGERING_SEQUENCE)
-    local tc = te:GetHandler()
-    local cg = tc:GetColumnGroup(1, 1)
+    local c=e:GetHandler()
+    local te,p,loc,seq=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_EFFECT,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION,CHAININFO_TRIGGERING_SEQUENCE)
+    local tc=te:GetHandler()
+    local cg=tc:GetColumnGroup(1,1)
     if not cg:IsContains(c) then
         return false
 	end
@@ -88,12 +91,27 @@ function s.chaincon(e,tp,eg,ep,ev,re,r,rp)
     return flageff==nil
 end
 
+function s.addcost(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
+	local c=e:GetHandler()
+	--SPSummon Lock
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,8))
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetTargetRange(1,0)
+	e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not c:IsSetCard(0x718) end)
+	e1:SetReset(RESET_PHASE|PHASE_END)
+	Duel.RegisterEffect(e1,tp)
+end
+
 
 function s.setfilter(c)
 	return c:IsSetCard(0x719) and c:IsSSetable() and (c:IsNormalTrap() or c:IsType(TYPE_QUICKPLAY))
 end
 function s.addtg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>0
+	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 and Duel.GetLocationCount(tp,LOCATION_SZONE)>0
 		and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK,0,1,nil) end
 end
 function s.addop(e,tp,eg,ep,ev,re,r,rp)
@@ -121,9 +139,9 @@ function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_GRAVE+LOCATION_ONFIELD) and chkc:IsAbleToRemove() end
-	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_GRAVE+LOCATION_ONFIELD,LOCATION_GRAVE+LOCATION_ONFIELD,1,nil) end
+	if chk==0 then return Duel.IsExistingTarget(Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil) end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-	local g=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,LOCATION_GRAVE+LOCATION_ONFIELD,LOCATION_GRAVE+LOCATION_ONFIELD,1,1,nil)
+	local g=Duel.SelectTarget(tp,Card.IsAbleToRemove,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
 	Duel.SetOperationInfo(0,CATEGORY_REMOVE,g,1,0,0)
 end
 function s.spop(e,tp,eg,ep,ev,re,r,rp)

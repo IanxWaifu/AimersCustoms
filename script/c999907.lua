@@ -8,7 +8,7 @@ function s.initial_effect(c)
     Aimer.KegaiSynchroAddProcedure(c,nil,1,1,Synchro.NonTuner(nil),1,99)
 	c:EnableReviveLimit()
 	--Check materials
-	local e0=Effect.CreateEffect(c)
+--[[	local e0=Effect.CreateEffect(c)
 	e0:SetType(EFFECT_TYPE_SINGLE)
 	e0:SetCode(EFFECT_MATERIAL_CHECK)
 	e0:SetValue(s.valcheck)
@@ -24,7 +24,7 @@ function s.initial_effect(c)
 	e1:SetCondition(s.drcon)
 	e1:SetTarget(s.drtg)
 	e1:SetOperation(s.drop)
-	c:RegisterEffect(e1)
+	c:RegisterEffect(e1)--]]
 	--Banish and copy effect
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
@@ -55,7 +55,7 @@ s.listed_series={SET_KEGAI}
 
 
 -- Check Materials
-function s.valcheck(e,c)
+--[[function s.valcheck(e,c)
     local g=c:GetMaterial()
     local races={}
     local uniqueRaceCount=0
@@ -86,27 +86,10 @@ end
 function s.drop(e,tp,eg,ep,ev,re,r,rp)
 	local p,d=Duel.GetChainInfo(0,CHAININFO_TARGET_PLAYER,CHAININFO_TARGET_PARAM)
 	Duel.Draw(p,d,REASON_EFFECT)
-end
+end--]]
 
 
 --Apply Ritual Effect
-function s.setfilter(c)
-	return c:IsSetCard(SET_K9) and c:IsType(TYPE_RITUAL) and c:IsType(TYPE_SPELL)
-end
-function s.settg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.setfilter(chkc) end
-	if chk==0 then return Duel.IsExistingTarget(s.setfilter,tp,LOCATION_GRAVE,0,1,nil) end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
-	local g=Duel.SelectTarget(tp,s.setfilter,tp,LOCATION_GRAVE,0,1,1,nil)
-	Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,1,tp,0)
-end
-function s.setop(e,tp,eg,ep,ev,re,r,rp)
-	local tc=Duel.GetFirstTarget()
-	if tc:IsRelateToEffect(e) then
-		Duel.SSet(tp,tc)
-	end
-end
-
 function s.applyfilter(c)
     if c:IsLocation(LOCATION_REMOVED) and not c:IsFaceup() then return false end
     return c:IsRitualSpell() and c:IsAbleToDeck() and c:CheckActivateEffect(true,true,false)~=nil

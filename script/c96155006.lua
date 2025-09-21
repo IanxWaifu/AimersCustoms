@@ -1,19 +1,22 @@
 --Epithex Master Quenros
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
 SET_IGNOMA = 0x91C8
-CARD_IGNOMA_DARK = 96155012
+CARD_IGNOMA_DARK = 96155062
 function s.initial_effect(c)
 	--Fusion procedure
 	c:EnableReviveLimit()
-	Fusion.AddProcMixRep(c,true,true,s.mfilter2,1,2,s.mfilter1)
-	--Negate effects of opponent's monsters with changed names
+	Fusion.AddProcMixRep(c,true,true,s.mfilter2,2,2,s.mfilter1)
+	--Negate the activated effects of opponent's monsters with changed names
 	local e1=Effect.CreateEffect(c)
-	e1:SetType(EFFECT_TYPE_FIELD)
-	e1:SetCode(EFFECT_DISABLE)
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e1:SetCode(EVENT_CHAIN_SOLVING)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetTargetRange(0,LOCATION_MZONE)
-	e1:SetTarget(s.disable)
+	e1:SetCondition(s.discon)
+	e1:SetOperation(s.disop)
 	c:RegisterEffect(e1)
 	--Quick Effect: target 1 face-up monster, change its name to "Ignoma-Dark"
 	local e2=Effect.CreateEffect(c)
@@ -23,7 +26,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_FREE_CHAIN)
 	e2:SetRange(LOCATION_MZONE)
 	e2:SetProperty(EFFECT_FLAG_CARD_TARGET)
-	e2:SetCountLimit(1,id)
+	e2:SetCountLimit(1)
 	e2:SetTarget(s.nametg)
 	e2:SetOperation(s.nameop)
 	c:RegisterEffect(e2)
@@ -34,7 +37,7 @@ function s.initial_effect(c)
 	e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
 	e3:SetProperty(EFFECT_FLAG_DELAY)
 	e3:SetCode(EVENT_LEAVE_FIELD)
-	e3:SetCountLimit(1,{id,1})
+	e3:SetCountLimit(1,id)
 	e3:SetCondition(s.spcon)
 	e3:SetTarget(s.sptg)
 	e3:SetOperation(s.spop)
@@ -52,8 +55,16 @@ function s.mfilter2(c,fc,sumtype,tp)
 end
 
 -- e1: disable opponent monsters with changed names
-function s.disable(e,c)
-	return c:GetCode()~=c:GetOriginalCode()
+function s.discon(e,tp,eg,ep,ev,re,r,rp)
+	if not re:IsMonsterEffect() or e:GetHandler():IsStatus(STATUS_BATTLE_DESTROYED) then return false end
+	local trig_ctrl,trig_loc=Duel.GetChainInfo(ev,CHAININFO_TRIGGERING_CONTROLER,CHAININFO_TRIGGERING_LOCATION)
+	if not (trig_ctrl==1-tp and trig_loc==LOCATION_MZONE) then return false end
+	local rc=re:GetHandler()
+	return re:GetHandler():IsFaceup() and re:GetHandler():GetCode()~=re:GetHandler():GetOriginalCode()
+end
+
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.NegateEffect(ev)
 end
 
 -- e2: Quick Effect to change a target monster's name
@@ -67,6 +78,7 @@ function s.nameop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if tc and tc:IsRelateToEffect(e) and tc:IsFaceup() then
 		local e1=Effect.CreateEffect(e:GetHandler())
+		--change name to "Ignoma-Dark"
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)

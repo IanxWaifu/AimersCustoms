@@ -1,7 +1,9 @@
 --Epithex Mavrek
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
-CARD_IGNOMA_EARTH = 96155007
+CARD_IGNOMA_EARTH = 96155057
 function s.initial_effect(c)
 	--Add 1 "Epithex" monster from Deck or GY to hand when Summoned
 	local e1=Effect.CreateEffect(c)
@@ -68,7 +70,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not (c:IsRelateToEffect(e) and tc:IsRelateToEffect(e)) then return end
 	if Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP) then
-		--change name to "Ignoma-Fire"
+		--change name to "Ignoma-Earth"
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)

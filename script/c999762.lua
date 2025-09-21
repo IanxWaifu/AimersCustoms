@@ -196,7 +196,7 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
     Duel.DisableShuffleCheck()
     if #g<=0 or Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)==0 then return end
     Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-    local dg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,nil)
+    --[[local dg=Duel.GetMatchingGroup(aux.NecroValleyFilter(s.tdfilter),tp,LOCATION_GRAVE|LOCATION_REMOVED,0,nil)
     if #dg>0 and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
         Duel.BreakEffect()
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TODECK)
@@ -213,17 +213,17 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
         e1:SetOperation(s.tdop)
         e1:SetReset(RESET_PHASE+PHASE_END)
         Duel.RegisterEffect(e1,tp)
-    end
+    end--]]
 end
 
-function s.tdop(e,tp,eg,ep,ev,re,r,rp)
+--[[function s.tdop(e,tp,eg,ep,ev,re,r,rp)
     local tc=e:GetLabelObject()
     if tc:GetFlagEffect(id)>0 then
         Duel.DisableShuffleCheck()
         tc:ResetFlagEffect(id)
         Duel.SendtoDeck(tc,nil,SEQ_DECKBOTTOM,REASON_EFFECT)
     end
-end
+end--]]
 
 function s.retcon(e,tp,eg,ep,ev,re,r,rp)
     return re and re:GetHandler()==e:GetHandler() and Duel.GetFlagEffect(tp,id)==0

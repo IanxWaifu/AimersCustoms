@@ -4,7 +4,7 @@ local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
 	--xyz summon
-	Xyz.AddProcedure(c,nil,5,2,nil,nil,99)
+	Xyz.AddProcedure(c,nil,5,2,nil,nil,Xyz.InfiniteMats)
 	c:EnableReviveLimit()
 	--Activate
 	local e1=Effect.CreateEffect(c)

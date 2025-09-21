@@ -1,7 +1,9 @@
 --Epithexing
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
-CARD_IGNOMA_HEX = 96155013
+CARD_IGNOMA_HEX = 96155063
 function s.initial_effect(c)
 	-- Effect 1: activate
 	local e1=Effect.CreateEffect(c)

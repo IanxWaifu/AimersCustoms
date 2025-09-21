@@ -1,7 +1,9 @@
 --Epithex Thalen
+--Scripted by Aimer
+--Created by Grummel
 local s,id=GetID()
 SET_EPITHEX = 0x91AC
-CARD_IGNOMA_WIND = 96155010
+CARD_IGNOMA_WIND = 96155060
 function s.initial_effect(c)
 	--Add/Set 1 "Epithex" Spell/Trap when Summoned
 	local e1=Effect.CreateEffect(c)
@@ -49,7 +51,7 @@ function s.thop(e,tp,eg,ep,ev,re,r,rp)
 		aux.ToHandOrElse(tc,tp,
 			function(c) return tc:IsSSetable() end,
 			function(c) Duel.SSet(tp,tc) end,
-			aux.Stringid(id,2)
+			aux.Stringid(id,1)
 		)
 	end
 end
@@ -70,13 +72,13 @@ function s.spop(e,tp,eg,ep,ev,re,r,rp)
 	local tc=Duel.GetFirstTarget()
 	if not (c:IsRelateToEffect(e) and tc:IsRelateToEffect(e)) then return end
 	if Duel.SpecialSummonStep(c,0,tp,tp,false,false,POS_FACEUP) then
-		--change name to "Ignoma-Fire"
+		--change name to "Ignoma-Wind"
 		local e1=Effect.CreateEffect(c)
 		e1:SetType(EFFECT_TYPE_SINGLE)
 		e1:SetCode(EFFECT_CHANGE_CODE)
 		e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE)
 		e1:SetValue(CARD_IGNOMA_WIND)
-		e1:SetReset(RESET_EVENT+RESETS_STANDARD)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD)
 		tc:RegisterEffect(e1)
 		--Restrict Extra Deck summons (only Spellcaster)
 		local e2=Effect.CreateEffect(c)
