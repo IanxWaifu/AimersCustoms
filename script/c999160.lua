@@ -133,7 +133,7 @@ function s.checkfilter(c)
 	return c:IsSetCard(0x12A8) and c:IsType(TYPE_EQUIP)
 end
 function s.atktg(e,tp,eg,ep,ev,re,r,rp,chk)
-	local ov=Duel.GetOverlayGroupCount(tp,LOCATION_MZONE,0)
+	local ov=Duel.GetOverlayGroup(tp,LOCATION_MZONE,0)
 	local ct=Duel.GetMatchingGroupCount(s.checkfilter,tp,LOCATION_SZONE,0,nil)
 	local count=ov+ct
 	if chk==0 then return count>1 and Duel.IsExistingMatchingCard(Card.IsFaceup,tp,0,LOCATION_MZONE,1,nil) end
