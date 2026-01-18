@@ -29,6 +29,9 @@ function c40933455.initial_effect(c)
 	e2:SetOperation(c40933455.thop)
 	c:RegisterEffect(e2)
 end
+
+c40933455.ritual_material_required=1
+
 function c40933455.lcheck(g,lc)
 	return g:IsExists(c40933455.sfilter2,1,nil)
 end

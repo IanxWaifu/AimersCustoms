@@ -23,12 +23,12 @@ function s.initial_effect(c)
     c:RegisterEffect(e1)
 end
 
-s.listed_series={SET_KEGAI}
+s.listed_series={SET_KYOSHIN}
 
 --Ritual Summon
 function s.rspfilter(c)
     local loc=c:GetLocation()
-    return (c:IsSetCard({SET_KEGAI,SET_KYOSHIN}) and (loc&(LOCATION_DECK|LOCATION_GRAVE|LOCATION_HAND))~=0)
+    return (c:IsSetCard(SET_KYOSHIN) and (loc&(LOCATION_DECK|LOCATION_GRAVE|LOCATION_HAND))~=0)
         or (c:IsLevel(7) and (loc&(LOCATION_GRAVE|LOCATION_HAND))~=0)
 end
 function s.extragroup(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -39,7 +39,7 @@ function s.extratg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
 end
 function s.matfilter(c)
-    return c:IsMonster() and c:IsSetCard({SET_KEGAI,SET_KYOSHIN}) and not c:IsForbidden()
+    return c:IsMonster() and c:IsSetCard(SET_KYOSHIN) and not c:IsForbidden() and c:HasLevel()
 end
 function s.ritcheck(e,tp,g,sc)
     local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
@@ -71,7 +71,7 @@ function s.extraop(mat,e,tp,eg,ep,ev,re,r,rp,tc)
         end
     end
     --Register Flag to allow 1 material from your Deck for the Fusion Summon
-    if tc:IsSetCard({SET_KEGAI,SET_KYOSHIN}) then 
+    if tc:IsSetCard(SET_KYOSHIN) then 
         e:GetHandler():RegisterFlagEffect(id,RESET_CHAIN,0,1)
     end
 end
@@ -81,20 +81,29 @@ function s.fcheck(tp,sg,fc)
     return sg:FilterCount(Card.IsLocation,nil,LOCATION_DECK)<=1
 end
 function s.fextra(e,tp,mg)
-    if e:GetHandler():HasFlagEffect(id) then
-        local eg=Duel.GetMatchingGroup(s.exfilter,tp,LOCATION_DECK,0,nil)
-        if eg and #eg>0 then
-            return eg,s.fcheck
-        end
+    local eg=Group.CreateGroup()
+    if Duel.IsPlayerAffectedByEffect(tp,999960) then
+        local sg=Duel.GetMatchingGroup(s.exfilter,tp,LOCATION_STZONE,LOCATION_STZONE,nil)
+        if #sg>0 then eg:Merge(sg) end
     end
+    if e:GetHandler():HasFlagEffect(id) then
+        local dg=Duel.GetMatchingGroup(s.exfilter,tp,LOCATION_DECK,0,nil)
+        if #dg>0 then eg:Merge(dg) end
+    end
+    if #eg>0 then return eg,s.fcheck end
     return nil
 end
+
 function s.exfilter(c)
-    return c:IsMonster() and c:IsSetCard({SET_KEGAI,SET_KYOSHIN}) and c:IsAbleToGrave()
+    return (c:IsMonster() or c:IsOriginalType(TYPE_MONSTER)) and c:IsSetCard(SET_KYOSHIN) and c:IsAbleToGrave() and c:HasLevel()
 end
 function s.fusextratg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return true end
-    Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+    if Duel.IsPlayerAffectedByEffect(tp,999960) then
+        Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK|LOCATION_STZONE)
+    else
+        Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_DECK)
+    end
 end 
 
 --Actual Ritual Summon+Fusion Combination
@@ -113,7 +122,7 @@ function s.operation(rittg,ritop)
             Duel.BreakEffect()
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
             ritop(e,tp,eg,ep,ev,re,r,rp)
-            local fparams={handler=c,filter=aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON),extrafil=s.fextra,extratg=s.fusextratg}
+            local fparams={handler=c,filter=aux.FilterBoolFunction(Card.IsRace,RACE_FAIRY),extrafil=s.fextra,extratg=s.fusextratg}
             if not (Fusion.SummonEffTG(fparams)(e,tp,eg,ep,ev,re,r,rp,0) and Duel.SelectYesNo(tp,aux.Stringid(id,1))) then return end
             Duel.BreakEffect()
             Fusion.SummonEffOP(fparams)(e,tp,eg,ep,ev,re,r,rp)

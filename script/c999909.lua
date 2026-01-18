@@ -3,6 +3,10 @@
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
 function s.initial_effect(c)
+--[[    local e0=Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_ACTIVATE)
+    e0:SetCode(EVENT_FREE_CHAIN)
+    c:RegisterEffect(e0)--]]
     --Activate effect: target Spell/Trap or monster
     local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,0))
@@ -38,14 +42,24 @@ function s.acttg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
     local ft=Duel.GetLocationCount(tp,LOCATION_MZONE)
     local sft=Duel.GetLocationCount(tp,LOCATION_SZONE)
     if chkc then return chkc:IsLocation(LOCATION_GRAVE) and chkc:IsControler(tp) and s.actfilter(chkc,e,tp,ft,sft) end
-    if chk==0 then return Duel.IsExistingTarget(s.actfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp,ft,sft) end
-    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
-    local g=Duel.SelectTarget(tp,s.actfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp,ft,sft)
-    Duel.SetPossibleOperationInfo(0,CATEGORY_TOHAND,g,1,tp,0)
-    Duel.SetPossibleOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,tp,0)
+    if chk==0 then return true end
+    if Duel.IsExistingTarget(s.actfilter,tp,LOCATION_GRAVE,0,1,nil,e,tp,ft,sft) and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+        Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TARGET)
+        local g=Duel.SelectTarget(tp,s.actfilter,tp,LOCATION_GRAVE,0,1,1,nil,e,tp,ft,sft)
+                local tc=g:GetFirst()
+        if tc:IsType(TYPE_MONSTER) then
+            Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,g,1,tp,0)
+        else
+            Duel.SetOperationInfo(0,CATEGORY_LEAVE_GRAVE,g,1,tp,0) 
+        end
+        e:SetLabel(0)
+    else
+        e:SetLabel(1)
+    end
 end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
-   local tc=Duel.GetFirstTarget()
+    if e:GetLabel()==1 then return end
+    local tc=Duel.GetFirstTarget()
     if not tc:IsRelateToEffect(e) then return end
     if tc:IsType(TYPE_SPELL+TYPE_TRAP) then
         --Activate

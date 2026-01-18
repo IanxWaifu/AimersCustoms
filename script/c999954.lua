@@ -6,13 +6,13 @@ function s.initial_effect(c)
 	--Banish and copy effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_ATKCHANGE+CATEGORY_DEFCHANGE)
 	e1:SetType(EFFECT_TYPE_QUICK_O)
 	e1:SetCode(EVENT_FREE_CHAIN)
 	e1:SetRange(LOCATION_MZONE)
 	e1:SetHintTiming(TIMING_END_PHASE)
 	e1:SetCountLimit(1,id)
 	e1:SetCost(s.applycost)
-	e1:SetTarget(s.applytg)
 	e1:SetOperation(s.applyop)
 	c:RegisterEffect(e1)
 	--be material
@@ -40,6 +40,10 @@ end
 
 s.listed_names={id}
 s.listed_series={SET_KYOSHIN}
+s.ritualmatidlist=
+{	[68295149] = true,
+    [87054946] = true,
+    [73898890] = true}
 
 --Limit Check
 function s.spsumfilter(c)
@@ -87,21 +91,28 @@ function s.applycost(e,tp,eg,ep,ev,re,r,rp,chk)
 end
 
 function s.splimit(e,c)
-	if not c:IsLocation(LOCATION_EXTRA) then return false end
-	local mt=c:GetMetatable()
-	return not (c:IsSetCard(SET_KYOSHIN) or (mt and mt.ritual_material_required and mt.ritual_material_required>=1))
+    if not c:IsLocation(LOCATION_EXTRA) then return false end
+    local mt=c:GetMetatable()
+    local code=c:GetCode()
+    return not (c:IsSetCard(SET_KYOSHIN) or (mt and mt.ritual_material_required and mt.ritual_material_required>=1) or s.ritualmatidlist[code])
 end
 
 
--- Target: just prepare to draw
-function s.applytg(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return Duel.IsPlayerCanDraw(tp,1) end
-    Duel.SetOperationInfo(0,CATEGORY_DRAW,nil,0,tp,1)
-end
-
--- Operation: draw 1
+-- Operation: gain atk/def
 function s.applyop(e,tp,eg,ep,ev,re,r,rp)
-    Duel.Draw(tp,1,REASON_EFFECT)
+	local c=e:GetHandler()
+	if c:IsFaceup() and c:IsRelateToEffect(e) then
+		--Increase ATK
+		local e1=Effect.CreateEffect(c)
+		e1:SetType(EFFECT_TYPE_SINGLE)
+		e1:SetCode(EFFECT_UPDATE_ATTACK)
+		e1:SetValue(500)
+		e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE)
+		c:RegisterEffect(e1)
+		local e2=e1:Clone()
+		e2:SetCode(EFFECT_UPDATE_DEFENSE)
+		c:RegisterEffect(e2)
+	end
 end
 
 
@@ -113,12 +124,12 @@ function s.regcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
+	c:RegisterFlagEffect(id,RESET_EVENT+RESET_TODECK+RESET_TOHAND+RESET_PHASE+PHASE_END,0,1)
 end
 
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return c:GetFlagEffect(id)>0
+	return c:GetFlagEffect(id)>0 and not c:IsLocation(LOCATION_OVERLAY+LOCATION_DECK+LOCATION_HAND+LOCATION_EXTRA) and not c:IsFacedown()
 end
 
 function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)

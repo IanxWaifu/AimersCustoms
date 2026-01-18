@@ -81,6 +81,8 @@ function c9945590.retreg(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterEffect(e2)
 end
 
+c9945590.ritual_material_required=1
+
 function c9945590.setfilter(c)
 	return c:IsSetCard(0x12D7) and c:IsSSetable()
 end

@@ -1,4 +1,4 @@
---Kyoshin - Enbu no Yorihime
+--Kyoshin - Saimyö no Mikoha
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
@@ -9,12 +9,12 @@ function s.initial_effect(c)
 	--Negate after Ritual Monster is Special Summoned by effect
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_DISABLE)
+	e1:SetCategory(CATEGORY_TOHAND)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_CHAIN_SOLVED)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(s.negcon)
-	e1:SetOperation(s.disop)
+	e1:SetCondition(s.rthcon)
+	e1:SetOperation(s.rthop)
 	c:RegisterEffect(e1)
 	--Check if this card was used as Ritual Material
 	local e2=Effect.CreateEffect(c)
@@ -22,7 +22,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_CHAIN_SOLVED)
 	e2:SetRange(LOCATION_ALL)
 	e2:SetCondition(s.matcon)
-	e2:SetOperation(s.disop)
+	e2:SetOperation(s.rthop)
 	c:RegisterEffect(e2)
 	--be spsummon
 	local e3=Effect.CreateEffect(c)
@@ -32,18 +32,17 @@ function s.initial_effect(c)
 	e3:SetCondition(s.regcon)
 	e3:SetOperation(s.regop)
 	c:RegisterEffect(e3)
-	--Selfreturn
+	--Selfsend
 	local e4=Effect.CreateEffect(c)
 	e4:SetDescription(aux.Stringid(id,2))
-	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCode(EVENT_PHASE+PHASE_END)
 	e4:SetCountLimit(1,{id,1})
 	e4:SetRange(LOCATION_MZONE|LOCATION_SZONE)
-	e4:SetCost(Cost.SelfToExtra)
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
+	e4:SetCost(Cost.SelfToGrave)
+	e4:SetCondition(s.setcon)
+	e4:SetTarget(s.settg)
+	e4:SetOperation(s.setop)
 	c:RegisterEffect(e4)
 end
 
@@ -58,7 +57,7 @@ function s.cfilter(c)
 		and c:IsLocation(LOCATION_MZONE)
 		--[[and c:IsSummonPlayer(tp)--]]
 end
-function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+function s.rthcon(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFlagEffect(tp,id)>1 then return false end
 	if not re then return false end
 	local g=Duel.GetOperatedGroup()
@@ -75,26 +74,16 @@ function s.matcon(e,tp,eg,ep,ev,re,r,rp)
         or (c:IsLocation(LOCATION_SZONE) and c:IsFaceup())
 end
 
-function s.disfilter(c)
-	return c:IsFaceup() and not c:IsDisabled()
+function s.rthfilter(c)
+	return c:IsAbleToHand()
 end
-function s.disop(e,tp,eg,ep,ev,re,r,rp)
-    if Duel.GetFlagEffect(tp,id)<1 and Duel.IsExistingTarget(s.disfilter,tp,0,LOCATION_ONFIELD,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+function s.rthop(e,tp,eg,ep,ev,re,r,rp)
+    if Duel.GetFlagEffect(tp,id)<1 and Duel.IsExistingTarget(s.rthfilter,tp,0,LOCATION_ONFIELD,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
     Duel.Hint(HINT_CARD,0,id)
     Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-    local tc=Duel.SelectTarget(tp,s.disfilter,tp,0,LOCATION_ONFIELD,1,1,nil):GetFirst()
-	    if tc and tc:IsFaceup() and not tc:IsDisabled() then
-			Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-	        local e1=Effect.CreateEffect(e:GetHandler())
-	        e1:SetType(EFFECT_TYPE_SINGLE)
-	        e1:SetCode(EFFECT_DISABLE)
-	        e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	        tc:RegisterEffect(e1)
-	        local e2=Effect.CreateEffect(e:GetHandler())
-	        e2:SetType(EFFECT_TYPE_SINGLE)
-	        e2:SetCode(EFFECT_DISABLE_EFFECT)
-	        e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	        tc:RegisterEffect(e2)
+    local tc=Duel.SelectTarget(tp,s.rthfilter,tp,0,LOCATION_ONFIELD,1,1,nil):GetFirst()
+	if tc then
+			Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	    end
 	end
 end
@@ -109,24 +98,25 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterFlagEffect(id,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET+RESET_PHASE+PHASE_END,0,1)
 end
 
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:GetFlagEffect(id)>0
 end
 
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(SET_KYOSHIN) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+function s.setfilter(c,e)
+	return c:IsSetCard(SET_KYOSHIN) and c:IsSpellTrap()
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
+function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
+	local loccount=0
+	if e:GetHandler():IsLocation(LOCATION_SZONE) then loccount=loccount-1 end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>loccount and Duel.IsExistingMatchingCard(s.setfilter,tp,LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil) end
+	Duel.SetPossibleOperationInfo(0,CATEGORY_LEAVE_GRAVE,nil,1,tp,LOCATION_GRAVE)
 end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil,e,tp)
+function s.setop(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
+	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.setfilter),tp,LOCATION_DECK|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil)
 	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+		Duel.SSet(tp,g)
 	end
 end
+

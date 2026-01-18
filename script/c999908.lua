@@ -65,18 +65,19 @@ end
 
 --Apply destroy & banish protection until end of next turn
 function s.matop(e,tp,eg,ep,ev,re,r,rp)
-    local rc=e:GetHandler():GetReasonCard()
-    if not rc then return end
+    local trc=e:GetHandler():GetReasonCard() 
+    if not trc then return end
     local e1=Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_SINGLE)
-    e1:SetCode(EFFECT_INDESTRUCTIBLE_EFFECT)
-    e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+    e1:SetDescription(aux.Stringid(id,1))
+    e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CLIENT_HINT)
     e1:SetRange(LOCATION_MZONE)
     e1:SetValue(1)
     e1:SetOwnerPlayer(tp)
     e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,2)
-    rc:RegisterEffect(e1)
+    trc:RegisterEffect(e1)
     local e2=e1:Clone()
     e2:SetCode(EFFECT_CANNOT_REMOVE)
-    rc:RegisterEffect(e2)
+    trc:RegisterEffect(e2)
 end

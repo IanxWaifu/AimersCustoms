@@ -9,7 +9,6 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	c:SetSPSummonOnce(id)
 	local rparams={filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),lvtype=RITPROC_GREATER,
-    filter=aux.FilterBoolFunction(Card.IsSetCard,SET_KEGAI),
     extrafil=s.extragroup,
     extraop=s.extraop,
     matfilter=s.matfilter,

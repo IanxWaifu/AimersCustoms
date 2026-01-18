@@ -1,4 +1,4 @@
---Kyoshin - Enbu no Yorihime
+--Kyoshin - Kegareta Hörin
 --Scripted by Aimer
 local s,id=GetID()
 Duel.LoadScript('AimersAux.lua')
@@ -6,15 +6,14 @@ function s.initial_effect(c)
 	c:EnableReviveLimit()
 	--Fusion Summon procedure
 	Fusion.AddProcMix(c,true,true,aux.FilterBoolFunctionEx(Card.IsRace,RACE_ILLUSION),aux.FilterBoolFunctionEx(Card.IsType,TYPE_RITUAL))
-	--Negate after Ritual Monster is Special Summoned by effect
+	--Place to field
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetCategory(CATEGORY_DISABLE)
 	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 	e1:SetCode(EVENT_CHAIN_SOLVED)
 	e1:SetRange(LOCATION_MZONE)
-	e1:SetCondition(s.negcon)
-	e1:SetOperation(s.disop)
+	e1:SetCondition(s.tfcon)
+	e1:SetOperation(s.tfop)
 	c:RegisterEffect(e1)
 	--Check if this card was used as Ritual Material
 	local e2=Effect.CreateEffect(c)
@@ -22,7 +21,7 @@ function s.initial_effect(c)
 	e2:SetCode(EVENT_CHAIN_SOLVED)
 	e2:SetRange(LOCATION_ALL)
 	e2:SetCondition(s.matcon)
-	e2:SetOperation(s.disop)
+	e2:SetOperation(s.tfop)
 	c:RegisterEffect(e2)
 	--be spsummon
 	local e3=Effect.CreateEffect(c)
@@ -32,18 +31,17 @@ function s.initial_effect(c)
 	e3:SetCondition(s.regcon)
 	e3:SetOperation(s.regop)
 	c:RegisterEffect(e3)
-	--Selfreturn
+	--SelfFusion
+	local fparams={handler=c,filter=aux.FilterBoolFunction(Card.IsRace,RACE_FAIRY),extrafil=s.fextra,extratg=s.fusextratg,gc=Fusion.ForcedHandler}
 	local e4=Effect.CreateEffect(c)
-	e4:SetDescription(aux.Stringid(id,2))
-	e4:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e4:SetDescription(aux.Stringid(id,1))
 	e4:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
 	e4:SetCode(EVENT_PHASE+PHASE_END)
 	e4:SetCountLimit(1,{id,1})
 	e4:SetRange(LOCATION_MZONE|LOCATION_SZONE)
-	e4:SetCost(Cost.SelfToExtra)
-	e4:SetCondition(s.spcon)
-	e4:SetTarget(s.sptg)
-	e4:SetOperation(s.spop)
+	e4:SetCondition(s.effcon)
+	e4:SetTarget(Fusion.SummonEffTG(fparams))
+	e4:SetOperation(Fusion.SummonEffOP(fparams))
 	c:RegisterEffect(e4)
 end
 
@@ -58,7 +56,7 @@ function s.cfilter(c)
 		and c:IsLocation(LOCATION_MZONE)
 		--[[and c:IsSummonPlayer(tp)--]]
 end
-function s.negcon(e,tp,eg,ep,ev,re,r,rp)
+function s.tfcon(e,tp,eg,ep,ev,re,r,rp)
 	if Duel.GetFlagEffect(tp,id)>1 then return false end
 	if not re then return false end
 	local g=Duel.GetOperatedGroup()
@@ -75,31 +73,26 @@ function s.matcon(e,tp,eg,ep,ev,re,r,rp)
         or (c:IsLocation(LOCATION_SZONE) and c:IsFaceup())
 end
 
-function s.disfilter(c)
-	return c:IsFaceup() and not c:IsDisabled()
+function s.tffilter(c,tp)
+	return not c:IsForbidden() and c:ListsArchetype(SET_KYOSHIN) and (c:IsType(TYPE_FIELD) or (c:IsType(TYPE_CONTINUOUS) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0))
 end
-function s.disop(e,tp,eg,ep,ev,re,r,rp)
-    if Duel.GetFlagEffect(tp,id)<1 and Duel.IsExistingTarget(s.disfilter,tp,0,LOCATION_ONFIELD,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+function s.tfop(e,tp,eg,ep,ev,re,r,rp)
+    if Duel.GetFlagEffect(tp,id)<1 and Duel.IsExistingMatchingCard(s.tffilter,tp,LOCATION_DECK,0,1,nil,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
     Duel.Hint(HINT_CARD,0,id)
     Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
-    local tc=Duel.SelectTarget(tp,s.disfilter,tp,0,LOCATION_ONFIELD,1,1,nil):GetFirst()
-	    if tc and tc:IsFaceup() and not tc:IsDisabled() then
-			Duel.NegateRelatedChain(tc,RESET_TURN_SET)
-	        local e1=Effect.CreateEffect(e:GetHandler())
-	        e1:SetType(EFFECT_TYPE_SINGLE)
-	        e1:SetCode(EFFECT_DISABLE)
-	        e1:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	        tc:RegisterEffect(e1)
-	        local e2=Effect.CreateEffect(e:GetHandler())
-	        e2:SetType(EFFECT_TYPE_SINGLE)
-	        e2:SetCode(EFFECT_DISABLE_EFFECT)
-	        e2:SetReset(RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END)
-	        tc:RegisterEffect(e2)
-	    end
+	local g=Duel.SelectMatchingCard(tp,s.tffilter,tp,LOCATION_DECK,0,1,1,nil,tp)
+	if #g>0 then
+		local tc=g:GetFirst()
+		if tc:IsType(TYPE_FIELD) then
+		    Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
+		else
+		    Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
+		end
+ 		end
 	end
 end
 
---Selfreturn
+--Selffusion
 function s.regcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return e:GetHandler():IsFusionSummoned()
@@ -109,24 +102,27 @@ function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	c:RegisterFlagEffect(id,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET+RESET_PHASE+PHASE_END,0,1)
 end
 
-function s.spcon(e,tp,eg,ep,ev,re,r,rp)
+function s.effcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:GetFlagEffect(id)>0
 end
 
-function s.spfilter(c,e,tp)
-	return c:IsSetCard(SET_KYOSHIN) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+-- Fusion
+function s.fextra(e,tp,mg)
+    local eg=Group.CreateGroup()
+    if Duel.IsPlayerAffectedByEffect(tp,999960) then
+        local sg=Duel.GetMatchingGroup(s.exfilter,tp,LOCATION_STZONE,LOCATION_STZONE,nil)
+        if #sg>0 then eg:Merge(sg) end
+    end
+    if #eg>0 then return eg end
+    return nil
 end
-function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
-		and Duel.IsExistingMatchingCard(s.spfilter,tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,nil,e,tp) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_GRAVE+LOCATION_REMOVED)
-end
-function s.spop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
-	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
-	local g=Duel.SelectMatchingCard(tp,aux.NecroValleyFilter(s.spfilter),tp,LOCATION_GRAVE+LOCATION_REMOVED,0,1,1,nil,e,tp)
-	if #g>0 then
-		Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
-	end
+
+function s.fusextratg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    Duel.SetPossibleOperationInfo(0,CATEGORY_TOGRAVE,nil,1,tp,LOCATION_STZONE)
+end 
+
+function s.exfilter(c)
+    return (c:IsMonster() or c:IsOriginalType(TYPE_MONSTER)) and c:IsSetCard(SET_KYOSHIN) and c:IsAbleToGrave() and c:HasLevel()
 end
