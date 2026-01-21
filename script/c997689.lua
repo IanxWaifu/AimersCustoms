@@ -66,7 +66,7 @@ function s.eqcon(e,tp,eg,ep,ev,re,r,rp)
 	return e:GetHandler():IsPreviousLocation(LOCATION_ONFIELD)
 end
 function s.eqfilter(c)
-	return c:IsFaceup() and c:IsSetCard(0x12D9)
+	return c:IsFaceup() and c:IsSetCard(0x12D9) and c:IsFusionMonster()
 end
 function s.eqtg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
 	if chkc then return chkc:IsLocation(LOCATION_MZONE) and chkc:IsControler(tp) and s.eqfilter(chkc) end

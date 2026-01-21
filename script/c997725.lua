@@ -17,7 +17,7 @@ s.list={[0x01]=(0x08),[0x08]=(0x01),[0x02]=(0x04),
 				[0x04]=(0x02),[0x10]=(0x20),[0x20]=(0x10)}
 				
 function s.condition(e,tp,eg,ep,ev,re,r,rp)
-	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x12D9),tp,LOCATION_MZONE,0,1,nil)
+	return Duel.IsExistingMatchingCard(aux.FaceupFilter(Card.IsSetCard,0x12D9),tp,LOCATION_ONFIELD,0,1,nil)
 end
 function s.spfilter(c,e,tp)
 	return c:IsLevelAbove(1) and c:IsSetCard(0x12D9)

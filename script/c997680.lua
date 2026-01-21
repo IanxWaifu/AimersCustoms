@@ -52,7 +52,7 @@ function s.immcon(c,e,tp)
 	return Duel.IsExistingMatchingCard(s.imfilter,tp,LOCATION_MZONE,0,1,nil)
 end
 function s.cfilter(c,tp)
-	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsSetCard(0x12D9) and c:IsType(TYPE_CONTINUOUS)
+	return c:IsPreviousLocation(LOCATION_ONFIELD) and c:IsSetCard(0x12D9)
 	and c:IsPreviousPosition(POS_FACEUP) and c:IsPreviousControler(tp)
 end
 function s.actcon(e,tp,eg,ep,ev,re,r,rp)
@@ -82,6 +82,7 @@ end
 function s.actop(e,tp,eg,ep,ev,re,r,rp)
 	if not e:GetHandler():IsRelateToEffect(e) then return end
 	if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 then  
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 	local sg=Duel.SelectMatchingCard(tp,s.actfilter,tp,LOCATION_DECK,0,1,1,nil,tp,e:GetLabel())
 	local tc=sg:GetFirst()
 	if tc then
