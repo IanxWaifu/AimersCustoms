@@ -31,6 +31,7 @@
   - [Miku](#miku-working-name)
   - [Girls & Arms](#girls--arms)
 
+<a id="shrine-star--shrine-maiden"></a>
 <details>
 <summary><strong>Shrine Star / Shrine Maiden</strong></summary>
 
@@ -42,6 +43,7 @@
 
 </details>
 
+<a id="deathrall"></a>
 <details>
 <summary><strong>Deathrall</strong></summary>
 
@@ -57,6 +59,7 @@ The goal is to cycle through different monster types to create effects that best
 
 </details>
 
+<a id="azhimaou"></a>
 <details>
 <summary><strong>Azhimaou</strong></summary>
 
@@ -73,6 +76,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="necrotic"></a>
 <details>
 <summary><strong>Necrotic</strong></summary>
 
@@ -84,6 +88,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="necroticrypt"></a>
 <details>
 <summary><strong>Necroticrypt</strong></summary>
 
@@ -95,6 +100,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="daemon-of-ruin--daedric-relic"></a>
 <details>
 <summary><strong>Daemon of Ruin / Daedric Relic</strong></summary>
 
@@ -106,6 +112,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="voltaic--voldrago"></a>
 <details>
 <summary><strong>Voltaic / Voldrago</strong></summary>
 
@@ -117,6 +124,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="beasketeer"></a>
 <details>
 <summary><strong>Beasketeer</strong></summary>
 
@@ -128,6 +136,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="novalxon"></a>
 <details>
 <summary><strong>Novalxon</strong></summary>
 
@@ -139,6 +148,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="knights-of-the-fallen--legends-and-myths"></a>
 <details>
 <summary><strong>Knights of the Fallen / Legends and Myths</strong></summary>
 
@@ -150,6 +160,7 @@ If a monster’s Level would become 0, it destroys itself.
 
 </details>
 
+<a id="wizardrake"></a>
 <details>
 <summary><strong>Wizardrake</strong></summary>
 
@@ -163,6 +174,7 @@ You gain additional advantage and effects by using your opponent’s Pendulum Zo
 
 </details>
 
+<a id="icyene-cyene"></a>
 <details>
 <summary><strong>Icyene (“Cyene”)</strong></summary>
 
@@ -176,6 +188,7 @@ You gain advantage by removing Ice Counters to activate your effects, as well as
 
 </details>
 
+<a id="iron-saga"></a>
 <details>
 <summary><strong>Iron Saga</strong></summary>
 
@@ -198,6 +211,7 @@ A Level 7 **Cyborg Spirit** Archetype.
 
 </details>
 
+<a id="zodiakieri"></a>
 <details>
 <summary><strong>Zodiakieri</strong></summary>
 
@@ -213,6 +227,7 @@ When the Ritual Monsters are Summoned, they Set their respective Spell directly 
 
 </details>
 
+<a id="kijin"></a>
 <details>
 <summary><strong>Kijin</strong></summary>
 
@@ -232,6 +247,7 @@ A Fire Fiend Ritual Archetype that utilizes unique Continuous Spell/Traps with l
 
 </details>
 
+<a id="kegai"></a>
 <details>
 <summary><strong>Kegai</strong></summary>
 
@@ -243,6 +259,7 @@ A Fire Fiend Ritual Archetype that utilizes unique Continuous Spell/Traps with l
 
 </details>
 
+<a id="kyoshin"></a>
 <details>
 <summary><strong>Kyoshin</strong></summary>
 
@@ -254,6 +271,7 @@ A Fire Fiend Ritual Archetype that utilizes unique Continuous Spell/Traps with l
 
 </details>
 
+<a id="revelatia"></a>
 <details>
 <summary><strong>Revelatia</strong></summary>
 
@@ -269,6 +287,7 @@ Currently a work in progress, with ongoing tuning and potential future additions
 
 </details>
 
+<a id="stellarius"></a>
 <details>
 <summary><strong>Stellarius</strong></summary>
 
@@ -293,6 +312,7 @@ An Xyz/Fusion Archetype with a largely linear, lore-focused design.
 > These Archetypes are **mechanics-first designs** and are **not connected to the overarching lore** of Aimer’s Customs.  
 > They exist as experimental, homage, or gameplay-driven concepts.
 
+<a id="gotheatrè"></a>
 <details>
 <summary><strong>Gotheatrè</strong> <em>(Non-Lore)</em></summary>
 
@@ -305,6 +325,7 @@ You can use your Ritual Monster or your two **Hysteria** Spell/Traps to treat yo
 
 </details>
 
+<a id="miku-working-name"></a>
 <details>
 <summary><strong>Miku</strong> <em>(Non-Lore / Homage)</em></summary>
 
@@ -319,6 +340,7 @@ The Deck revolves around cheating out Synchro Pendulum Monsters while treating t
 
 </details>
 
+<a id="girls--arms"></a>
 <details>
 <summary><strong>Girls & Arms</strong> <em>(Non-Lore)</em></summary>
 
