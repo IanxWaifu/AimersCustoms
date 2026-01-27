@@ -31,6 +31,14 @@
   - [Miku](#miku-working-name)
   - [Girls & Arms](#girls--arms)
 
+---
+
+## 📚 Lore Archetypes
+
+> These Archetypes are **story-driven designs**, deeply connected to the lore of Aimer’s Customs.  
+> They are built to reflect the history, characters, and themes of the verse that I have created over the past decade.  
+> Each deck emphasizes **flavor, narrative, and thematic synergy**, while still offering unique mechanics for gameplay.
+
 <a id="shrine-star--shrine-maiden"></a>
 <details>
 <summary><strong>Shrine Star / Shrine Maiden</strong></summary>
