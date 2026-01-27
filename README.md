@@ -1,180 +1,332 @@
-# AimersCustoms
+![Status](https://img.shields.io/badge/status-WIP-yellow)
+![Cards](https://img.shields.io/badge/custom%20cards-Yu--Gi--Oh!-purple)
+![Focus](https://img.shields.io/badge/focus-lore--driven-blue)
+![Engine](https://img.shields.io/badge/engine-EDOPro-green)
+![Years](https://img.shields.io/badge/years%20active-10%2B-orange)
+## Table of Contents
 
-Welcome to Aimer’s Customs (formerly known as IanxWaifu). This is a repository of my own custom cards which I’ve created over the past decade. In this repository I will lightly outline the core mechanics of my more modern Archetypes. Most archetypes I've created are lore based Archetypes, in which those will be labeled as such. I do have some custom support cards for real cards and Archetypes that I have made in the far past. But I mostly am working on complete customs that connect with a very large story and lore that I have written. (This Doc is a WIP).
+- [Overview](#aimers-customs)
+- [Lore Archetypes](#-lore-archetypes)
+  - [Shrine Star / Shrine Maiden](#shrine-star--shrine-maiden)
+  - [Deathrall](#deathrall)
+  - [Azhimaou](#azhimaou)
+  - [Necrotic](#necrotic)
+  - [Necroticrypt](#necroticrypt)
+  - [Daemon of Ruin / Daedric Relic](#daemon-of-ruin--daedric-relic)
+  - [Voltaic / Voldrago](#voltaic--voldrago)
+  - [Beasketeer](#beasketeer)
+  - [Novalxon](#novalxon)
+  - [Knights of the Fallen / Legends and Myths](#knights-of-the-fallen--legends-and-myths)
+  - [Wizardrake](#wizardrake)
+  - [Icyene (Cyene)](#icyene-cyene)
+  - [Iron Saga](#iron-saga)
+  - [Zodiakieri](#zodiakieri)
+  - [Kijin](#kijin)
+  - [Kegai](#kegai)
+  - [Kyoshin](#kyoshin)
+  - [Revelatia](#revelatia)
+  - [Stellarius](#stellarius)
+- [Non-Lore Archetypes](#-non-lore-archetypes)
+  - [Gotheatrè](#gotheatrè)
+  - [Miku](#miku-working-name)
+  - [Girls & Arms](#girls--arms)
 
+<details>
+<summary><strong>Shrine Star / Shrine Maiden</strong></summary>
 
-**Shrine Star/Shrine Maiden**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Deathrall</strong></summary>
 
-**Deathrall:** 
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+A Link- and Token-based Deck with supplemental Fusion Monsters.
 
-Playstyle:
-This is mainly a Link and Token based Deck, but also contains a couple Fusion Monsters to bolster their gameplan. The concept is to summon out the “Legion”. Generate Legion Tokens with a few of your Spells, aswell as each Link Monster. Your Link Monsters can be Link Summoned with different variations of materials, and depending on the variation you gain a different set of abilities. Your goal is to cycle through different monster types to create effects that suit your needs.
+The core concept is to summon the **“Legion”** by generating Legion Tokens through Spells and each Link Monster. Your Link Monsters can be Link Summoned using different variations of materials, and depending on the variation used, they gain different abilities.
 
+The goal is to cycle through different monster types to create effects that best suit your needs.
 
-**Azhimaou:**
+</details>
 
-Lore:
+<details>
+<summary><strong>Azhimaou</strong></summary>
 
-Playstyle:
-A Ritual, Synchro, and Fusion based Deck. The core aspect of the Deck is that the Ritual Spells all set Spell/Traps to your field as Ritual Material based on the Level of the Ritual Monster you are summoning. Depending on the Level you get to place more, but that also steepins the “activation cost” of those set Spell/Traps. The Spell/Traps also have inherent costs for activation, which is to reduce your monsters Levels by 4. (If a monsters level would become 0, they self destroy themselves). 
+### Lore
+*TBD*
 
+### Playstyle
+A Ritual, Synchro, and Fusion-based Deck.
 
-**Necrotic**
+The core mechanic revolves around Ritual Spells that Set Spell/Traps to your field as Ritual Material based on the Level of the Ritual Monster being summoned. Higher Levels allow you to place more cards, but steepen the activation cost.
 
-Lore:
+Those Spell/Traps also have inherent activation costs: reducing your monsters’ Levels by 4.  
+If a monster’s Level would become 0, it destroys itself.
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Necrotic</strong></summary>
 
-**Necroticrypt:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Necroticrypt</strong></summary>
 
-**Daemon of Ruin/Daedric Relic:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Daemon of Ruin / Daedric Relic</strong></summary>
 
-**Voltaic/Voldrago:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Voltaic / Voldrago</strong></summary>
 
-**Beasketeer:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Beasketeer</strong></summary>
 
-**Novalxon:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Novalxon</strong></summary>
 
-**Knights of the Fallen/Legends and Myths:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
+<details>
+<summary><strong>Knights of the Fallen / Legends and Myths</strong></summary>
 
-**Wizardrake:**
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+*TBD*
 
-Playstyle:
-A Pendulum and Fusion based Deck that uses and places their own Pendulum Monsters to your opponents Pendulum Zones. You can gain extra advantage and effects by using your opponents Pendulum Zones. The monsters in this Deck all have ‘on destruction’ based effects, while your Fusion Spells have the ability to destroy certain Fusion Materials.
+</details>
 
+<details>
+<summary><strong>Wizardrake</strong></summary>
 
-**Icyene/“cyene”:** (This was meant to be a Tag Duel Archetype that would play alongside my friend's *Blazcyene's* in which he never finished. Imay eventually create these myself.)
+### Lore
+*TBD*
 
-Lore:
+### Playstyle
+A Pendulum and Fusion-based Deck that places its own Pendulum Monsters into the opponent’s Pendulum Zones.
 
-Playstyle: A Synchro and Ritual based strategy that revolves around Ice Counters. You garner advantage through removing Ice Counters to activate your effects aswell as use them disrupt your opponent. The Ritual Monsters cast a frozen tundra and reduce your opponents monsters stats. 
+You gain additional advantage and effects by using your opponent’s Pendulum Zones. The monsters in this Deck all have **on-destruction** effects, while the Fusion Spells have the ability to destroy certain Fusion Materials.
 
+</details>
 
-**Iron Saga:**
+<details>
+<summary><strong>Icyene (“Cyene”)</strong></summary>
 
-Lore: 
-The Tetra Core is an ancient artifact that channels immense mystical energy across the galaxy of Orion. Linked to it are the Four Ordinals, elemental forces embodying nature’s raw power. Andrea Meteora, orphaned at a young age after losing her spiritualist parents and raised without knowledge of her true lineage, is uniquely chosen to bridge the gap between the Tetra Core and the Ordinals. With a blend of innate spiritual connection and technological ingenuity, she activates the Full Ordinal Link, merging with the elemental might of the Ordinals. This transformation endows her with extraordinary abilities, enabling her to fend off the relentless Daedra attack and halt their takeover of Orion. However, the overwhelming power drains the Tetra Core, forcing her to place the Ordinals into a deep stasis until it can regenerate. Andrea’s journey is defined by sacrifice and resilience, as she rises from a harsh upbringing to embrace her destiny. Her role is that of a hero who can stand as a bulwark against an encroaching darkness.
+### Lore
+*TBD*
 
-Playstyle:
-A Level 7 “Cyborg” Spirit Archetype.The 4 Main Deck Level 7s have a unique card Set called the “Ordinal Scale”. 
-Each monster has an Ordinal Number in their name ie; 1st, 2nd, 3rd, and 4th. The l Ordinal Scale resets and loops back to 1 after 4.
-The monsters bounce to your hand, as spirits normally do, and can Summon the previous or next Ordinal Number in the Scale. The Extra Deckers check for these aswell. Your goal is to return all 4 Ordinal Scales to your hand during the turn, to then Xyz Summon out your boss monster. This Xyz Summon can be performed during either player’s turn when the conditions are met.
+### Playstyle
+A Synchro and Ritual-based strategy revolving around **Ice Counters**.
 
+You gain advantage by removing Ice Counters to activate your effects, as well as using them to disrupt your opponent. The Ritual Monsters create a frozen tundra, reducing your opponent’s monsters’ stats.
 
-**Zodiakieri:**
+</details>
 
-Lore:
+<details>
+<summary><strong>Iron Saga</strong></summary>
 
-Playstyle:
-A Spirit Ritual Archetype. The Deck utilizes Extra Rituals, and Extra Spells. These both go in your Extra Deck.
-All the Spells/Traps in the Deck cannot be activated, except through their monster’s effects (except for the Field and Ritual Spells).
-When the Rituals are Summoned, they Set their respective Spell directly from your Extra Deck to your field.
+### Lore
+The **Tetra Core** is an ancient artifact that channels immense mystical energy across the galaxy of Orion. Linked to it are the **Four Ordinals**, elemental forces embodying nature’s raw power.
 
+Andrea Meteora, orphaned at a young age after losing her spiritualist parents and raised without knowledge of her true lineage, is uniquely chosen to bridge the gap between the Tetra Core and the Ordinals. With a blend of innate spiritual connection and technological ingenuity, she activates the **Full Ordinal Link**, merging with the elemental might of the Ordinals.
 
-**Kijin:**
+This transformation allows her to fend off the relentless Daedra attack and halt their takeover of Orion. However, the overwhelming power drains the Tetra Core, forcing the Ordinals into deep stasis until it can regenerate. Andrea’s journey is defined by sacrifice and resilience as she stands against encroaching darkness.
 
-Lore:
-The Kijin were a proud and noble race from the Fourth Star of Stellaria, living in harmony with their lush and vibrant world. Known for their strength and unity, they thrived as protectors of nature and peace. Their downfall began with the slow spread of a corrupting miasma from the Divine-Eye. This insidious force tainted the minds of their leaders, feeding on desires for power and control. Lies and division spread, plunging the Kijin into bitter conflict and turning them against one another. As the fighting intensified, the miasma grew stronger, consuming their hearts and minds until none remained untainted. The once-thriving civilization was reduced to ruin, and the beautiful world became a barren wasteland. The Kijin, twisted by corruption, lost their identity and became mere remnants of their former selves.
+### Playstyle
+A Level 7 **Cyborg Spirit** Archetype.
 
-Playstyle:
-A Fire Fiend Ritual Archetype that utilizes the effects of unique Continuous Spell/Traps. These Spell/Traps have effects that linger, even after leaving the field (for 1-2 turns). These effects are small, so you want to use as many as you can to gain small advantages. Your monsters use these Continuous’s as cost for their effects. The Rituals are unique where they require a specific Archetype Monster as material. The Ritual Spells can also Special Summon the materials being used(they are still treated as being used as Ritual Material).
+- Uses a looping **Ordinal Scale** (1st → 4th → reset)
+- Main Deck monsters return to the hand like traditional Spirits
+- Monsters can Summon the previous or next Ordinal in the Scale
+- Extra Deck monsters also check Ordinal order
+- Returning all four Ordinals to your hand enables an Xyz Summon
+- This Xyz Summon can be performed during either player’s turn
 
+</details>
 
-**Kegai**
+<details>
+<summary><strong>Zodiakieri</strong></summary>
 
-Lore:
+### Lore
+*TBD*
 
-Playstyle:
+### Playstyle
+A **Spirit Ritual Archetype** that utilizes Extra Deck Ritual Monsters and Extra Deck Spells.
 
+All Spell/Traps in the Deck cannot be activated normally and must be triggered through monster effects (except for the Field and Ritual Spells).
 
-**Kyoshin**
+When the Ritual Monsters are Summoned, they Set their respective Spell directly from the Extra Deck to your field.
 
-Lore:
+</details>
 
-Playstyle:
+<details>
+<summary><strong>Kijin</strong></summary>
 
+### Lore
+The Kijin were a proud and noble race from the Fourth Star of Stellaria, living in harmony with their lush world. Their downfall began with the slow spread of a corrupting miasma from the **Divine-Eye**, which fed on ambition and desire.
 
-**Revelatia**
+Lies and division tore the Kijin apart, plunging them into civil war. As the corruption deepened, their world was reduced to ruin, and the Kijin lost all sense of their former identity—becoming twisted remnants of what they once were.
 
-Lore:
+### Playstyle
+A Fire Fiend Ritual Archetype that utilizes unique Continuous Spell/Traps with lingering effects.
 
-Playstyle:
-A Fusion Archetype revolving around space and time. Certain cards allow you to Fusion once using a monster in your deck/GY/Extra Deck. The Fusions arent relatively strong, but they can swarm and gain advantage. It becomes a space and time loop. Still a work in progress on toning it down, aswell as a few cards to possibly be implemented in the future.
+- Continuous effects persist for 1–2 turns after leaving the field
+- Effects are small but meant to stack
+- Monsters use Continuous cards as costs
+- Rituals require specific Archetype monsters as material
+- Ritual Spells can Special Summon materials while still treating them as used
 
+</details>
 
-**Stellarius**
+<details>
+<summary><strong>Kegai</strong></summary>
 
-Lore:
+### Lore
+*TBD*
 
-Playstyle:
-This is an Xyz/Fusion Archetype. Mainly a lore Archetype for me, it is very linear. Your Main Decks all pretty much do the same thing, *Level 4 Summon spam*.
-You make Xyz Monsters, and use them to activate Continuous Spell/Traps. Your Fusion Monsters are Fusioned by using the Continuous Spell/Traps AND Xyz Monsters as materials.
-The Continuous’s then equip to the Fusion to make it gain effects. Then the second set of Rank 4s are used to also make the Fusions gain more advantages, because the Fusions are Pretty weak in regard. It’s all about boosting the Fusion to make it a giant slapping machine with protections.
+### Playstyle
+*TBD*
 
+</details>
 
-————————————————————————
+<details>
+<summary><strong>Kyoshin</strong></summary>
 
-Below are all non-Lore Archetypes
+### Lore
+*TBD*
 
-**Gotheatrè:**
+### Playstyle
+*TBD*
 
-Playstyle:
+</details>
 
-A Synchro Archetype that revolves around your “Additonal Battle Phase”. The Synchros can only be summoned during the start of “your” Battle Phase. Your Main Decks can use different effects depending on if it is the First Battle Phase and/or Additional Battle Phase. Use your Ritual or your two Hysteria Spell/Traps to allow your opponent’s Battle Phase to be treated as your Additional Battle Phase - to allow for more effects during their turn!
+<details>
+<summary><strong>Revelatia</strong></summary>
 
+### Lore
+*TBD*
 
-**Miku**
+### Playstyle
+A Fusion Archetype revolving around **space and time**.
 
-Obviously a homage to Hatsune Miku. Though I will *eventually* rename the archetype to Umiku, to be a double entendre.
+Certain cards allow you to Fusion Summon using monsters from the Deck, GY, or Extra Deck. While the Fusions themselves are not particularly strong, they excel at swarming and generating recursive advantage—creating a looping space-time engine.
 
-Playstyle:
+Currently a work in progress, with ongoing tuning and potential future additions.
 
-A Water Synchro Pendulum Archetype that revolves around cheating out your Synchro Pendulums by having them “Be treated as Synchro Summoned Properly”. The Main Deck has no Pendulums, they are Extra Deck exclusive.
+</details>
 
+<details>
+<summary><strong>Stellarius</strong></summary>
 
-**Girls’&’Arms**
+### Lore
+*TBD*
 
-Playstyle:
+### Playstyle
+An Xyz/Fusion Archetype with a largely linear, lore-focused design.
 
-A Column based Link Spam Archetype whose mechanics revolve around your Spell/Traps having different effects depending on if they were activated in the same column as your Archetype Monsters or not.
-Most of the effects of the Links utilize co-linking, and being in the same column as the Spell/Traps. Attempts to U-Link your opponent.
+- Heavy Level 4 Summon spam
+- Rank 4 Xyz Monsters activate Continuous Spell/Traps
+- Fusion Monsters are Summoned using Xyz Monsters and Continuous cards as material
+- Continuous cards Equip to Fusions to grant effects
+- Additional Rank 4s further enhance Fusions into powerful, protected beaters
+
+</details>
+
+---
+
+## 🎭 Non-Lore Archetypes
+
+> These Archetypes are **mechanics-first designs** and are **not connected to the overarching lore** of Aimer’s Customs.  
+> They exist as experimental, homage, or gameplay-driven concepts.
+
+<details>
+<summary><strong>Gotheatrè</strong> <em>(Non-Lore)</em></summary>
+
+### Playstyle
+A Synchro Archetype centered around **Additional Battle Phases**.
+
+The Synchro Monsters can only be Summoned at the start of **your** Battle Phase. Your Main Deck monsters gain different effects depending on whether it is the first Battle Phase and/or an Additional Battle Phase.
+
+You can use your Ritual Monster or your two **Hysteria** Spell/Traps to treat your opponent’s Battle Phase as your Additional Battle Phase, enabling disruption and combo play during their turn.
+
+</details>
+
+<details>
+<summary><strong>Miku</strong> <em>(Non-Lore / Homage)</em></summary>
+
+### Notes
+A homage to **Hatsune Miku**.  
+Planned rename: **Umiku** (double entendre).
+
+### Playstyle
+A Water Synchro Pendulum Archetype.
+
+The Deck revolves around cheating out Synchro Pendulum Monsters while treating them as **properly Synchro Summoned**. The Main Deck contains no Pendulum Monsters—Pendulums are exclusive to the Extra Deck.
+
+</details>
+
+<details>
+<summary><strong>Girls & Arms</strong> <em>(Non-Lore)</em></summary>
+
+### Playstyle
+A column-based Link spam Archetype.
+
+Your Spell/Traps gain different effects depending on whether they are activated in the same column as your Archetype monsters. Most Link effects revolve around co-linking and column alignment.
+
+The Deck aims to overwhelm the opponent through board pressure and attempts to **U-Link**.
+
+</details>
