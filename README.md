@@ -35,9 +35,9 @@
 
 ## 📚 Lore Archetypes
 
-> These Archetypes are **story-driven designs**, deeply connected to the lore of Aimer’s Customs.  
-> They are built to reflect the history, characters, and themes of the verse that I have created over the past decade.  
-> Each deck emphasizes **flavor, narrative, and thematic synergy**, while still offering unique mechanics for gameplay.
+> These Archetypes are **story-driven designs**, which are connected to the lore of Aimer’s Customs.  
+> They are built to reflect the characters, and themes of the verse that I have created over the past decade.  
+> Each deck emphasizes **narrative and thematic synergy**, while also still trying to create unique mechanics for gameplay that tend to border on the edge of most modern card design.
 
 <a id="shrine-star--shrine-maiden"></a>
 <details>
@@ -192,7 +192,7 @@ You gain additional advantage and effects by using your opponent’s Pendulum Zo
 ### Playstyle
 A Synchro and Ritual-based strategy revolving around **Ice Counters**.
 
-You gain advantage by removing Ice Counters to activate your effects, as well as using them to disrupt your opponent. The Ritual Monsters create a frozen tundra, reducing your opponent’s monsters’ stats.
+You gain advantage by removing Ice Counters to activate your effects, as well as using them to disrupt your opponent. The Ritual Monsters create a frozen tundra, reducing your opponent’s monsters’ stats, while tbe Synchro Monsters apply effects on cards that are fully frozen.
 
 </details>
 
@@ -203,9 +203,9 @@ You gain advantage by removing Ice Counters to activate your effects, as well as
 ### Lore
 The **Tetra Core** is an ancient artifact that channels immense mystical energy across the galaxy of Orion. Linked to it are the **Four Ordinals**, elemental forces embodying nature’s raw power.
 
-Andrea Meteora, orphaned at a young age after losing her spiritualist parents and raised without knowledge of her true lineage, is uniquely chosen to bridge the gap between the Tetra Core and the Ordinals. With a blend of innate spiritual connection and technological ingenuity, she activates the **Full Ordinal Link**, merging with the elemental might of the Ordinals.
+Andrea Meteora, orphaned at a young age after losing her spiritualist parents and raised without knowledge of her true lineage, is uniquely chosen by the Core to bridge the gap between the Tetra Core and the Ordinals. With a blend of innate spiritual connection and technological ingenuity, she is a able to activate the **Full Ordinal Link**, merging with the elemental might of the Ordinals.
 
-This transformation allows her to fend off the relentless Daedra attack and halt their takeover of Orion. However, the overwhelming power drains the Tetra Core, forcing the Ordinals into deep stasis until it can regenerate. Andrea’s journey is defined by sacrifice and resilience as she stands against encroaching darkness.
+This transformation allows her to fend off the relentless Daedra attack and halt their takeover of Orion. However, the overwhelming shock of power drains the Tetra Core, forcing the Ordinals into deep stasis until it can regenerate. Andrea’s journey is one of sacrifice and resilience as she stands against encroaching darkness.
 
 ### Playstyle
 A Level 7 **Cyborg Spirit** Archetype.
