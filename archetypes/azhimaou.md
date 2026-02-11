@@ -24,7 +24,7 @@ The core concept is to perform Ritual Summons using Ritual Spells that Set Spell
 
 Those Spell/Trap Cards also have inherent activation costs: reducing your monsters’ Levels by 4. If a monster’s Level would become 0, it destroys itself.
 
-The goal is to carefully manage Level resources while transitioning Ritual Monsters into Synchro and Fusion plays to maintain advantage.
+The goal is to manage Level resources to properly gain the effects you desire, while transitioning Ritual Monsters into Synchro and Fusion plays to maintain advantage.
 
 ---
 
@@ -33,6 +33,7 @@ The goal is to carefully manage Level resources while transitioning Ritual Monst
 - Level reduction as an activation cost
 - Ritual scaling based on Monster Level
 - Transitioning Ritual Monsters into Synchro and Fusion Summons
+- The Archetypes Normal Traps cannot activate in Chain to Traps/Quick-Play Spells cannot activate in Chain to Spells
 
 ---
 
