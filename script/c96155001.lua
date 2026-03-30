@@ -18,7 +18,7 @@ function s.initial_effect(c)
 	e1:SetTarget(s.sptg)
 	e1:SetOperation(s.spop)
 	c:RegisterEffect(e1)
-	local params={s.fusfilter,aux.FALSE,s.extrafilter,nil,s.stage2}
+	local params={s.fusfilter,aux.FALSE,s.extrafilter,nil}
 	local e2=Effect.CreateEffect(c)
 	e2:SetDescription(aux.Stringid(id,1))
 	e2:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)

@@ -63,12 +63,17 @@ SET_NOVALXON = 0x313
 SET_ALEKRON = 0x316
 SET_KEGAI = 0x1315
 SET_KYOSHIN = 0x131C
+SET_EPITHEX = 0x91AC
+SET_GENOSYNX = 0x91CD
 
 
 --Common used Flags
 ASTRAL_FLAG = 999800  -- Astral Overlay Flag Check
 EFFECT_EXTRA_ASTRAL = 3305
 REGISTER_FLAG_ASTRAL_STATE = 999799
+GENOSYNX_SET_ACT  = EVENT_CUSTOM+1000
+GENOSYNX_HAND_ACT = EVENT_CUSTOM+1001
+
 
 --Common used Counters and Effects
 COUNTER_ICE = 0x1015
@@ -1379,155 +1384,6 @@ function Aimer.KegaiSynchroOperation()
         g:DeleteGroup()
     end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---(checkOpponentMonsterZone, checkOpponentGraveyard) Setting to "true" sets the Locations to check against your own Locations. Use if You must have different Attributes.
---(checkPlayerMonsterZone, checkPlayerGraveyard) Setting to "true" sets the Locations to check against your opponents Locations. Use if Opponent must have different Attributes.
---atleast 1 of each player must be used.
---ie; (tp,true,false,true,false) would compare opponent' Mzone to your Mzone. and finds the single Attribute bits which are Unique Between both Players
-function Aimer.GetUniqueAttributesByLocation(handler, oppLocations, playerLocations, oppFilter, playerFilter)
-    oppLocations = oppLocations or 0
-    playerLocations = playerLocations or 0
-    oppFilter = oppFilter or function(c) return true end
-    playerFilter = playerFilter or function(c) return true end
-
-    local player = handler
-    local attributes = {}
-
-    -- Define a set of locations to iterate through
-    local locations = {
-        [LOCATION_MZONE] = { opp = true, player = true },
-        [LOCATION_GRAVE] = { opp = true, player = true },
-        [LOCATION_HAND] = { opp = true, player = true },
-        [LOCATION_DECK] = { opp = true, player = true },
-        [LOCATION_EXTRA] = { opp = true, player = true },
-        [LOCATION_REMOVED] = { opp = true, player = true }
-    }
-
-    -- Helper function to iterate through a location
-    local function IterateLocation(location, control, filter)
-        local group = Duel.GetFieldGroup(control, location, 0)
-        for _, card in ipairs(group) do
-            if filter(card) then
-                local att = card:GetAttribute()
-                while att > 0 do
-                    local bitPos = att & -att
-                    attributes[bitPos] = true
-                    att = att - bitPos
-                end
-            end
-        end
-    end
-
-    -- Iterate through locations based on flags
-    for location, flags in pairs(locations) do
-        if (oppLocations & location) == location and flags.opp then
-            for p = 0, 1 do
-                if (location == LOCATION_MZONE) then
-                    for i = 0, 6 do
-                        local zone = Duel.GetFieldCard(p, location, i)
-                        if zone and oppFilter(zone) then
-                            local att = zone:GetAttribute()
-                            while att > 0 do
-                                local bitPos = att & -att
-                                attributes[bitPos] = true
-                                att = att - bitPos
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        if (playerLocations & location) == location and flags.player then
-            if (location == LOCATION_MZONE) then
-                for i = 0, 6 do
-                    local zone = Duel.GetFieldCard(player, location, i)
-                    if zone and playerFilter(zone) then
-                        local att = zone:GetAttribute()
-                        while att > 0 do
-                            local bitPos = att & -att
-                            attributes[bitPos] = nil
-                            att = att - bitPos
-                        end
-                    end
-                end
-            end
-        end
-    end
-    -- Iterate through locations based on flags
-    for location, flags in pairs(locations) do
-        if (oppLocations & location) == location and flags.opp then
-            for p = 0, 1 do
-            local ct=Duel.GetFieldGroupCount(p, location, 0)
-            for i = 0, ct - 1 do
-                local zone = Duel.GetFieldCard(p, location, i)
-                if zone and oppFilter(zone) then
-                    local att = zone:GetAttribute()
-                    while att > 0 do
-                        local bitPos = att & -att
-                        attributes[bitPos] = true
-                        att = att - bitPos
-                    end
-                end
-            end
-        end
-    end
-        if (playerLocations & location) == location and flags.player then
-            local ct=Duel.GetFieldGroupCount(player, location, 0)
-            for i = 0, ct - 1 do
-                local zone = Duel.GetFieldCard(player, location, i)
-                if zone and oppFilter(zone) then
-                    local att = zone:GetAttribute()
-                    while att > 0 do
-                        local bitPos = att & -att
-                        attributes[bitPos] = nil
-                        att = att - bitPos
-                    end
-                end
-            end
-        end
-    end
-    local result = {}
-    for att, _ in pairs(attributes) do
-        table.insert(result, att)
-    end
-
-    return result
-end
-
-
-
 
 
 

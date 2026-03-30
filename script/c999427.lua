@@ -50,18 +50,7 @@ function s.cfilter(c,tp)
 end
 
 function s.filter(c,tp)
-    -- To check opponent's monster zone
-    local oppAttributes=Aimer.GetUniqueAttributesByLocation(tp,LOCATION_MZONE|LOCATION_GRAVE,LOCATION_MZONE, function(c) return c:IsFaceup() end, function(c) return c:IsFaceup() end)
-    -- Check if the card is in your opponent's monster zone and has at least one attribute you do not control
-    if c:IsControler(1-tp) and c:IsAbleToRemove() and c:IsFaceup() then
-        local att = c:GetAttribute()
-        for _, uniqueAtt in ipairs(oppAttributes) do
-            if att & uniqueAtt > 0 then
-                return true
-            end
-        end
-    end
-    return false
+ return s.HasDifferentAttributeFromController(tp,c)
 end
 
 --Check for My GY and Fusion Monster
@@ -84,7 +73,18 @@ function s.extrafilter(e,tp,mg)
     return Group.CreateGroup(), s.fcheck -- Return an empty group if no valid cards were found
 end
 
-
+-- Returns true if tc has at least 1 Attribute you do NOT control
+function s.HasDifferentAttributeFromController(tp,tc)
+    local g=Duel.GetMatchingGroup(Card.IsMonster,tp,LOCATION_MZONE,0,nil)
+    local attr=0
+    for sc in aux.Next(g) do
+        attr = attr | sc:GetAttribute()
+    end
+    -- If you control no monsters, allow everything
+    if attr==0 then return true end
+    -- tc must have at least 1 Attribute NOT in your pool
+    return (tc:GetAttribute() & ~attr)~=0
+end
 
 --Remove Materials
 function s.extraop(e,tc,tp,sg)

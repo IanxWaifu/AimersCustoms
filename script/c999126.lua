@@ -172,10 +172,10 @@ function s.pencon(e,tp,eg,ep,ev,re,r,rp)
 	return c:IsPreviousLocation(LOCATION_MZONE) and c:IsFaceup()
 end
 function s.pentg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.CheckLocation(tp,LOCATION_PZONE,0) or Duel.CheckLocation(tp,LOCATION_PZONE,1) end
+	if chk==0 then return Duel.CheckPendulumZones(tp) end
 end
 function s.penop(e,tp,eg,ep,ev,re,r,rp)
-	if not Duel.CheckLocation(tp,LOCATION_PZONE,0) and not Duel.CheckLocation(tp,LOCATION_PZONE,1) then return false end
+	if not Duel.CheckPendulumZones(tp) then return false end
 	local c=e:GetHandler()
 	if c:IsRelateToEffect(e) then
 		Duel.MoveToField(c,tp,tp,LOCATION_PZONE,POS_FACEUP,true)
@@ -187,13 +187,31 @@ function s.selfcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	return c:IsPreviousLocation(LOCATION_PZONE) and c:IsFaceup()
 end
+
 function s.selftg(e,tp,eg,ep,ev,re,r,rp,chk)
-	if chk==0 then return Duel.GetLocationCountFromEx(tp)>0 and e:GetHandler():IsCanBeSpecialSummoned(e,4775,tp,false,false) end
-	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+	local c=e:GetHandler()
+	local loccount
+	if c:IsLocation(LOCATION_EXTRA) then
+		loccount=Duel.GetLocationCountFromEx(tp)
+	else
+		loccount=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	end
+	if chk==0 then return loccount>0 and c:IsCanBeSpecialSummoned(e,4775,tp,false,false)
+	end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,c,1,0,0)
 end
+
 function s.selfop(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetLocationCountFromEx(tp)<=0 then return end
-	if e:GetHandler():IsRelateToEffect(e) then
-		Duel.SpecialSummon(e:GetHandler(),4775,tp,tp,false,false,POS_FACEUP)
+	local c=e:GetHandler()
+	local loccount
+	if c:IsLocation(LOCATION_EXTRA) then
+		loccount=Duel.GetLocationCountFromEx(tp)
+	else
+		loccount=Duel.GetLocationCount(tp,LOCATION_MZONE)
+	end
+	if loccount<=0 then return end
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,4775,tp,tp,false,false,POS_FACEUP)
 	end
 end
+
