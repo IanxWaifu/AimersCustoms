@@ -60,18 +60,21 @@ end
 s.listed_series={SET_GENOSYNX}
 s.listed_names={id}
 
+-- Shared Genosynx activation condition
 function s.genosynx_actcon(e,c)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil)
 	return #g==0 or g:FilterCount(Card.IsSetCard,nil,SET_GENOSYNX)==#g
 end
 
+-- Activation conditions
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return s.genosynx_actcon(e,tp,eg,ep,ev,re,r,rp) and c:IsLocation(LOCATION_SZONE) and c:IsFacedown()
+	return ((c:IsLocation(LOCATION_SZONE) and c:IsFacedown()) or ((c:GetOverlayTarget()~=nil)))
 end
 
 function s.handcon(e,tp,eg,ep,ev,re,r,rp)
-	return s.genosynx_actcon(e,tp,eg,ep,ev,re,r,rp) and e:GetHandler():IsLocation(LOCATION_HAND)
+	local c=e:GetHandler()
+	return c:IsLocation(LOCATION_HAND) or (c:GetOverlayTarget()~=nil)
 end
 
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -107,6 +110,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local rc=re:GetHandler()
 	Duel.Damage(1-tp,500,REASON_EFFECT)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)
@@ -140,16 +144,12 @@ function s.handtg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_SZONE)>1 and Duel.IsExistingMatchingCard(s.settrapfilter,tp,LOCATION_DECK,0,1,nil,ft) end
 	e:SetLabel(2) -- MODE 2: activated from hand -> Set this card in EP
 	Duel.SetOperationInfo(0,CATEGORY_SET,nil,1,tp,LOCATION_DECK)
-	--[[if Duel.IsExistingMatchingCard(s.genomzfilter,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingMatchingCard(s.rmfilter,tp,0,LOCATION_GRAVE,1,nil) then
-		Duel.SetPossibleOperationInfo(0,CATEGORY_REMOVE,nil,1,1-tp,LOCATION_GRAVE)
-	end--]]
 end
 
 function s.handop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
-	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local g=Duel.SelectMatchingCard(tp,s.settrapfilter,tp,LOCATION_DECK,0,1,1,nil,ft)
 	local tc=g:GetFirst()
@@ -157,15 +157,7 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SSet(tp,tc)
 		Duel.ConfirmCards(1-tp,Group.FromCards(tc))
 	end
---[[	if Duel.IsExistingMatchingCard(s.genomzfilter,tp,LOCATION_MZONE,0,1,nil)
-		and Duel.IsExistingMatchingCard(s.rmfilter,tp,0,LOCATION_GRAVE,1,nil)
-		and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
-		Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
-		local rg=Duel.SelectMatchingCard(tp,s.rmfilter,tp,0,LOCATION_GRAVE,1,1,nil)
-		if #rg>0 then
-			Duel.Remove(rg,POS_FACEUP,REASON_EFFECT)
-		end
-	end--]]
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)

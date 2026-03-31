@@ -125,6 +125,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.ChangePosition(tc,0,0,POS_FACEDOWN_DEFENSE,POS_FACEUP_DEFENSE)
 		end
 	end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)
@@ -152,7 +153,7 @@ end
 function s.handop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	local ft=Duel.GetLocationCount(tp,LOCATION_SZONE)
-	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 or Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SET)
 	local g=Duel.SelectMatchingCard(tp,s.settrapfilter,tp,LOCATION_HAND|LOCATION_GRAVE|LOCATION_REMOVED,0,1,1,nil,ft)
 	local tc=g:GetFirst()
@@ -165,6 +166,7 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 				and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
 				Duel.Draw(tp,1,REASON_EFFECT)
 			end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)

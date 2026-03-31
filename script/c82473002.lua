@@ -116,18 +116,14 @@ end
 
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	local ft=0
-	if c:IsLocation(LOCATION_HAND) or c:IsLocation(LOCATION_SZONE) then ft=ft+1 end
-	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>ft and Duel.IsExistingMatchingCard(s.ssfilter,tp,LOCATION_HAND|LOCATION_GRAVE,0,1,nil,e,tp) end
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0 and Duel.IsExistingMatchingCard(s.ssfilter,tp,LOCATION_HAND|LOCATION_GRAVE,0,1,nil,e,tp) end
 	e:SetLabel(1) -- MODE 1: activated while Set -> return this card to hand in EP
 	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,nil,1,tp,LOCATION_HAND|LOCATION_GRAVE)
 end
 
 function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	local ft=0
-	if c:IsLocation(LOCATION_SZONE) then ft=ft+1 end
-	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=ft then return end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SPSUMMON)
 	local g=Duel.SelectMatchingCard(tp,s.ssfilter,tp,LOCATION_HAND|LOCATION_GRAVE,0,1,1,nil,e,tp)
 	local tc=g:GetFirst()
@@ -163,6 +159,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.SpecialSummon(tc,0,tp,tp,true,true,POS_FACEUP)
 		end
 	end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)
@@ -211,6 +208,7 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 	e3:SetTarget(s.splimit)
 	e3:SetReset(RESET_PHASE|PHASE_END,2)
 	Duel.RegisterEffect(e3,tp)
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)

@@ -64,7 +64,7 @@ function s.spretop(e,tp,eg,ep,ev,re,r,rp)
         Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
         local dg=g:Select(tp,1,1,nil)
 		Duel.HintSelection(dg)
-        Duel.Remove(g,POS_FACEUP,REASON_EFFECT)
+        Duel.Remove(dg,POS_FACEUP,REASON_EFFECT)
     end
 end
 

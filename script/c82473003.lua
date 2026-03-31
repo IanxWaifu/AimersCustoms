@@ -60,18 +60,21 @@ end
 s.listed_series={SET_GENOSYNX}
 s.listed_names={id}
 
+-- Shared Genosynx activation condition
 function s.genosynx_actcon(e,c)
 	local g=Duel.GetMatchingGroup(Card.IsFaceup,e:GetHandlerPlayer(),LOCATION_MZONE,0,nil)
 	return #g==0 or g:FilterCount(Card.IsSetCard,nil,SET_GENOSYNX)==#g
 end
 
+-- Activation conditions
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	return s.genosynx_actcon(e,tp,eg,ep,ev,re,r,rp) and c:IsLocation(LOCATION_SZONE) and c:IsFacedown()
+	return ((c:IsLocation(LOCATION_SZONE) and c:IsFacedown()) or ((c:GetOverlayTarget()~=nil)))
 end
 
 function s.handcon(e,tp,eg,ep,ev,re,r,rp)
-	return s.genosynx_actcon(e,tp,eg,ep,ev,re,r,rp) and e:GetHandler():IsLocation(LOCATION_HAND)
+	local c=e:GetHandler()
+	return c:IsLocation(LOCATION_HAND) or (c:GetOverlayTarget()~=nil)
 end
 
 function s.setcost(e,tp,eg,ep,ev,re,r,rp,chk)
@@ -110,6 +113,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 		and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
 		Duel.Destroy(rc,REASON_EFFECT)
 	end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)
@@ -153,6 +157,7 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 			end
 		end
 	end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)

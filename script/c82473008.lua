@@ -46,8 +46,8 @@ end
 function s.cfilter(c)
 	return c:IsSetCard(SET_GENOSYNX) and c:IsTrap()
 end
-function s.ovfilter(c,tp,lc)
-	return c:IsFaceup() and c:IsSetCard(SET_GENOSYNX,lc,SUMMON_TYPE_XYZ,tp) and c:IsType(TYPE_XYZ)
+function s.ovfilter(c,tp)
+	return c:IsFaceup() and c:IsSetCard(SET_GENOSYNX) and c:IsType(TYPE_XYZ) and c:IsControler(tp)
 end
 
 function s.xyzop(e,tp,chk,mc)
@@ -137,14 +137,14 @@ function s.thcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local rmg=Duel.IsExistingMatchingCard(s.mfilter,tp,LOCATION_MZONE,LOCATION_MZONE,1,e:GetHandler())
 	local rsg=Duel.IsExistingMatchingCard(s.sfilter,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,nil)
 	local opt=0
-	if chk==0 then return (mgmon and rmg) or (mgst and rsg) end
-	if (mgmon and rmg) and (mgst and rsg) then
+	if chk==0 then return (#mgmon>0 and rmg) or (#mgst>0 and rsg) end
+	if (#mgmon>0 and rmg) and (#mgst>0 and rsg) then
 		opt=Duel.SelectOption(tp,aux.Stringid(id,4),aux.Stringid(id,5))
 		e:SetLabel(opt)
-	elseif (mgmon and rmg) then
+	elseif (#mgmon>0 and rmg) then
 		opt=Duel.SelectOption(tp,aux.Stringid(id,4))
 		e:SetLabel(opt)
-	elseif (mgst and rsg) then
+	elseif (#mgst>0 and rsg) then
 		opt=Duel.SelectOption(tp,aux.Stringid(id,5))+1
 		e:SetLabel(opt)
 	else return end		

@@ -118,6 +118,7 @@ function s.setop(e,tp,eg,ep,ev,re,r,rp)
 	if tc and tc:IsRelateToEffect(e) then
 		Duel.SendtoHand(tc,nil,REASON_EFFECT)
 	end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)
@@ -142,6 +143,7 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SendtoHand(g,nil,REASON_EFFECT)
 		Duel.ConfirmCards(1-tp,g)
 	end
+	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end
 	s.trapmonster(e,tp)
@@ -176,7 +178,6 @@ function s.epop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
 	if not c:IsRelateToEffect(e) then return end
 	local mode=c:GetFlagEffectLabel(id)
-
 	-- Activated while Set -> return to hand
 	if mode==1 then
 		Duel.SendtoHand(c,nil,REASON_EFFECT)
