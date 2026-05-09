@@ -93,7 +93,7 @@ function s.tgop(e,tp,eg,ep,ev,re,r,rp)
     local b1=tc:IsAbleToGrave()
     local b2=Duel.IsExistingMatchingCard(s.xyzfilter,tp,LOCATION_MZONE,0,1,nil)
     if b1 and b2 then
-        local op=Duel.SelectOption(tp,aux.Stringid(id,2),aux.Stringid(id,3))
+        local op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
         if op==0 then
             Duel.SendtoGrave(tc,REASON_EFFECT)
         else

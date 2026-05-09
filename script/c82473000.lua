@@ -161,11 +161,6 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 		Duel.SSet(tp,tc)
 		Duel.ConfirmCards(1-tp,Group.FromCards(tc))
 	end
-	if Duel.IsExistingMatchingCard(s.genomzfilter,tp,LOCATION_MZONE,0,1,nil)
-				and Duel.IsPlayerCanDraw(tp,1)
-				and Duel.SelectYesNo(tp,aux.Stringid(id,2)) then
-				Duel.Draw(tp,1,REASON_EFFECT)
-			end
 	if Duel.GetLocationCount(tp,LOCATION_MZONE)<=0 then return end
 	local exc=(c:GetOriginalCode()==id) and c or nil
 	if exc==nil then return end

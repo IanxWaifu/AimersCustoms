@@ -75,7 +75,7 @@ end
 
 --Special Proc
 function s.spcfilter(c)
-	return c:IsSetCard(SET_GENOSYNX) and (c:IsType(TYPE_TRAP) or (c:IsType(TYPE_SPIRIT) and c:IsMonster())) and c:IsFaceup() and c:IsAbleToDeckOrExtraAsCost() and aux.SpElimFilter(c,true,true)
+	return (c:IsSetCard(SET_GENOSYNX) and c:IsType(TYPE_TRAP) or (c:IsType(TYPE_SPIRIT) and c:IsMonster())) and c:IsFaceup() and c:IsAbleToDeckOrExtraAsCost() and aux.SpElimFilter(c,true,true)
 end
 function s.spcon(e,c)
 	if c==nil then return true end

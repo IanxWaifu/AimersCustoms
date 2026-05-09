@@ -45,7 +45,7 @@ function s.initial_effect(c)
 		ge1:SetOperation(s.checkop)
 		Duel.RegisterEffect(ge1,0)
 	end)
-
+	Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.counterfilter)
 end
 
 s.listed_series={SET_GENOSYNX}
@@ -57,6 +57,10 @@ function s.checkop(e,tp,eg,ep,ev,re,r,rp)
 			Duel.RegisterFlagEffect(tc:GetControler(),id,RESET_PHASE|PHASE_END,0,1)
 		end
 	end
+end
+
+function s.counterfilter(c)
+	return c:IsSetCard(SET_GENOSYNX) or c:IsType(TYPE_SPIRIT)
 end
 
 function s.splimit(e,se,sp,st)
@@ -74,11 +78,23 @@ end
 function s.regturnop(e,tp,eg,ep,ev,re,r,rp)
 	e:GetHandler():RegisterFlagEffect(id,RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END,0,1)
 end
-
 function s.qcost(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
-	if chk==0 then return c:IsReleasable() end
+	if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 and c:IsReleasable() end
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_FIELD)
+	e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
+	e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+	e1:SetReset(RESET_PHASE|PHASE_END)
+	e1:SetTargetRange(1,0)
+	e1:SetLabelObject(e)
+	e1:SetTarget(s.splimit2)
+	Duel.RegisterEffect(e1,tp)
+	aux.RegisterClientHint(c,nil,tp,1,0,aux.Stringid(id,3),nil)
 	Duel.Release(c,REASON_COST)
+end
+function s.splimit2(e,c,sump,sumtype,sumpos,targetp,se)
+	return not c:IsSetCard(SET_GENOSYNX) and not c:IsType(TYPE_SPIRIT)
 end
 
 -- Spirit / Trap filters stay basically the same
