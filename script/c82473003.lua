@@ -148,7 +148,7 @@ function s.handop(e,tp,eg,ep,ev,re,r,rp)
 		local g=Duel.SelectMatchingCard(tp,s.sendfilter,tp,LOCATION_DECK,0,1,1,nil)
 		if #g>0 then
 			Duel.SendtoGrave(g,REASON_EFFECT)
-			if Duel.IsExistingMatchingCard(s.genomzfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.rmfilter,tp,0,LOCATION_GRAVE,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,1)) then
+			if Duel.IsExistingMatchingCard(s.genomzfilter,tp,LOCATION_MZONE,0,1,nil) and Duel.IsExistingMatchingCard(s.rmfilter,tp,0,LOCATION_GRAVE,1,nil) and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
 				local rg=Duel.SelectMatchingCard(tp,s.rmfilter,tp,0,LOCATION_GRAVE,1,1,nil)
 				if #rg>0 then

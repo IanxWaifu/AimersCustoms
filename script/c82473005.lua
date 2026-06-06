@@ -94,7 +94,7 @@ end
 
 -- -------- Set-route: non-target “choose 1 monster”, apply banish-leave + EP send (REASON_RULE) --------
 function s.monfilter(c)
-	return c:IsFaceup() and c:IsMonster()
+	return c:IsMonster()
 end
 
 function s.settg(e,tp,eg,ep,ev,re,r,rp,chk)

@@ -10,20 +10,57 @@ function s.initial_effect(c)
     extrafil=s.extragroup,
     extraop=s.extraop,
     matfilter=s.matfilter,
-    location=LOCATION_HAND|LOCATION_DECK,
+    location=LOCATION_HAND|LOCATION_DECK|LOCATION_STZONE,
     forcedselection=s.ritcheck}
     local e1=Effect.CreateEffect(c)
     e1:SetDescription(aux.Stringid(id,0))
     e1:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_REMOVE)
     e1:SetType(EFFECT_TYPE_ACTIVATE)
     e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetCost(s.actcost)
     e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
     e1:SetTarget(s.target(Ritual.Target(rparams),Ritual.Operation(rparams)))
     e1:SetOperation(s.operation(Ritual.Target(rparams),Ritual.Operation(rparams)))
     c:RegisterEffect(e1)
+    -- Activity Counter for Special Summons
+    Duel.AddCustomActivityCounter(id,ACTIVITY_SPSUMMON,s.spsumfilter)
 end
 
+s.listed_names={id}
 s.listed_series={SET_KYOSHIN}
+s.ritualmatidlist=
+{   [68295149] = true,
+    [87054946] = true,
+    [73898890] = true}
+
+--Limit Check
+function s.spsumfilter(c)
+    if not c:IsSummonLocation(LOCATION_EXTRA) then return true end
+    local mt=c:GetMetatable()
+    return c:IsSetCard(SET_KYOSHIN) or (mt and mt.ritual_material_required and mt.ritual_material_required>=1)
+end
+
+-- Cost
+function s.actcost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.GetCustomActivityCount(id,tp,ACTIVITY_SPSUMMON)==0 end
+    -- Extra Deck Restriction
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET+EFFECT_FLAG_OATH)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE+PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+    aux.RegisterClientHint(e:GetHandler(),nil,tp,1,0,aux.Stringid(id,2),nil)
+end
+
+function s.splimit(e,c)
+    if not c:IsLocation(LOCATION_EXTRA) then return false end
+    local mt=c:GetMetatable()
+    local code=c:GetCode()
+    return not (c:IsSetCard(SET_KYOSHIN) or (mt and mt.ritual_material_required and mt.ritual_material_required>=1) or s.ritualmatidlist[code])
+end
 
 --Ritual Summon
 function s.rspfilter(c)

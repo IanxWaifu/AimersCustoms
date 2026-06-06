@@ -67,6 +67,8 @@ function s.retfilter(c,tp,codes)
 end
 
 function s.sendcheck(sg,e,tp)
+    if not aux.dncheck(sg) then return false end
+
     local codes={}
     for c in aux.Next(sg) do
         codes[c:GetCode()]=true
@@ -75,9 +77,9 @@ function s.sendcheck(sg,e,tp)
     return #g>=#sg
 end
 
-
 function s.acost(e,tp,eg,ep,ev,re,r,rp,chk)
     local g=Duel.GetMatchingGroup(s.sendfilter,tp,LOCATION_STZONE,0,nil)
+
     if chk==0 then
         return aux.SelectUnselectGroup(g,e,tp,1,#g,s.sendcheck,0,tp)
     end

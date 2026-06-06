@@ -9,18 +9,22 @@ function s.initial_effect(c)
 	--Place to field
 	local e1=Effect.CreateEffect(c)
 	e1:SetDescription(aux.Stringid(id,0))
-	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e1:SetCode(EVENT_CHAIN_SOLVED)
+	e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_O)
+	e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+	e1:SetProperty(EFFECT_FLAG_DELAY)
 	e1:SetRange(LOCATION_MZONE)
+	e1:SetCountLimit(1,id)
 	e1:SetCondition(s.tfcon)
+	e1:SetTarget(s.tftg)
 	e1:SetOperation(s.tfop)
 	c:RegisterEffect(e1)
-	--Check if this card was used as Ritual Material
 	local e2=Effect.CreateEffect(c)
-	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
-	e2:SetCode(EVENT_CHAIN_SOLVED)
-	e2:SetRange(LOCATION_ALL)
+	e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+	e2:SetCode(EVENT_BE_MATERIAL)
+	e2:SetProperty(EFFECT_FLAG_DELAY)
+	e2:SetCountLimit(1,id)
 	e2:SetCondition(s.matcon)
+	e2:SetTarget(s.tftg)
 	e2:SetOperation(s.tfop)
 	c:RegisterEffect(e2)
 	--be spsummon
@@ -50,23 +54,14 @@ s.listed_series={SET_KYOSHIN}
 s.ritual_material_required=1
 
 --Check if the resolved chain Special Summoned a Ritual Monster
-function s.cfilter(c)
-	return c:IsSummonType(SUMMON_TYPE_SPECIAL)
-		and c:IsType(TYPE_RITUAL)
-		and c:IsLocation(LOCATION_MZONE)
-		--[[and c:IsSummonPlayer(tp)--]]
-end
 function s.tfcon(e,tp,eg,ep,ev,re,r,rp)
-	if Duel.GetFlagEffect(tp,id)>1 then return false end
-	if not re then return false end
-	local g=Duel.GetOperatedGroup()
-	return g:IsExists(s.cfilter,1,nil)
+	return eg:IsExists(Card.IsType,1,nil,TYPE_RITUAL)
 end
+
 
 -- Disable when this card was used as Ritual Material
 function s.matcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    if Duel.GetFlagEffect(tp,id)>1 then return false end
     if not re then return false end
     if not (c:IsReason(REASON_MATERIAL) and c:IsReason(REASON_RITUAL)) then return false end
     return c:IsLocation(LOCATION_GRAVE) or c:IsLocation(LOCATION_REMOVED)
@@ -74,12 +69,15 @@ function s.matcon(e,tp,eg,ep,ev,re,r,rp)
 end
 
 function s.tffilter(c,tp)
-	return not c:IsForbidden() and c:ListsArchetype(SET_KYOSHIN) and (c:IsType(TYPE_FIELD) or (c:IsType(TYPE_CONTINUOUS) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0))
+	return not c:IsForbidden() and c:ListsArchetype(SET_KYOSHIN) and (c:IsType(TYPE_FIELD) or (c:IsType(TYPE_CONTINUOUS) and Duel.GetLocationCount(tp,LOCATION_SZONE)>0)) and c:CheckUniqueOnField(tp)
+end
+
+function s.tftg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.IsExistingMatchingCard(s.tffilter,tp,LOCATION_DECK,0,1,nil,tp) end
 end
 function s.tfop(e,tp,eg,ep,ev,re,r,rp)
-    if Duel.GetFlagEffect(tp,id)<1 and Duel.IsExistingMatchingCard(s.tffilter,tp,LOCATION_DECK,0,1,nil,tp) and Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
-    Duel.Hint(HINT_CARD,0,id)
-    Duel.RegisterFlagEffect(tp,id,RESET_PHASE+PHASE_END,0,1)
+	if Duel.GetLocationCount(tp,LOCATION_SZONE)<=0 then return end
+	Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOFIELD)
 	local g=Duel.SelectMatchingCard(tp,s.tffilter,tp,LOCATION_DECK,0,1,1,nil,tp)
 	if #g>0 then
 		local tc=g:GetFirst()
@@ -87,7 +85,6 @@ function s.tfop(e,tp,eg,ep,ev,re,r,rp)
 		    Duel.ActivateFieldSpell(tc,e,tp,eg,ep,ev,re,r,rp)
 		else
 		    Duel.MoveToField(tc,tp,tp,LOCATION_SZONE,POS_FACEUP,true)
-		end
  		end
 	end
 end
@@ -99,7 +96,7 @@ function s.regcon(e,tp,eg,ep,ev,re,r,rp)
 end
 function s.regop(e,tp,eg,ep,ev,re,r,rp)
 	local c=e:GetHandler()
-	c:RegisterFlagEffect(id,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET+RESET_PHASE+PHASE_END,0,1)
+	c:RegisterFlagEffect(id,RESET_EVENT+RESET_TODECK|RESET_TOHAND|RESET_TURN_SET+RESET_PHASE+PHASE_END,0,1)
 end
 
 function s.effcon(e,tp,eg,ep,ev,re,r,rp)
