@@ -92,14 +92,14 @@ function s.novalxonfilter(c,col)
     return c:IsSetCard(SET_NOVALXON) and col:IsContains(c)
 end
 function s.rmcost(e,tp,eg,ep,ev,re,r,rp,chk)
-    if chk==0 then return e:GetHandler():IsAbleToRemove() and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler()) end
+    if chk==0 then return e:GetHandler():IsAbleToRemoveAsCost() and Duel.IsExistingMatchingCard(s.rmfilter,tp,LOCATION_GRAVE,0,1,e:GetHandler()) end
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_REMOVE)
     local g=Duel.SelectMatchingCard(tp,s.rmfilter,tp,LOCATION_GRAVE,0,1,1,e:GetHandler())
     g:AddCard(e:GetHandler())
     Duel.Remove(g,POS_FACEUP,REASON_COST)
 end
 function s.rmfilter(c)
-    return c:IsSetCard(SET_NOVALXON) and c:IsAbleToRemove()
+    return c:IsSetCard(SET_NOVALXON) and c:IsAbleToRemoveAsCost()
 end
 function s.rmtg(e,tp,eg,ep,ev,re,r,rp,chk)
     if chk==0 then return eg:GetFirst():IsAbleToRemove() end
