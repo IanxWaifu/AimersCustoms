@@ -49,7 +49,7 @@ end
 --Be Material
 function s.spcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    return c:GetReasonCard():IsSetCard(SET_SYLVESTRIE) and (c:IsLocation(LOCATION_GRAVE) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup())) and c:IsPreviousLocation(LOCATION_ONFIELD)
+    return c:GetReasonCard():IsSetCard(SET_SYLVESTRIE) and (c:IsLocation(LOCATION_GRAVE) or (c:IsLocation(LOCATION_REMOVED) and c:IsFaceup()))
 end
 
 --Target

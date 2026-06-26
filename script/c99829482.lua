@@ -54,7 +54,7 @@ end
 --Be Material
 function s.setcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    return (c:IsFaceup() or c:IsLocation(LOCATION_HAND)) and c:GetReasonCard():IsSetCard(SET_SYLVESTRIE) and c:IsPreviousLocation(LOCATION_ONFIELD)
+    return (c:IsFaceup() or c:IsLocation(LOCATION_HAND)) and c:GetReasonCard():IsSetCard(SET_SYLVESTRIE)
 end
 
 --Set S/T from Deck

@@ -136,7 +136,7 @@ end
 --Be Material
 function s.matcon(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
-    return (c:IsFaceup() or c:IsLocation(LOCATION_HAND)) and c:GetReasonCard():IsSetCard(SET_SYLVESTRIE) and c:IsPreviousLocation(LOCATION_ONFIELD)
+    return (c:IsFaceup() or c:IsLocation(LOCATION_HAND)) and c:GetReasonCard():IsSetCard(SET_SYLVESTRIE)
 end
 function s.spfilter(c,e,tp)
 	return c:IsSetCard(SET_SYLVESTRIE) and not c:IsCode(id) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
